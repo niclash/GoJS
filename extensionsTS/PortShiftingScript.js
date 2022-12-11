@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,21 +7,22 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go", "./Figures", "./PortShiftingTool"], factory);
+        define(["require", "exports", "../release/go.js", "./Figures.js", "./PortShiftingTool.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.load = exports.save = exports.init = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
-    require("./Figures");
-    var PortShiftingTool_1 = require("./PortShiftingTool");
+    var go = require("../release/go.js");
+    require("./Figures.js");
+    var PortShiftingTool_js_1 = require("./PortShiftingTool.js");
     var red = 'orangered'; // 0 or false
     var green = 'forestgreen'; // 1 or true
     var myDiagram;
@@ -36,7 +37,7 @@
                 'undoManager.isEnabled': true
             });
         // install the PortShiftingTool as a "mouse move" tool
-        myDiagram.toolManager.mouseMoveTools.insertAt(0, new PortShiftingTool_1.PortShiftingTool());
+        myDiagram.toolManager.mouseMoveTools.insertAt(0, new PortShiftingTool_js_1.PortShiftingTool());
         // when the document is modified, add a "*" to the title and enable the "Save" button
         myDiagram.addDiagramListener('Modified', function (e) {
             var button = document.getElementById('saveModel');
@@ -49,7 +50,7 @@
             }
             else {
                 if (idx >= 0)
-                    document.title = document.title.substr(0, idx);
+                    document.title = document.title.slice(0, idx);
             }
         });
         var palette = new go.Palette('palette'); // create a new Palette in the HTML DIV element "palette"

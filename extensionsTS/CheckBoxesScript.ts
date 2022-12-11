@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 export function init() {
   if ((window as any).goSamples) (window as any).goSamples();  // init for these samples -- you don't need to call this
@@ -104,16 +104,10 @@ export function init() {
 
   // create the model data that will be represented by Nodes and Links
   myDiagram.model =
-    $(go.GraphLinksModel,
+    new go.GraphLinksModel(
       {
         copiesArrays: true,
         copiesArrayObjects: true,
-        'Changed': function (e: go.ChangedEvent) {
-          if (e.isTransactionFinished) {
-            const elt = document.getElementById('mySavedModel');
-            if (elt !== null) elt.textContent = myDiagram.model.toJson();
-          }
-        },
         nodeDataArray:
           [
             {
@@ -145,7 +139,14 @@ export function init() {
             { from: 'Gamma', to: 'Delta' },
             { from: 'Delta', to: 'Alpha' }
           ]
-      });
+      }).addChangedListener(
+        function (e: go.ChangedEvent) {
+          if (e.isTransactionFinished) {
+            const elt = document.getElementById('mySavedModel');
+            if (elt !== null) elt.textContent = myDiagram.model.toJson();
+          }
+        }
+      );
 
   // Attach to the window for console manipulation
   (window as any).myDiagram = myDiagram;

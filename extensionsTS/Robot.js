@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,19 +7,20 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Robot = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * A class for simulating mouse and keyboard input.
      *
@@ -29,7 +30,7 @@
      * Although {@link InputEvent#targetDiagram} is a real property,
      * the `sourceDiagram` property is only used by these Robot methods.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/Robot.html">Simulating Input</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/Robot.html">Simulating Input</a> sample.
      * @category Extension
      */
     var Robot = /** @class */ (function () {
@@ -54,7 +55,7 @@
                     throw new Error('Robot.diagram must be a Diagram, not: ' + val);
                 this._diagram = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**

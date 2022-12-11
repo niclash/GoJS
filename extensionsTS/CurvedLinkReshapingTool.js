@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,25 +22,26 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.CurvedLinkReshapingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * This CurvedLinkReshapingTool class allows for a {@link Link}'s path to be modified by the user
      * via the dragging of a single tool handle at the middle of the link.
      * Dragging the handle changes the value of {@link Link#curviness}.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/CurvedLinkReshaping.html">Curved Link Reshaping</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/CurvedLinkReshaping.html">Curved Link Reshaping</a> sample.
      * @category Tool Extension
      */
     var CurvedLinkReshapingTool = /** @class */ (function (_super) {
@@ -57,9 +60,11 @@ var __extends = (this && this.__extends) || (function () {
                 var adornment = new go.Adornment();
                 adornment.type = go.Panel.Link;
                 var h = this.makeHandle(pathshape, 0);
-                this.setReshapingBehavior(h, go.LinkReshapingTool.All);
-                h.cursor = 'move';
-                adornment.add(h);
+                if (h !== null) {
+                    this.setReshapingBehavior(h, go.LinkReshapingTool.All);
+                    h.cursor = 'move';
+                    adornment.add(h);
+                }
                 adornment.category = this.name;
                 adornment.adornedObject = pathshape;
                 return adornment;

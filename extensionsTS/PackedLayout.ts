@@ -1,18 +1,17 @@
-'use strict';
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { Quadtree } from './Quadtree';
+import * as go from '../release/go.js';
+import { Quadtree } from './Quadtree.js';
 
 /**
  * @hidden @internal
@@ -523,11 +522,12 @@ export class PackedLayout extends go.Layout {
    * @this {PackedLayout}
    * @param {Diagram|Group|Iterable.<Part>} coll A {@link Diagram} or a {@link Group} or a collection of {@link Part}s.
    */
-  public doLayout(coll: go.Diagram | go.Group | go.Iterable<go.Part>) {
+  public override doLayout(coll: go.Diagram | go.Group | go.Iterable<go.Part>) {
     const diagram = this.diagram;
     if (diagram !== null) diagram.startTransaction('Layout');
     this._bounds = new go.Rect();
     this._enclosingCircle = null;
+    this._fixedSizeModeSpacing = 0;
 
     // push all nodes in parts iterator to an array for easy sorting
     const it = this.collectParts(coll).iterator;
@@ -676,7 +676,7 @@ export class PackedLayout extends go.Layout {
    * @expose
    * @this {PackedLayout}
    */
-  public commitLayout(): void {}
+  public override commitLayout(): void {}
 
   /**
    * @hidden @internal
@@ -719,7 +719,7 @@ export class PackedLayout extends go.Layout {
 
     const aspect = this._eAspectRatio;
     const shape = this.packShape;
-    const placementCost = this.placementCost;
+
     function score(n: ListNode<go.Rect>) {
       const a = n.data;
       const b = n.next.data;
@@ -738,33 +738,32 @@ export class PackedLayout extends go.Layout {
 
     if (!nodes.length) return fits;
 
-    let n1: go.Rect | ListNode<go.Rect> = nodes[0].actualBounds.copy().inflate(sideSpacing, sideSpacing);
-    n1.setTo(0, 0, n1.width === 0 ? 0.1 : n1.width, n1.height === 0 ? 0.1 : n1.height);
-    fits.push(n1.setTo(0, 0, n1.width, n1.height));
-    this._bounds.unionRect(n1);
+    let r1: go.Rect = nodes[0].actualBounds.copy().inflate(sideSpacing, sideSpacing);
+    r1.setTo(0, 0, r1.width === 0 ? 0.1 : r1.width, r1.height === 0 ? 0.1 : r1.height);
+    fits.push(r1.setTo(0, 0, r1.width, r1.height));
+    this._bounds.unionRect(r1);
     if (nodes.length < 2) return fits;
 
-    let n2: go.Rect | ListNode<go.Rect> = nodes[1].actualBounds.copy().inflate(sideSpacing, sideSpacing);
-    n2.setTo(0, 0, n2.width === 0 ? 0.1 : n2.width, n2.height === 0 ? 0.1 : n2.height);
-    fits.push(n2.setTo(-n2.width, n1.centerY - n2.width / 2, n2.width, n2.height));
-    this._bounds.unionRect(n2);
+    let r2: go.Rect = nodes[1].actualBounds.copy().inflate(sideSpacing, sideSpacing);
+    r2.setTo(0, 0, r2.width === 0 ? 0.1 : r2.width, r2.height === 0 ? 0.1 : r2.height);
+    fits.push(r2.setTo(-r2.width, r1.centerY - r2.width / 2, r2.width, r2.height));
+    this._bounds.unionRect(r2);
     if (nodes.length < 3) return fits;
 
-    let n3: go.Rect | ListNode<go.Rect> = nodes[2].actualBounds.copy().inflate(sideSpacing, sideSpacing);
-    n3.setTo(0, 0, n3.width === 0 ? 0.1 : n3.width, n3.height === 0 ? 0.1 : n3.height);
-    fits.push(place(n2, n1, n3));
-    this._bounds.unionRect(n3);
+    let r3: go.Rect = nodes[2].actualBounds.copy().inflate(sideSpacing, sideSpacing);
+    r3.setTo(0, 0, r3.width === 0 ? 0.1 : r3.width, r3.height === 0 ? 0.1 : r3.height);
+    fits.push(place(r2, r1, r3));
+    this._bounds.unionRect(r3);
 
 
-
-    n2 = frontChain.push(n2);
-    n3 = frontChain.push(n3);
-    n1 = frontChain.push(n1);
+    let n2: ListNode<go.Rect> = frontChain.push(r2);
+    let n3: ListNode<go.Rect> = frontChain.push(r3);
+    let n1: ListNode<go.Rect> = frontChain.push(r1);
 
     pack: for (let i = 3; i < nodes.length; i++) {
-      n3 = nodes[i].actualBounds.copy().inflate(sideSpacing, sideSpacing);
-      n3.setTo(0, 0, n3.width === 0 ? 0.1 : n3.width, n3.height === 0 ? 0.1 : n3.height);
-      place(n1.data, n2.data, n3);
+      r3 = nodes[i].actualBounds.copy().inflate(sideSpacing, sideSpacing);
+      r3.setTo(0, 0, r3.width === 0 ? 0.1 : r3.width, r3.height === 0 ? 0.1 : r3.height);
+      place(n1.data, n2.data, r3);
 
       let j = n2.next;
       let k = n1.prev;
@@ -772,13 +771,13 @@ export class PackedLayout extends go.Layout {
       let sk = n1.data.width / 2;
       do {
         if (sj <= sk) {
-          if (intersects(j.data, n3)) {
+          if (intersects(j.data, r3)) {
             n2 = frontChain.removeBetween(n1, j), i--;
             continue pack;
           }
           sj += j.data.width / 2, j = j.next;
         } else {
-          if (intersects(k.data, n3)) {
+          if (intersects(k.data, r3)) {
             frontChain.removeBetween(k, n2);
             n1 = k, i--;
             continue pack;
@@ -787,10 +786,10 @@ export class PackedLayout extends go.Layout {
         }
       } while (j !== k.next);
 
-      fits.push(n3);
-      this._bounds.unionRect(n3);
+      fits.push(r3);
+      this._bounds.unionRect(r3);
 
-      n2 = n3 = frontChain.insertAfter(n3, n1);
+      n2 = n3 = frontChain.insertAfter(r3, n1);
 
       if (this.packShape !== PackedLayout.Spiral) {
         let aa = score(n1);
@@ -1673,7 +1672,7 @@ export class PackedLayout extends go.Layout {
    * @this {PackedLayout}
    * @param {?} copy
    */
-  public cloneProtected(copy: this): void {
+  public override cloneProtected(copy: this): void {
     copy._packShape = this._packShape;
     copy._packMode = this._packMode;
     copy._sortMode = this._sortMode;

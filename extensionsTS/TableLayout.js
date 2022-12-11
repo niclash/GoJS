@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,19 +22,20 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.TableLayout = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * This {@link Layout} positions non-Link Parts into a table according to the values of
      * {@link GraphObject#row}, {@link GraphObject#column}, {@link GraphObject#rowSpan}, {@link GraphObject#columnSpan},
@@ -54,7 +57,7 @@ var __extends = (this && this.__extends) || (function () {
      * nor background ({@link RowColumnDefinition#background} and {@link RowColumnDefinition#coversSeparators} properties).
      * There is no support for {@link RowColumnDefinition#sizing}, either.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/Table.html">Table Layout</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/Table.html">Table Layout</a> sample.
      * @category Layout Extension
      */
     var TableLayout = /** @class */ (function (_super) {
@@ -76,7 +79,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._defaultAlignment; },
             set: function (val) { this._defaultAlignment = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TableLayout.prototype, "defaultStretch", {
@@ -88,7 +91,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._defaultStretch; },
             set: function (val) { this._defaultStretch = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TableLayout.prototype, "rowCount", {
@@ -97,7 +100,7 @@ var __extends = (this && this.__extends) || (function () {
              * This value is only valid after the layout has been performed.
              */
             get: function () { return this._rowDefs.length; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(TableLayout.prototype, "columnCount", {
@@ -106,7 +109,7 @@ var __extends = (this && this.__extends) || (function () {
              * This value is only valid after the layout has been performed.
              */
             get: function () { return this._colDefs.length; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -370,14 +373,14 @@ var __extends = (this && this.__extends) || (function () {
                     continue;
                 lcol = rowcol[i].length; // column length in this row
                 var rowHerald = this.getRowDefinition(i);
-                rowHerald.actual = 0; // Reset rows (only on first pass)
+                rowHerald.measured = 0; // Reset rows (only on first pass)
                 for (var j = 0; j < lcol; j++) {
                     // foreach column j in row i...
                     if (!rowcol[i][j])
                         continue;
                     var colHerald = this.getColumnDefinition(j);
                     if (resetCols[j] === undefined) { // make sure we only reset these once
-                        colHerald.actual = 0;
+                        colHerald.measured = 0;
                         resetCols[j] = true;
                     }
                     var cell = rowcol[i][j];
@@ -425,13 +428,14 @@ var __extends = (this && this.__extends) || (function () {
                         var mwidth = Math.max(m.width + margw, 0);
                         var mheight = Math.max(m.height + margh, 0);
                         //  Make sure the heralds have the right layout size
-                        //    the row/column should use the largest meausured size of any
+                        //    the row/column should use the largest measured size of any
                         //    GraphObject contained, constrained by mins and maxes
                         if (child.rowSpan === 1 && (realheight || stretch === go.GraphObject.None || stretch === go.GraphObject.Horizontal)) {
                             var def = this.getRowDefinition(i);
                             amt = Math.max(mheight - def.actual, 0);
                             if (amt > rowleft)
                                 amt = rowleft;
+                            def.measured = def.measured + amt;
                             def.actual = def.actual + amt;
                             rowleft = Math.max(rowleft - amt, 0);
                         }
@@ -440,6 +444,7 @@ var __extends = (this && this.__extends) || (function () {
                             amt = Math.max(mwidth - def.actual, 0);
                             if (amt > colleft)
                                 amt = colleft;
+                            def.measured = def.measured + amt;
                             def.actual = def.actual + amt;
                             colleft = Math.max(colleft - amt, 0);
                         }
@@ -454,13 +459,13 @@ var __extends = (this && this.__extends) || (function () {
             for (var i = 0; i < l; i++) {
                 if (this._colDefs[i] === undefined)
                     continue;
-                totalColWidth += this.getColumnDefinition(i).actual;
+                totalColWidth += this.getColumnDefinition(i).measured;
             }
             l = this.rowCount;
             for (var i = 0; i < l; i++) {
                 if (this._rowDefs[i] === undefined)
                     continue;
-                totalRowHeight += this.getRowDefinition(i).actual;
+                totalRowHeight += this.getRowDefinition(i).measured;
             }
             colleft = Math.max(width - totalColWidth, 0);
             rowleft = Math.max(height - totalRowHeight, 0);
@@ -477,13 +482,13 @@ var __extends = (this && this.__extends) || (function () {
                 var marg = child.margin;
                 var margw = marg.right + marg.left;
                 var margh = marg.top + marg.bottom;
-                if (colHerald.actual === 0 && nosizeCols[child.column] !== undefined) {
+                if (colHerald.measured === 0 && nosizeCols[child.column] !== undefined) {
                     nosizeCols[child.column] = Math.max(mb.width + margw, nosizeCols[child.column]);
                 }
                 else {
                     nosizeCols[child.column] = null; // obey the column herald
                 }
-                if (rowHerald.actual === 0 && nosizeRows[child.row] !== undefined) {
+                if (rowHerald.measured === 0 && nosizeRows[child.row] !== undefined) {
                     nosizeRows[child.row] = Math.max(mb.height + margh, nosizeRows[child.row]);
                 }
                 else {
@@ -576,10 +581,12 @@ var __extends = (this && this.__extends) || (function () {
                 var oldAmount = 0.0;
                 oldAmount = rowHerald.actual;
                 rowHerald.actual = Math.max(rowHerald.actual, mheight);
+                rowHerald.measured = Math.max(rowHerald.measured, mheight);
                 amt = rowHerald.actual - oldAmount;
                 rowleft = Math.max(rowleft - amt, 0);
                 oldAmount = colHerald.actual;
                 colHerald.actual = Math.max(colHerald.actual, mwidth);
+                colHerald.measured = Math.max(colHerald.measured, mwidth);
                 amt = colHerald.actual - oldAmount;
                 colleft = Math.max(colleft - amt, 0);
             } // end no fixed size objects
@@ -746,7 +753,6 @@ var __extends = (this && this.__extends) || (function () {
          * @hidden @internal
          */
         TableLayout.prototype.arrangeTable = function (children, union, rowcol) {
-            var l = children.length;
             var originx = this.arrangementOrigin.x;
             var originy = this.arrangementOrigin.y;
             var x = 0.0;
@@ -758,6 +764,22 @@ var __extends = (this && this.__extends) || (function () {
                     continue;
                 lcol = Math.max(lcol, rowcol[i].length); // column length in this row
             }
+            var firstRow = 0;
+            var firstColumn = 0;
+            var ll = this.columnCount;
+            for (var i = 0; i < ll; i++) {
+                if (this._colDefs[i] === undefined)
+                    continue;
+                firstColumn = i;
+                break;
+            }
+            ll = this.rowCount;
+            for (var i = 0; i < ll; i++) {
+                if (this._rowDefs[i] === undefined)
+                    continue;
+                firstRow = i;
+                break;
+            }
             var additionalSpan = new go.Size();
             // Find cell space and arrange objects:
             for (var i = 0; i < lrow; i++) {
@@ -765,13 +787,13 @@ var __extends = (this && this.__extends) || (function () {
                     continue;
                 lcol = rowcol[i].length; // column length in this row
                 var rowHerald = this.getRowDefinition(i);
-                y = originy + rowHerald.position + rowHerald.computeEffectiveSpacingTop();
+                y = originy + rowHerald.position + rowHerald.computeEffectiveSpacingTop(firstRow);
                 for (var j = 0; j < lcol; j++) {
                     // foreach column j in row i...
                     if (!rowcol[i][j])
                         continue;
                     var colHerald = this.getColumnDefinition(j);
-                    x = originx + colHerald.position + colHerald.computeEffectiveSpacingTop();
+                    x = originx + colHerald.position + colHerald.computeEffectiveSpacingTop(firstColumn);
                     var cell = rowcol[i][j];
                     var len = cell.length;
                     for (var k = 0; k < len; k++) {
@@ -803,17 +825,6 @@ var __extends = (this && this.__extends) || (function () {
                         ar.y = y;
                         ar.width = colwidth;
                         ar.height = rowheight;
-                        // Also keep them for clip values
-                        var cellx = x;
-                        var celly = y;
-                        var cellw = colwidth;
-                        var cellh = rowheight;
-                        // Ending rows/col might have actual spaces that are larger than the remaining space
-                        // Modify them for clipping regions
-                        if (x + colwidth > union.width)
-                            cellw = Math.max(union.width - x, 0);
-                        if (y + rowheight > union.height)
-                            cellh = Math.max(union.height - y, 0);
                         // Construct alignment:
                         var align = child.alignment;
                         var alignx = 0.0;

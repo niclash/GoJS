@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,29 +7,30 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go", "./PolylineLinkingTool"], factory);
+        define(["require", "exports", "../release/go.js", "./PolylineLinkingTool.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.load = exports.save = exports.init = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
-    var PolylineLinkingTool_1 = require("./PolylineLinkingTool");
+    var go = require("../release/go.js");
+    var PolylineLinkingTool_js_1 = require("./PolylineLinkingTool.js");
     var myDiagram;
     function init() {
         if (window.goSamples)
             window.goSamples(); // init for these samples -- you don't need to call this
         var $ = go.GraphObject.make;
         myDiagram =
-            $(go.Diagram, 'myDiagramDiv');
+            $(go.Diagram, 'myDiagramDiv', { "undoManager.isEnabled": true });
         // install custom linking tool, defined in PolylineLinkingTool.js
-        var tool = new PolylineLinkingTool_1.PolylineLinkingTool();
+        var tool = new PolylineLinkingTool_js_1.PolylineLinkingTool();
         // tool.temporaryLink.routing = go.Link.Orthogonal;  // optional, but need to keep link template in sync, below
         myDiagram.toolManager.linkingTool = tool;
         myDiagram.nodeTemplate =
@@ -51,14 +52,12 @@
     exports.init = init;
     // save a model to and load a model from Json text, displayed below the Diagram
     function save() {
-        var str = myDiagram.model.toJson();
-        document.getElementById('mySavedModel').value = str;
+        document.getElementById('mySavedModel').value = myDiagram.model.toJson();
+        myDiagram.isModified = false;
     }
     exports.save = save;
     function load() {
-        var str = document.getElementById('mySavedModel').value;
-        myDiagram.model = go.Model.fromJson(str);
-        myDiagram.model.undoManager.isEnabled = true;
+        myDiagram.model = go.Model.fromJson(document.getElementById('mySavedModel').value);
     }
     exports.load = load;
 });

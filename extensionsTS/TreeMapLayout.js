@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,23 +22,24 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.TreeMapLayout = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * A custom {@link Layout} that lays out hierarchical data using nested rectangles.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/TreeMap.html">Tree Map Layout</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/TreeMap.html">Tree Map Layout</a> sample.
      * @category Layout Extension
      */
     var TreeMapLayout = /** @class */ (function (_super) {
@@ -57,7 +60,7 @@ var __extends = (this && this.__extends) || (function () {
                     this.invalidateLayout();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -101,16 +104,16 @@ var __extends = (this && this.__extends) || (function () {
             var gx = x;
             var gy = y;
             var lay = this;
-            tops.each(function (n) {
-                var tot = n.data.total;
+            tops.each(function (part) {
+                var tot = part.data.total;
                 if (horiz) {
                     var pw = w * tot / total;
-                    lay.layoutNode(!horiz, n, gx, gy, pw, h);
+                    lay.layoutNode(!horiz, part, gx, gy, pw, h);
                     gx += pw;
                 }
                 else {
                     var ph = h * tot / total;
-                    lay.layoutNode(!horiz, n, gx, gy, w, ph);
+                    lay.layoutNode(!horiz, part, gx, gy, w, ph);
                     gy += ph;
                 }
             });
@@ -118,11 +121,11 @@ var __extends = (this && this.__extends) || (function () {
         /**
          * @hidden @internal
          */
-        TreeMapLayout.prototype.layoutNode = function (horiz, n, x, y, w, h) {
-            n.position = new go.Point(x, y);
-            n.desiredSize = new go.Size(w, h);
-            if (n instanceof go.Group) {
-                var g = n;
+        TreeMapLayout.prototype.layoutNode = function (horiz, part, x, y, w, h) {
+            part.moveTo(x, y);
+            part.desiredSize = new go.Size(w, h);
+            if (part instanceof go.Group) {
+                var g = part;
                 var total_1 = g.data.total;
                 var gx_1 = x;
                 var gy_1 = y;

@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,19 +22,20 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.FishboneLink = exports.FishboneLayout = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * FishboneLayout is a custom {@link Layout} derived from {@link TreeLayout} for creating "fishbone" diagrams.
      * A fishbone diagram also requires a {@link Link} class that implements custom routing, {@link FishboneLink}.
@@ -42,7 +45,7 @@ var __extends = (this && this.__extends) || (function () {
      * This layout assumes Links are automatically routed in the way needed by fishbone diagrams,
      * by using the FishboneLink class instead of go.Link.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/Fishbone.html">Fishbone Layout</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/Fishbone.html">Fishbone Layout</a> sample.
      * @category Layout Extension
      */
     var FishboneLayout = /** @class */ (function (_super) {
@@ -74,7 +77,7 @@ var __extends = (this && this.__extends) || (function () {
             var net = _super.prototype.makeNetwork.call(this, coll);
             // make a copy of the collection of TreeVertexes
             // because we will be modifying the TreeNetwork.vertexes collection in the loop
-            var verts = new go.List().addAll(net.vertexes);
+            var verts = new go.List().addAll(net.vertexes.iterator);
             verts.each(function (v) {
                 // ignore leaves of tree
                 if (v.destinationEdges.count === 0)
@@ -133,16 +136,16 @@ var __extends = (this && this.__extends) || (function () {
                 var v = e.fromVertex;
                 var w = e.toVertex;
                 if (v.angle === 0) {
-                    link.fromSpot = go.Spot.MiddleLeft;
+                    link.fromSpot = go.Spot.Left;
                 }
                 else if (v.angle === 180) {
-                    link.fromSpot = go.Spot.MiddleRight;
+                    link.fromSpot = go.Spot.Right;
                 }
                 if (w.angle === 0) {
-                    link.toSpot = go.Spot.MiddleLeft;
+                    link.toSpot = go.Spot.Left;
                 }
                 else if (w.angle === 180) {
-                    link.toSpot = go.Spot.MiddleRight;
+                    link.toSpot = go.Spot.Right;
                 }
             });
             // move the parent node to the location of the last dummy
@@ -272,6 +275,7 @@ var __extends = (this && this.__extends) || (function () {
         function FishboneLink() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
+        FishboneLink.prototype.computeAdjusting = function () { return this.adjusting; };
         /**
          * Determines the points for this link based on spots and maintains horizontal lines.
          */
@@ -279,7 +283,7 @@ var __extends = (this && this.__extends) || (function () {
             var result = _super.prototype.computePoints.call(this);
             if (result) {
                 // insert middle point to maintain horizontal lines
-                if (this.fromSpot.equals(go.Spot.MiddleRight) || this.fromSpot.equals(go.Spot.MiddleLeft)) {
+                if (this.fromSpot.equals(go.Spot.Right) || this.fromSpot.equals(go.Spot.Left)) {
                     var p1 = void 0;
                     // deal with root node being on the "wrong" side
                     var fromnode = this.fromNode;
@@ -288,14 +292,14 @@ var __extends = (this && this.__extends) || (function () {
                         // pretend the link is coming from the opposite direction than the declared FromSpot
                         var fromctr = fromport.getDocumentPoint(go.Spot.Center);
                         var fromfar = fromctr.copy();
-                        fromfar.x += (this.fromSpot.equals(go.Spot.MiddleLeft) ? 99999 : -99999);
+                        fromfar.x += (this.fromSpot.equals(go.Spot.Left) ? 99999 : -99999);
                         p1 = this.getLinkPointFromPoint(fromnode, fromport, fromctr, fromfar, true).copy();
                         // update the route points
                         this.setPoint(0, p1);
                         var endseg = this.fromEndSegmentLength;
                         if (isNaN(endseg))
                             endseg = fromport.fromEndSegmentLength;
-                        p1.x += (this.fromSpot.equals(go.Spot.MiddleLeft)) ? endseg : -endseg;
+                        p1.x += (this.fromSpot.equals(go.Spot.Left)) ? endseg : -endseg;
                         this.setPoint(1, p1);
                     }
                     else {
@@ -306,17 +310,17 @@ var __extends = (this && this.__extends) || (function () {
                     if (tonode !== null && toport !== null) {
                         var toctr = toport.getDocumentPoint(go.Spot.Center);
                         var far = toctr.copy();
-                        far.x += (this.fromSpot.equals(go.Spot.MiddleLeft)) ? -99999 / 2 : 99999 / 2;
+                        far.x += (this.fromSpot.equals(go.Spot.Left)) ? -99999 / 2 : 99999 / 2;
                         far.y += (toctr.y < p1.y) ? 99999 : -99999;
                         var p2 = this.getLinkPointFromPoint(tonode, toport, toctr, far, false);
                         this.setPoint(2, p2);
                         var dx = Math.abs(p2.y - p1.y) / 2;
-                        if (this.fromSpot.equals(go.Spot.MiddleLeft))
+                        if (this.fromSpot.equals(go.Spot.Left))
                             dx = -dx;
                         this.insertPoint(2, new go.Point(p2.x + dx, p1.y));
                     }
                 }
-                else if (this.toSpot.equals(go.Spot.MiddleRight) || this.toSpot.equals(go.Spot.MiddleLeft)) {
+                else if (this.toSpot.equals(go.Spot.Right) || this.toSpot.equals(go.Spot.Left)) {
                     var p1 = this.getPoint(1); // points 1 & 2 should be OK already
                     var fromnode = this.fromNode;
                     var fromport = this.fromPort;
@@ -324,12 +328,12 @@ var __extends = (this && this.__extends) || (function () {
                         var parentlink = fromnode.findLinksInto().first();
                         var fromctr = fromport.getDocumentPoint(go.Spot.Center);
                         var far = fromctr.copy();
-                        far.x += (parentlink !== null && parentlink.fromSpot.equals(go.Spot.MiddleLeft)) ? -99999 / 2 : 99999 / 2;
+                        far.x += (parentlink !== null && parentlink.fromSpot.equals(go.Spot.Left)) ? -99999 / 2 : 99999 / 2;
                         far.y += (fromctr.y < p1.y) ? 99999 : -99999;
                         var p0 = this.getLinkPointFromPoint(fromnode, fromport, fromctr, far, true);
                         this.setPoint(0, p0);
                         var dx = Math.abs(p1.y - p0.y) / 2;
-                        if (parentlink !== null && parentlink.fromSpot.equals(go.Spot.MiddleLeft))
+                        if (parentlink !== null && parentlink.fromSpot.equals(go.Spot.Left))
                             dx = -dx;
                         this.insertPoint(1, new go.Point(p0.x + dx, p1.y));
                     }

@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,19 +7,20 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ZoomSlider = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * This class implements a zoom slider for GoJS diagrams.
      * The constructor takes two arguments:
@@ -57,7 +58,7 @@
      * <p class="box">
      * The diagram div's parent element should use `position: relative` to ensure the slider gets positioned properly.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/ZoomSlider.html">Zoom Slider</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/ZoomSlider.html">Zoom Slider</a> sample.
      * @category Extension
      */
     var ZoomSlider = /** @class */ (function () {
@@ -79,6 +80,10 @@
             this._initialScale = diagram.scale;
             this._diagramDiv = diagram.div;
             this._sliderDiv = null;
+            this._zoomSliderOut = null;
+            this._zoomSliderIn = null;
+            this._zoomSliderRange = null;
+            this._zoomSliderRangeCtn = null;
             // Set properties based on options
             if (options !== undefined) {
                 if (options.size !== undefined)
@@ -104,7 +109,7 @@
              * This read-only property returns the diagram for which the slider is handling zoom.
              */
             get: function () { return this._diagram; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ZoomSlider.prototype, "size", {
@@ -120,7 +125,7 @@
                     this.resize();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ZoomSlider.prototype, "buttonSize", {
@@ -136,7 +141,7 @@
                     this.resize();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ZoomSlider.prototype, "alignment", {
@@ -152,7 +157,7 @@
                     this.realign();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ZoomSlider.prototype, "alignmentFocus", {
@@ -168,7 +173,7 @@
                     this.realign();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ZoomSlider.prototype, "orientation", {
@@ -188,7 +193,7 @@
                     this.resize(true);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(ZoomSlider.prototype, "opacity", {
@@ -206,7 +211,7 @@
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -229,25 +234,27 @@
             this._sliderDiv.className = 'zoomSlider';
             // Initialize buttons and range input
             var zoomOutBtn = document.createElement('button');
-            zoomOutBtn.id = 'zoomSliderOut';
+            this._zoomSliderOut = zoomOutBtn;
             zoomOutBtn.className = 'zoomButton';
             zoomOutBtn.innerHTML = '-';
+            zoomOutBtn.type = 'button';
             this._sliderDiv.appendChild(zoomOutBtn);
             var zoomRangeContainer = document.createElement('div');
-            zoomRangeContainer.id = 'zoomSliderRangeCtn';
+            this._zoomSliderRangeCtn = zoomRangeContainer;
             zoomRangeContainer.className = 'zoomRangeContainer';
             this._sliderDiv.appendChild(zoomRangeContainer);
             var zoomRangeInput = document.createElement('input');
-            zoomRangeInput.id = 'zoomSliderRange';
+            this._zoomSliderRange = zoomRangeInput;
             zoomRangeInput.className = 'zoomRangeInput';
             zoomRangeInput.type = 'range';
             zoomRangeInput.min = '-50';
             zoomRangeInput.max = '100';
             zoomRangeContainer.appendChild(zoomRangeInput);
             var zoomInBtn = document.createElement('button');
-            zoomInBtn.id = 'zoomSliderIn';
+            this._zoomSliderIn = zoomInBtn;
             zoomInBtn.className = 'zoomButton';
             zoomInBtn.innerHTML = '+';
+            zoomInBtn.type = 'button';
             this._sliderDiv.appendChild(zoomInBtn);
             // Adds the slider as a sibling of the diagram
             // IMPORTANT: the diagram div's parent element should use position: relative
@@ -264,9 +271,9 @@
          * Add a diagram listener.
          */
         ZoomSlider.prototype.sliderListenerSetup = function () {
-            var zoomOutBtn = document.getElementById('zoomSliderOut');
-            var zoomInBtn = document.getElementById('zoomSliderIn');
-            var zoomRangeInput = document.getElementById('zoomSliderRange');
+            var zoomOutBtn = this._zoomSliderOut;
+            var zoomInBtn = this._zoomSliderIn;
+            var zoomRangeInput = this._zoomSliderRange;
             if (zoomOutBtn === null || zoomInBtn === null || zoomRangeInput === null)
                 return;
             // Set up diagram listener so the slider can be kept in sync with the diagram's scale
@@ -295,10 +302,10 @@
         ZoomSlider.prototype.resize = function (reorient) {
             var sliderWidth = 0;
             var sliderHeight = 0;
-            var zoomOutBtn = document.getElementById('zoomSliderOut');
-            var zoomInBtn = document.getElementById('zoomSliderIn');
-            var zoomRangeContainer = document.getElementById('zoomSliderRangeCtn');
-            var zoomRangeInput = document.getElementById('zoomSliderRange');
+            var zoomOutBtn = this._zoomSliderOut;
+            var zoomInBtn = this._zoomSliderIn;
+            var zoomRangeContainer = this._zoomSliderRangeCtn;
+            var zoomRangeInput = this._zoomSliderRange;
             if (this._sliderDiv === null || zoomOutBtn === null || zoomInBtn === null ||
                 zoomRangeContainer === null || zoomRangeInput === null)
                 return;
@@ -312,7 +319,7 @@
                 zoomRangeContainer.style.height = sliderHeight + 'px';
                 zoomRangeInput.style.width = rangeWidth + 'px';
                 zoomRangeInput.style.height = sliderHeight + 'px';
-                zoomRangeInput.style.transformOrigin = null;
+                zoomRangeInput.style.transformOrigin = '';
                 zoomInBtn.style.width = sliderHeight + 'px';
                 zoomInBtn.style.height = sliderHeight + 'px';
             }
@@ -344,14 +351,14 @@
          * Reorient the slider, changing the transform and the order of the buttons within the div.
          */
         ZoomSlider.prototype.reorient = function () {
-            var zoomOutBtn = document.getElementById('zoomSliderOut');
-            var zoomInBtn = document.getElementById('zoomSliderIn');
-            var zoomRangeInput = document.getElementById('zoomSliderRange');
+            var zoomOutBtn = this._zoomSliderOut;
+            var zoomInBtn = this._zoomSliderIn;
+            var zoomRangeInput = this._zoomSliderRange;
             if (this._sliderDiv === null || zoomOutBtn === null || zoomInBtn === null || zoomRangeInput === null)
                 return;
             // Need to set the transform of the range input and move the buttons to the correct sides
             if (this.orientation === 'horizontal') {
-                zoomRangeInput.style.transform = null;
+                zoomRangeInput.style.transform = '';
                 this._sliderDiv.insertBefore(zoomOutBtn, this._sliderDiv.firstChild);
                 this._sliderDiv.appendChild(zoomInBtn);
             }
@@ -398,7 +405,9 @@
          * Update the value of the slider input to match the diagram's scale.
          */
         ZoomSlider.prototype.scaleToValue = function () {
-            var slider = document.getElementById('zoomSliderRange');
+            var slider = this._zoomSliderRange;
+            if (slider === null)
+                return;
             var diagram = this.diagram;
             var A = this._initialScale;
             var B = diagram.commandHandler.zoomFactor;
@@ -410,7 +419,9 @@
          * Update the diagram's scale to match the value of the slider input.
          */
         ZoomSlider.prototype.valueToScale = function () {
-            var slider = document.getElementById('zoomSliderRange');
+            var slider = this._zoomSliderRange;
+            if (slider === null)
+                return;
             var diagram = this.diagram;
             var x = parseFloat(slider.value);
             var A = this._initialScale;

@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,21 +7,21 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go", "./FishboneLayout", "./FishboneLayout"], factory);
+        define(["require", "exports", "../release/go.js", "./FishboneLayout.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.layoutNormal = exports.layoutBranching = exports.layoutFishbone = exports.init = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
-    var FishboneLayout_1 = require("./FishboneLayout");
-    var FishboneLayout_2 = require("./FishboneLayout");
+    var go = require("../release/go.js");
+    var FishboneLayout_js_1 = require("./FishboneLayout.js");
     var myDiagram;
     function init() {
         if (window.goSamples)
@@ -32,7 +32,7 @@
             { isReadOnly: true }); // do not allow the user to modify the diagram
         // define the normal node template, just some text
         myDiagram.nodeTemplate =
-            $(go.Node, 'Auto', $(go.TextBlock, new go.Binding('text'), new go.Binding('font', '', convertFont)));
+            $(go.Node, $(go.TextBlock, new go.Binding('text'), new go.Binding('font', '', convertFont)));
         function convertFont(data) {
             var size = data.size;
             if (size === undefined)
@@ -48,7 +48,7 @@
         // define the non-fishbone link template
         myDiagram.linkTemplateMap.add('normal', $(go.Link, { routing: go.Link.Orthogonal, corner: 4 }, $(go.Shape)));
         // use this link template for fishbone layouts
-        myDiagram.linkTemplateMap.add('fishbone', $(FishboneLayout_2.FishboneLink, // defined above
+        myDiagram.linkTemplateMap.add('fishbone', $(FishboneLayout_js_1.FishboneLink, // defined above
         $(go.Shape)));
         // here is the structured data used to build the model
         var json = {
@@ -162,7 +162,7 @@
     function layoutFishbone() {
         myDiagram.startTransaction('fishbone layout');
         myDiagram.linkTemplate = myDiagram.linkTemplateMap.getValue('fishbone');
-        myDiagram.layout = go.GraphObject.make(FishboneLayout_1.FishboneLayout, {
+        myDiagram.layout = go.GraphObject.make(FishboneLayout_js_1.FishboneLayout, {
             angle: 180,
             layerSpacing: 10,
             nodeSpacing: 20,

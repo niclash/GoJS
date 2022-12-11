@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Tool for freehand drawing
@@ -9,7 +9,7 @@
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -191,7 +191,7 @@ FreehandDrawingTool.prototype.doMouseUp = function() {
 * Gets or sets the Shape that is used to hold the line as it is being drawn.
 * The default value is a simple Shape drawing an unfilled open thin black line.
 * @name FreehandDrawingTool#temporaryShape
-* @function.
+
 * @return {Shape}
 */
 Object.defineProperty(FreehandDrawingTool.prototype, "temporaryShape", {
@@ -211,7 +211,7 @@ Object.defineProperty(FreehandDrawingTool.prototype, "temporaryShape", {
 * Gets or sets the node data object that is copied and added to the model
 * when the freehand drawing operation completes.
 * @name FreehandDrawingTool#archetypePartData
-* @function.
+
 * @return {Object}
 */
 Object.defineProperty(FreehandDrawingTool.prototype, "archetypePartData", {
@@ -224,7 +224,7 @@ Object.defineProperty(FreehandDrawingTool.prototype, "archetypePartData", {
 * rather than on top of an existing Part.
 * The default value is true.
 * @name FreehandDrawingTool#isBackgroundOnly
-* @function.
+
 * @return {Object}
 */
 Object.defineProperty(FreehandDrawingTool.prototype, "isBackgroundOnly", {

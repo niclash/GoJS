@@ -1,22 +1,22 @@
 ﻿/*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * This custom {@link Link} class customizes its route to go parallel to other links connecting the same ports,
  * if the link is not orthogonal and is not Bezier curved.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/ParallelRoute.html">Parallel Route Links</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/ParallelRoute.html">Parallel Route Links</a> sample.
  * @category Part Extension
  */
 export class ParallelRouteLink extends go.Link {
@@ -24,7 +24,7 @@ export class ParallelRouteLink extends go.Link {
    * Constructs the link's route by modifying {@link #points}.
    * @return {boolean} true if it computed a route of points
    */
-  public computePoints(): boolean {
+  public override computePoints(): boolean {
     const result = super.computePoints();
     if (!this.isOrthogonal && this.curve !== go.Link.Bezier && this.hasCurviness()) {
       const curv = this.computeCurviness();

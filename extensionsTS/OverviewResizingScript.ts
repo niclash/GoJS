@@ -1,17 +1,17 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { OverviewResizingTool } from './OverviewResizingTool';
+import * as go from '../release/go.js';
+import { OverviewResizingTool } from './OverviewResizingTool.js';
 
 let myDiagram: go.Diagram;
 
@@ -71,14 +71,13 @@ export function init() {
   ]);
 
   // Overview
-  const myOverview =
-    $(go.Overview, 'myOverviewDiv',  // the HTML DIV element for the Overview
-      {
-        observed: myDiagram,
-        contentAlignment: go.Spot.Center,
-        'box.resizable': true,
-        'resizingTool': new OverviewResizingTool()
-      });
+  $(go.Overview, 'myOverviewDiv',  // the HTML DIV element for the Overview
+    {
+      observed: myDiagram,
+      contentAlignment: go.Spot.Center,
+      'box.resizable': true,
+      'resizingTool': new OverviewResizingTool()
+    });
 
   (document.getElementById('zoomToFit') as HTMLElement).addEventListener('click', function() {
     myDiagram.zoomToFit();

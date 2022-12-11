@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 1998-2019 by Northwoods Software Corporation
+ * Copyright (C) 1998-2022 by Northwoods Software Corporation
  * All Rights Reserved.
  *
  * FLOOR PLANNER - WALL BUILDING TOOL
@@ -7,8 +7,8 @@
  */
 
 import * as go from '../../../release/go';
-import { Floorplan } from './Floorplan';
-import { WallReshapingTool } from './WallReshapingTool';
+import { Floorplan } from './Floorplan.js';
+import { WallReshapingTool } from './WallReshapingTool.js';
 
 export class WallBuildingTool extends go.Tool {
 

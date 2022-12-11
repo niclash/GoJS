@@ -1,21 +1,20 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import './Figures';
-import { SnapLinkReshapingTool } from './SnapLinkReshapingTool';
+import * as go from '../release/go.js';
+import './Figures.js';
+import { SnapLinkReshapingTool } from './SnapLinkReshapingTool.js';
 
 let myDiagram: go.Diagram;
-let myPalette: go.Diagram;
 
 export function init() {
   if ((window as any).goSamples) (window as any).goSamples();  // init for these samples -- you don't need to call this
@@ -49,7 +48,7 @@ export function init() {
     if (myDiagram.isModified) {
       if (idx < 0) document.title += '*';
     } else {
-      if (idx >= 0) document.title = document.title.substr(0, idx);
+      if (idx >= 0) document.title = document.title.slice(0, idx);
     }
   });
 
@@ -146,20 +145,19 @@ export function init() {
   if (link) link.isSelected = true;
 
   // initialize the Palette that is on the left side of the page
-  myPalette =
-    $(go.Palette, 'myPaletteDiv',  // must name or refer to the DIV HTML element
-      {
-        maxSelectionCount: 1,
-        nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
-        model: new go.GraphLinksModel([  // specify the contents of the Palette
-          { text: 'Start', figure: 'Circle', fill: 'green' },
-          { text: 'Step' },
-          { text: 'DB', figure: 'Database', fill: 'lightgray' },
-          { text: '???', figure: 'Diamond', fill: 'lightskyblue' },
-          { text: 'End', figure: 'Circle', fill: 'red' },
-          { text: 'Comment', figure: 'RoundedRectangle', fill: 'lightyellow' }
-        ])
-      });
+  $(go.Palette, 'myPaletteDiv',  // must name or refer to the DIV HTML element
+    {
+      maxSelectionCount: 1,
+      nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
+      model: new go.GraphLinksModel([  // specify the contents of the Palette
+        { text: 'Start', figure: 'Circle', fill: 'green' },
+        { text: 'Step' },
+        { text: 'DB', figure: 'Database', fill: 'lightgray' },
+        { text: '???', figure: 'Diamond', fill: 'lightskyblue' },
+        { text: 'End', figure: 'Circle', fill: 'red' },
+        { text: 'Comment', figure: 'RoundedRectangle', fill: 'lightyellow' }
+      ])
+    });
 }
 
 
@@ -182,4 +180,9 @@ function loadDiagramProperties() {
   // set Diagram.initialPosition, not Diagram.position, to handle initialization side-effects
   const pos = (myDiagram.model.modelData as any).position;
   if (pos) myDiagram.initialPosition = go.Point.parse(pos);
+}
+
+export function toggleAvoidsNodes(e: MouseEvent) {
+  const tool = myDiagram.toolManager.linkReshapingTool as SnapLinkReshapingTool;
+  if (tool !== null) tool.avoidsNodes = (e.target as HTMLInputElement).checked;
 }

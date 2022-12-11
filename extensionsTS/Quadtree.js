@@ -4,15 +4,19 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
-    'use strict';
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Quadtree = void 0;
     /*
-    *  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+    *  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
     */
-    var go_1 = require("../release/go");
+    var go = require("../release/go.js");
+    /**
+     * @hidden @internal
+     */
     var QuadNode = /** @class */ (function () {
         function QuadNode(bounds, parent, level) {
             this.objects = [];
@@ -24,14 +28,14 @@
             this.level = level;
         }
         QuadNode.prototype.split = function () {
-            var subWidth = this.bounds.width / 2;
-            var subHeight = this.bounds.height / 2;
+            var w2 = this.bounds.width / 2;
+            var h2 = this.bounds.height / 2;
             var x = this.bounds.x;
             var y = this.bounds.y;
-            this.nodes[0] = new QuadNode(new go_1.Rect(x + subWidth, y, subWidth, subHeight), this, this.level + 1);
-            this.nodes[1] = new QuadNode(new go_1.Rect(x, y, subWidth, subHeight), this, this.level + 1);
-            this.nodes[2] = new QuadNode(new go_1.Rect(x, y + subHeight, subWidth, subHeight), this, this.level + 1);
-            this.nodes[3] = new QuadNode(new go_1.Rect(x + subWidth, y + subHeight, subWidth, subHeight), this, this.level + 1);
+            this.nodes[0] = new QuadNode(new go.Rect(x + w2, y, w2, h2), this, this.level + 1);
+            this.nodes[1] = new QuadNode(new go.Rect(x, y, w2, h2), this, this.level + 1);
+            this.nodes[2] = new QuadNode(new go.Rect(x, y + h2, w2, h2), this, this.level + 1);
+            this.nodes[3] = new QuadNode(new go.Rect(x + w2, y + h2, w2, h2), this, this.level + 1);
         };
         QuadNode.prototype.clear = function () {
             this.treeObjects = [];
@@ -48,16 +52,17 @@
         return QuadNode;
     }());
     /**
+     * @internal @hidden
      * Object to be contained by the {@link Quadtree} class. This object needs
      * to have rectangular bounds (described by an {@link Rect} object), as well
      * as something (of any type) associated with it.
      */
-    var TreeObject = /** @class */ (function () {
-        function TreeObject(bounds, obj) {
+    var QuadObj = /** @class */ (function () {
+        function QuadObj(bounds, obj) {
             this.bounds = bounds;
             this.obj = obj;
         }
-        return TreeObject;
+        return QuadObj;
     }());
     /**
      * Implementation of the quadtree data structure using the {@link Rect} class.
@@ -90,7 +95,7 @@
         function Quadtree(nodeCapacity, maxLevel, bounds) {
             /** @hidden @internal */ this._nodeCapacity = 1;
             /** @hidden @internal */ this._maxLevels = Infinity;
-            /** @hidden @internal */ this._treeObjectMap = new go_1.Map();
+            /** @hidden @internal */ this._treeObjectMap = new go.Map();
             // we can avoid unnecessary work when adding objects if there are no objects with 0 width or height.
             // Note that after being set to true, these flags are not ever set again to false, even if all objects
             // with zero width/height are removed (assumption was made that this should almost never matter)
@@ -103,7 +108,7 @@
                 this._maxLevels = maxLevel;
             }
             if (bounds === undefined) {
-                bounds = new go_1.Rect();
+                bounds = new go.Rect();
             }
             this._root = new QuadNode(bounds, null, 0);
         }
@@ -112,7 +117,7 @@
              * Gets the node capacity of this quadtree. This is the number of objects a node can contain before it splits.
              */
             get: function () { return this._nodeCapacity; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Quadtree.prototype, "maxLevels", {
@@ -120,7 +125,7 @@
              * Gets the maximum depth the Quadtree will allow before it will no longer split..
              */
             get: function () { return this._maxLevels; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Quadtree.prototype, "bounds", {
@@ -128,7 +133,7 @@
              * Gets the boundaries of the node. All nodes should be square.
              */
             get: function () { return this._root.bounds; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Quadtree.prototype, "root", {
@@ -136,7 +141,7 @@
              * Gets the root node of the tree
              */
             get: function () { return this._root; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -146,6 +151,7 @@
          */
         Quadtree.prototype.clear = function () {
             this._root.clear();
+            this._treeObjectMap.clear();
         };
         /**
          * @hidden @internal
@@ -237,23 +243,23 @@
          */
         Quadtree.prototype.add = function (obj, x, y, w, h) {
             var bounds;
-            if (!(obj instanceof TreeObject) && (x === undefined || x === null)) {
+            if (!(obj instanceof QuadObj) && (x === undefined || x === null)) {
                 throw new Error('Invalid bounds for added object');
             }
-            if (x instanceof go_1.Rect) {
+            if (x instanceof go.Rect) {
                 bounds = x.copy();
             }
             else {
-                bounds = new go_1.Rect(x, y, w, h);
+                bounds = new go.Rect(x, y, w, h);
             }
             var treeObj;
-            if (obj instanceof TreeObject) {
+            if (obj instanceof QuadObj) {
                 treeObj = obj;
                 obj = treeObj.obj;
                 bounds = treeObj.bounds;
             }
             else {
-                treeObj = new TreeObject(bounds, obj);
+                treeObj = new QuadObj(bounds, obj);
             }
             if (isNaN(bounds.x) || bounds.x === Infinity ||
                 isNaN(bounds.y) || bounds.y === Infinity ||
@@ -266,20 +272,20 @@
             // initialize bounds of tree as the max width or height of the first object added
             if (this._root.bounds.width === 0 || this._root.bounds.height === 0) {
                 var len = Math.max(bounds.width, bounds.height);
-                this._root.bounds = new go_1.Rect(bounds.x, bounds.y, len, len);
+                this._root.bounds = new go.Rect(bounds.x, bounds.y, len, len);
             }
             // fixes quadtree having a width and height of 0 if the first object added is a point
             // this will only be called after a second object is added, the new width/height is the maximum distance between them
             if (this._root.bounds !== undefined && (this._root.bounds.width === 0 || this._root.bounds.height === 0)) {
                 var len = Math.max(Math.abs(bounds.x - this._root.bounds.x), Math.abs(bounds.y - this._root.bounds.y));
-                this._root.bounds = new go_1.Rect(Math.min(this._root.bounds.x, bounds.x), Math.min(this._root.bounds.y, bounds.y), len, len);
+                this._root.bounds = new go.Rect(Math.min(this._root.bounds.x, bounds.x), Math.min(this._root.bounds.y, bounds.y), len, len);
             }
-            // map the object to its corresponding TreeObject (so that the bounds of this object can be retrieved later)
+            // map the object to its corresponding QuadObj (so that the bounds of this object can be retrieved later)
             this._treeObjectMap.add(obj, treeObj);
             // grow as many times as necessary to fit the new object
             while (!this._root.bounds.containsRect(bounds)) {
                 var old = this._root;
-                this.walk(this._increaseLevel, old);
+                this.walk(function (n) { return n.level++; }, old);
                 var intersectsTopBound = bounds.y < this._root.bounds.y;
                 var intersectsBottomBound = bounds.y + bounds.height > this._root.bounds.y + this._root.bounds.height;
                 var intersectsRightBound = bounds.x + bounds.width > this._root.bounds.x + this._root.bounds.width;
@@ -291,7 +297,7 @@
                      * |old| 3 |
                      * |___|___|
                      */
-                    var newBounds = new go_1.Rect(this._root.bounds.x, this._root.bounds.y - this._root.bounds.height, this._root.bounds.width * 2, this._root.bounds.height * 2);
+                    var newBounds = new go.Rect(this._root.bounds.x, this._root.bounds.y - this._root.bounds.height, this._root.bounds.width * 2, this._root.bounds.height * 2);
                     this._root = new QuadNode(newBounds, null, 0);
                     this._root.split();
                     this._root.nodes[2] = old;
@@ -310,7 +316,7 @@
                      * | 2 |old|
                      * |___|___|
                      */
-                    var newBounds = new go_1.Rect(this._root.bounds.x - this._root.bounds.width, this._root.bounds.y - this._root.bounds.height, this._root.bounds.width * 2, this._root.bounds.height * 2);
+                    var newBounds = new go.Rect(this._root.bounds.x - this._root.bounds.width, this._root.bounds.y - this._root.bounds.height, this._root.bounds.width * 2, this._root.bounds.height * 2);
                     this._root = new QuadNode(newBounds, null, 0);
                     this._root.split();
                     this._root.nodes[3] = old;
@@ -332,7 +338,7 @@
                      * | 2 | 3 |
                      * |___|___|
                      */
-                    var newBounds = new go_1.Rect(this._root.bounds.x, this._root.bounds.y, this._root.bounds.width * 2, this._root.bounds.height * 2);
+                    var newBounds = new go.Rect(this._root.bounds.x, this._root.bounds.y, this._root.bounds.width * 2, this._root.bounds.height * 2);
                     this._root = new QuadNode(newBounds, null, 0);
                     this._root.split();
                     this._root.nodes[1] = old;
@@ -348,7 +354,7 @@
                      * | 2 | 3 |
                      * |___|___|
                      */
-                    var newBounds = new go_1.Rect(this._root.bounds.x - this._root.bounds.width, this._root.bounds.y, this._root.bounds.width * 2, this._root.bounds.height * 2);
+                    var newBounds = new go.Rect(this._root.bounds.x - this._root.bounds.width, this._root.bounds.y, this._root.bounds.width * 2, this._root.bounds.height * 2);
                     this._root = new QuadNode(newBounds, null, 0);
                     this._root.split();
                     this._root.nodes[0] = old;
@@ -370,7 +376,7 @@
          * on the tree.
          * @this {Quadtree}
          * @param {QuadNode<T>} root the current node being operated on
-         * @param {TreeObject<T>} treeObj the object being added
+         * @param {QuadObj<T>} treeObj the object being added
          * @return {void}
          */
         Quadtree.prototype._addHelper = function (root, treeObj) {
@@ -406,19 +412,6 @@
                     }
                 }
             }
-        };
-        /**
-         * @hidden @internal
-         * Increases the level of the given {@link Quadtree}. Given as an argument
-         * to {@link #walk} in {@link #add} and defined here to
-         * avoid creation of a new function every time {@link #add} is
-         * called.
-         * @this {Quadtree}
-         * @param {QuadNode<T>} n the node to increase the level of
-         * @return {void}
-         */
-        Quadtree.prototype._increaseLevel = function (n) {
-            n.level += 1;
         };
         /**
          * @hidden @internal
@@ -724,7 +717,7 @@
         Quadtree.prototype.move = function (obj, x, y) {
             var treeObj = this._treeObjectMap.get(obj);
             if (treeObj && this.remove(obj)) {
-                if (x instanceof go_1.Point) {
+                if (x instanceof go.Point) {
                     treeObj.bounds.x = x.x;
                     treeObj.bounds.y = x.y;
                 }
@@ -752,7 +745,7 @@
         Quadtree.prototype.resize = function (obj, width, height) {
             var treeObj = this._treeObjectMap.get(obj);
             if (treeObj && this.remove(obj)) {
-                if (width instanceof go_1.Size) {
+                if (width instanceof go.Size) {
                     treeObj.bounds.width = width.width;
                     treeObj.bounds.height = width.height;
                 }
@@ -781,7 +774,7 @@
         Quadtree.prototype.setTo = function (obj, x, y, width, height) {
             var treeObj = this._treeObjectMap.get(obj);
             if (treeObj && this.remove(obj)) {
-                if (x instanceof go_1.Rect) {
+                if (x instanceof go.Rect) {
                     treeObj.bounds.set(x);
                 }
                 else if (y !== undefined && width !== undefined && height !== undefined) {
@@ -805,8 +798,8 @@
          * @return {Array<T>} array containing all intersecting objects
          */
         Quadtree.prototype.intersecting = function (rect) {
-            if (rect instanceof go_1.Point) {
-                rect = new go_1.Rect(rect.x, rect.y, 0, 0);
+            if (rect instanceof go.Point) {
+                rect = new go.Rect(rect.x, rect.y, 0, 0);
             }
             var returnObjects = [];
             this._intersectingHelper(rect, this._root, returnObjects);
@@ -837,44 +830,6 @@
         };
         /**
          * @hidden @internal
-         * Return all TreeObjects that intersect (wholly or partially)
-         * with the given {@link Rect} or {@link Point}. Touching edges
-         * are not considered intersections.
-         * @this {Quadtree}
-         * @param {Rect|Point} rect the Rect or Point to check intersections for. If a point is given, a Rect with size (0, 0) is created for intersection calculations.
-         * @return {Array<TreeObject>} array containing all intersecting TreeObjects
-         */
-        Quadtree.prototype._intersectingTreeObjs = function (rect) {
-            if (rect instanceof go_1.Point) {
-                rect = new go_1.Rect(rect.x, rect.y, 0, 0);
-            }
-            var returnObjects = [];
-            this._intersectingTreeObjsHelper(rect, this._root, returnObjects);
-            return returnObjects;
-        };
-        Quadtree.prototype._intersectingTreeObjsHelper = function (rect, root, returnObjects) {
-            var index = this._getIndex(rect, root);
-            var selected = index === -1 ? null : root.nodes[index];
-            if (selected !== null) {
-                this._intersectingTreeObjsHelper(rect, selected, returnObjects);
-            }
-            else if (root.nodes[0]) {
-                var quadrants = this._getQuadrants(rect, root);
-                for (var _i = 0, quadrants_2 = quadrants; _i < quadrants_2.length; _i++) {
-                    var quadrant = quadrants_2[_i];
-                    var node = root.nodes[quadrant];
-                    this._intersectingTreeObjsHelper(rect, root, returnObjects);
-                }
-            }
-            for (var _a = 0, _b = root.treeObjects; _a < _b.length; _a++) {
-                var obj = _b[_a];
-                if (Quadtree._rectsIntersect(obj.bounds, rect)) {
-                    returnObjects.push(obj);
-                }
-            }
-        };
-        /**
-         * @hidden @internal
          * Similar as {@link Rect.intersectsRect}, but doesn't count edges as intersections.
          * Also accounts for floating error (by returning false more often) up to an error of 1e-7.
          * Used by {@link #intersecting}.
@@ -893,8 +848,8 @@
          * @return {Array<T>} array containing all containing objects
          */
         Quadtree.prototype.containing = function (rect) {
-            if (rect instanceof go_1.Point) {
-                rect = new go_1.Rect(rect.x, rect.y, 0, 0);
+            if (rect instanceof go.Point) {
+                rect = new go.Rect(rect.x, rect.y, 0, 0);
             }
             var returnObjects = [];
             this._containingHelper(rect, this._root, returnObjects);
@@ -908,8 +863,8 @@
             }
             else if (root.nodes[0]) {
                 var quadrants = this._getQuadrants(rect, root);
-                for (var _i = 0, quadrants_3 = quadrants; _i < quadrants_3.length; _i++) {
-                    var quadrant = quadrants_3[_i];
+                for (var _i = 0, quadrants_2 = quadrants; _i < quadrants_2.length; _i++) {
+                    var quadrant = quadrants_2[_i];
                     var node = root.nodes[quadrant];
                     if (node !== null) {
                         this._containingHelper(rect, node, returnObjects);
@@ -922,16 +877,6 @@
                     returnObjects.push(obj.obj);
                 }
             }
-        };
-        /**
-         * A slightly briefer and more semantic sounding way to call {@link #intersecting}. See
-         * {@link #intersecting} for details.
-         * @this {Quadtree}
-         * @param {Point} point the point to check intersections for
-         * @return {Array<T>} array containing all intersecting objects
-         */
-        Quadtree.prototype.at = function (point) {
-            return this.intersecting(point);
         };
         /**
          * Returns the square of the distance from the centers of the given objects
@@ -1009,7 +954,7 @@
          * Recursive helper function for {@link #findExtremeObjects}
          * @this {Quadtree}
          * @param {QuadNode<T>} root the current root node being searched
-         * @return {Array<TreeObject<T>>} maximum and minimum objects in the tree, in the format [min x, max x, min y, max y].
+         * @return {Array<QuadObj<T>>} maximum and minimum objects in the tree, in the format [min x, max x, min y, max y].
          */
         Quadtree.prototype._findExtremeObjectsHelper = function (root) {
             if (root === void 0) { root = this._root; }

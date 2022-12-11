@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,19 +22,20 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.DragZoomingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * The DragZoomingTool lets the user zoom into a diagram by stretching a box
      * to indicate the new contents of the diagram's viewport (the area of the
@@ -63,7 +66,7 @@ var __extends = (this && this.__extends) || (function () {
      * but it does temporarily add the {@link #box} part to the diagram.
      * This tool does not modify the model or conduct any transaction.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/DragZooming.html">Drag Zooming</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/DragZooming.html">Drag Zooming</a> sample.
      * @category Tool Extension
      */
     var DragZoomingTool = /** @class */ (function (_super) {
@@ -103,7 +106,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._box; },
             set: function (val) { this._box = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DragZoomingTool.prototype, "delay", {
@@ -116,7 +119,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._delay; },
             set: function (val) { this._delay = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DragZoomingTool.prototype, "zoomedDiagram", {
@@ -129,7 +132,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._zoomedDiagram; },
             set: function (val) { this._zoomedDiagram = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -181,7 +184,6 @@ var __extends = (this && this.__extends) || (function () {
          * of {@link #computeBoxBounds}.
          */
         DragZoomingTool.prototype.doMouseMove = function () {
-            var diagram = this.diagram;
             if (this.isActive && this.box !== null) {
                 var r = this.computeBoxBounds();
                 var shape = this.box.findObject('SHAPE');

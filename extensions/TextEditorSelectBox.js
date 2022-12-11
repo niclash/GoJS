@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // HTML + JavaScript text editor using an HTML Select Element and HTMLInfo.
@@ -27,6 +27,7 @@
       var op = document.createElement("option");
       op.text = list[i];
       op.value = list[i];
+      if (list[i] === textBlock.text) op.selected = true;
       customSelectBox.add(op, null);
 
       // consider also adding the current value, if it is not in the choices list
@@ -37,15 +38,15 @@
 
     // Do a few different things when a user presses a key
     customSelectBox.addEventListener("keydown", function(e) {
-      var keynum = e.which;
-      if (keynum == 13) { // Accept on Enter
+      var key = e.key;
+      if (key === "Enter") { // Accept on Enter
         tool.acceptText(go.TextEditingTool.Enter);
         return;
-      } else if (keynum == 9) { // Accept on Tab
+      } else if (key === "Tab") { // Accept on Tab
         tool.acceptText(go.TextEditingTool.Tab);
         e.preventDefault();
         return false;
-      } else if (keynum === 27) { // Cancel on Esc
+      } else if (key === "Escape") { // Cancel on Esc
         tool.doCancel();
         if (tool.diagram) tool.diagram.focus();
       }
@@ -58,7 +59,8 @@
     customSelectBox.style.position = 'absolute';
     customSelectBox.style.zIndex = 100; // place it in front of the Diagram
 
-    diagram.div.appendChild(customSelectBox);
+    if (diagram.div !== null) diagram.div.appendChild(customSelectBox);
+    customSelectBox.focus();
   }
 
   customEditor.hide = function(diagram, tool) {

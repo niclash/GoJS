@@ -1,18 +1,18 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { ColumnResizingTool } from './ColumnResizingTool';
-import { RowResizingTool } from './RowResizingTool';
+import * as go from '../release/go.js';
+import { ColumnResizingTool } from './ColumnResizingTool.js';
+import { RowResizingTool } from './RowResizingTool.js';
 
 export function init() {
   if ((window as any).goSamples) (window as any).goSamples();  // init for these samples -- you don't need to call this
@@ -109,12 +109,12 @@ export function init() {
         { fill: '#EEEEEE' }),
       // the content consists of a header and a list of items
       $(go.Panel, 'Vertical',
-        { stretch: go.GraphObject.Horizontal, alignment: go.Spot.TopLeft },
+        { stretch: go.GraphObject.Horizontal, margin: 0.5 },
         // this is the header for the whole node
         $(go.Panel, 'Auto',
           { stretch: go.GraphObject.Horizontal },  // as wide as the whole node
           $(go.Shape,
-            { fill: '#1570A6', stroke: null }),
+            { fill: '#1570A6', strokeWidth: 0 }),
           $(go.TextBlock,
             {
               alignment: go.Spot.Center,
@@ -152,14 +152,10 @@ export function init() {
     );
 
   myDiagram.model =
-    $(go.GraphLinksModel,
+    new go.GraphLinksModel(
       {
         linkFromPortIdProperty: 'fromPort',
         linkToPortIdProperty: 'toPort',
-        // automatically update the model that is shown on this page
-        'Changed': function (e: go.ChangedEvent) {
-          if (e.isTransactionFinished) showModel();
-        },
         nodeDataArray: [
           {
             key: 'Record1',
@@ -188,7 +184,9 @@ export function init() {
           { from: 'Record1', fromPort: 'field2', to: 'Record2', toPort: 'fieldD' },
           { from: 'Record1', fromPort: 'fieldThree', to: 'Record2', toPort: 'fieldB' }
         ]
-      });
+      }).addChangedListener(function (e: go.ChangedEvent) { // automatically update the model that is shown on this page
+          if (e.isTransactionFinished) showModel();
+        });
 
   showModel();  // show the diagram's initial model
 

@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // This example loads the GoJS library then adds HTML from scratch and evaluates some JavaScript,
@@ -22,8 +22,8 @@ const parseDataUrl = (dataUrl) => {
 
   // Point to a version of go.js, either a local file or one on the web
   await page.addScriptTag({
-    // url: 'https://cdnjs.cloudflare.com/ajax/libs/gojs/1.8.7/go.js'
-    path: '../../release/go.js'
+    url: 'https://unpkg.com/gojs'
+    //path: '../../release/go.js'
   });
 
   // Create HTML for the page:
@@ -70,9 +70,9 @@ const parseDataUrl = (dataUrl) => {
 
   // Output the GoJS makeImageData as a .png:
   const { buffer } = parseDataUrl(imageData);
-  fs.writeFileSync('gojs-screenshot.png', buffer, 'base64');
+  fs.writeFileSync('gojs-screenshot2.png', buffer, 'base64');
 
   // Output a page screenshot
-  await page.screenshot({ path: 'page-screenshot.png' });
+  await page.screenshot({ path: 'page-screenshot2.png' });
   await browser.close();
 })();

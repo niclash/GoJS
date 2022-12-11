@@ -1,6 +1,6 @@
 "use strict"
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Tool for dragging a segment of an orthogonal link.
@@ -81,6 +81,7 @@ OrthogonalLinkReshapingTool.prototype.reshape = function(newpt) {
         this.handle.segmentIndex = index;
       } else if (index === link.lastPickIndex - 1) {
         link.insertPoint(index, link.getPoint(index).copy());
+        if (index - 1 === link.firstPickIndex + 1) this.handle.segmentIndex = index - 1;
       }
     }
     var behavior = this.getReshapingBehavior(this.handle);

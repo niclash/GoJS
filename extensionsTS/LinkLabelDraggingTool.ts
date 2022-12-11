@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * The LinkLabelDraggingTool class lets the user move a label on a {@link Link}.
@@ -19,7 +19,7 @@ import * as go from '../release/go';
  * that is positioned at the {@link Link#midPoint} plus some offset.
  * It does not work for labels that have a particular {@link GraphObject#segmentIndex}.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/LinkLabelDragging.html">Link Label Dragging</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/LinkLabelDragging.html">Link Label Dragging</a> sample.
  * @category Tool Extension
  */
 export class LinkLabelDraggingTool extends go.Tool {
@@ -62,7 +62,7 @@ export class LinkLabelDraggingTool extends go.Tool {
    * and if the mouse down point is on a GraphObject "label" in a Link Panel,
    * as determined by {@link #findLabel}.
    */
-  public canStart(): boolean {
+  public override canStart(): boolean {
     if (!super.canStart()) return false;
     const diagram = this.diagram;
     // require left button & that it has moved far enough away from the mouse down point, so it isn't a click
@@ -77,7 +77,7 @@ export class LinkLabelDraggingTool extends go.Tool {
    * Start a transaction, call {@link #findLabel} and remember it as the "label" property,
    * and remember the original value for the label's {@link GraphObject#segmentOffset} property.
    */
-  public doActivate(): void {
+  public override doActivate(): void {
     this.startTransaction('Shifted Label');
     this.label = this.findLabel();
     if (this.label !== null) {
@@ -91,7 +91,7 @@ export class LinkLabelDraggingTool extends go.Tool {
   /**
    * Stop any ongoing transaction.
    */
-  public doDeactivate(): void {
+  public override doDeactivate(): void {
     super.doDeactivate();
     this.stopTransaction();
   }
@@ -99,7 +99,7 @@ export class LinkLabelDraggingTool extends go.Tool {
   /**
    * Clear any reference to a label element.
    */
-  public doStop(): void {
+  public override doStop(): void {
     this.label = null;
     super.doStop();
   }
@@ -107,7 +107,7 @@ export class LinkLabelDraggingTool extends go.Tool {
   /**
    * Restore the label's original value for {@link GraphObject#segmentOffset}.
    */
-  public doCancel(): void {
+  public override doCancel(): void {
     if (this.label !== null && this._originalOffset !== null) {
       this.label.segmentOffset = this._originalOffset;
     }
@@ -118,7 +118,7 @@ export class LinkLabelDraggingTool extends go.Tool {
    * During the drag, call {@link #updateSegmentOffset} in order to set
    * the {@link GraphObject#segmentOffset} of the label.
    */
-  public doMouseMove(): void {
+  public override doMouseMove(): void {
     if (!this.isActive) return;
     this.updateSegmentOffset();
   }
@@ -127,7 +127,7 @@ export class LinkLabelDraggingTool extends go.Tool {
    * At the end of the drag, update the segment offset of the label and finish the tool,
    * completing a transaction.
    */
-  public doMouseUp(): void {
+  public override doMouseUp(): void {
     if (!this.isActive) return;
     this.updateSegmentOffset();
     this.transactionResult = 'Shifted Label';
@@ -147,8 +147,13 @@ export class LinkLabelDraggingTool extends go.Tool {
     const last = this.diagram.lastInput.documentPoint;
     const idx = lab.segmentIndex;
     const numpts = link.pointsCount;
-    // if the label is a "mid" label, assume it is positioned differently from a label at a particular segment
-    if (idx < -numpts || idx >= numpts) {
+    if (isNaN(idx) && link.path) {  // handle fractions along the whole path
+      const labpt = link.path.getDocumentPoint(link.geometry.getPointAlongPath(lab.segmentFraction));
+      const angle = link.geometry.getAngleAlongPath(lab.segmentFraction);
+      const p = new go.Point(last.x - this._offset.x - labpt.x, last.y - this._offset.y - labpt.y);
+      lab.segmentOffset = p.rotate(-angle);
+    } else if (idx < -numpts || idx >= numpts) {
+      // if the label is a "mid" label, assume it is positioned differently from a label at a particular segment
       const mid = link.midPoint;
       // need to rotate this point to account for the angle of the link segment at the mid-point
       const p = new go.Point(last.x - this._offset.x - mid.x, last.y - this._offset.y - mid.y);

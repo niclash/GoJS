@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // HTML + JavaScript context menu, made with HTMLInfo
@@ -97,7 +97,7 @@
       cmLight.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
       contextMenuDIV.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; }, false);
       // Stop the context menu tool if you click on the dark part:
-      contextMenuDIV.addEventListener('click', function(e) { diagram.currentTool.stopTool(); return false; }, false);
+      contextMenuDIV.addEventListener('pointerdown', function(e) { diagram.currentTool.stopTool(); return false; }, false);
       firstTime = false;
     }
 
@@ -119,7 +119,7 @@
       var ahref = document.createElement('a');
       ahref.href = '#';
       ahref._command = button.command;
-      ahref.addEventListener('click', function(e) {
+      ahref.addEventListener('pointerdown', function(e) {
         this._command(diagram);
         tool.stopTool();
         e.preventDefault();

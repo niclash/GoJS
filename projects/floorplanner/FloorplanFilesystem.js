@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 1998-2019 by Northwoods Software Corporation
+* Copyright (C) 1998-2022 by Northwoods Software Corporation
 * All Rights Reserved.
 *
 * Floorplan Filesystem Class
@@ -252,7 +252,7 @@ FloorplanFilesystem.prototype.getCurrentFileName = function () {
     var currentFile = document.getElementById(this.state.currentFileId);
     if (currentFile) {
         var name = currentFile.textContent;
-        if (name[name.length - 1] === "*") return name.substr(0, name.length - 1);
+        if (name[name.length - 1] === "*") return name.slice(0, -1);
     }
     return name;
 }

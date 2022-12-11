@@ -1,7 +1,11 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
+
+// This is the definitions of the predefined text editor used by TextEditingTool
+// when you set or bind TextBlock.editable to true.
+// You do not need to load this file in order to use in-place text editing.
 
 // HTML + JavaScript text editor menu, made with HTMLInfo
 // This is a re-implementation of the default text editor
@@ -23,16 +27,16 @@
   textarea.addEventListener('keydown', function(e) {
     var tool = TextEditor.tool;
     if (tool.textBlock === null) return;
-    var keynum = e.which;
-    if (keynum === 13) { // Enter
+    var key = e.key;
+    if (key === "Enter") {
       if (tool.textBlock.isMultiline === false) e.preventDefault();
       tool.acceptText(go.TextEditingTool.Enter);
       return;
-    } else if (keynum === 9) { // Tab
+    } else if (key === "Tab") {
       tool.acceptText(go.TextEditingTool.Tab);
       e.preventDefault();
       return;
-    } else if (keynum === 27) { // Esc
+    } else if (key === "Escape") {
       tool.doCancel();
       if (tool.diagram !== null) tool.diagram.doFocus();
     }
@@ -75,9 +79,12 @@
 
   TextEditor.mainElement = textarea; // to reference it more easily
 
+  TextEditor.tool = null; // Initialize
+
   // used to be in doActivate
   TextEditor.show = function(textBlock, diagram, tool) {
     if (!(textBlock instanceof go.TextBlock)) return;
+    if (TextEditor.tool !== null) return; // Only one at a time.
 
     TextEditor.tool = tool;  // remember the TextEditingTool for use by listeners
 
@@ -100,7 +107,13 @@
     var textwidth = (textBlock.naturalBounds.width * textscale) + 6;
     var textheight = (textBlock.naturalBounds.height * textscale) + 2;
     var left = (loc.x - pos.x) * sc;
-    var top = (loc.y - pos.y) * sc;
+    var yCenter = (loc.y - pos.y) * sc; // this is actually the center, used to set style.top
+    var valign = textBlock.verticalAlignment;
+    var oneLineHeight = textBlock.lineHeight + textBlock.spacingAbove + textBlock.spacingBelow;
+    var allLinesHeight = oneLineHeight * textBlock.lineCount * textscale;
+    var center = (0.5 * textheight) - (0.5 * allLinesHeight);
+    // add offset to yCenter to get the appropriate position:
+    var yOffset = ((valign.y * textheight) - (valign.y * allLinesHeight) + valign.offsetY) - center - (allLinesHeight / 2);
 
     textarea.value = textBlock.text;
     // the only way you can mix font and fontSize is if the font inherits and the fontSize overrides
@@ -115,7 +128,7 @@
     textarea.style['lineHeight'] = 'normal';
     textarea.style['width'] = (textwidth) + 'px';
     textarea.style['left'] = ((left - (textwidth / 2) | 0) - paddingsize) + 'px';
-    textarea.style['top'] = ((top - (textheight / 2) | 0) - paddingsize) + 'px';
+    textarea.style['top'] = (((yCenter + yOffset) | 0) - paddingsize) + 'px';
     textarea.style['textAlign'] = textBlock.textAlign;
     textarea.style['margin'] = '0';
     textarea.style['padding'] = paddingsize + 'px';

@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,12 +22,13 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var go = require("../release/go");
+    exports.RotateMultipleTool = void 0;
+    var go = require("../release/go.js");
     /**
      * The RotateMultipleTool class lets the user rotate multiple objects at a time.
      * When more than one part is selected, rotates all parts, revolving them about their collective center.
@@ -33,7 +36,7 @@ var __extends = (this && this.__extends) || (function () {
      *
      * Caution: this only works for Groups that do *not* have a Placeholder.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/RotateMultiple.html">Rotate Multiple</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/RotateMultiple.html">Rotate Multiple</a> sample.
      * @category Tool Extension
      */
     var RotateMultipleTool = /** @class */ (function (_super) {
@@ -46,15 +49,15 @@ var __extends = (this && this.__extends) || (function () {
             /**
              * Holds references to all selected non-Link Parts and their offset & angles
              */
-            _this.initialInfo = null;
+            _this._initialInfo = null;
             /**
              * Initial angle when rotating as a whole
              */
-            _this.initialAngle = 0;
+            _this._initialAngle = 0;
             /**
              * Rotation point of selection
              */
-            _this.centerPoint = new go.Point();
+            _this._centerPoint = new go.Point();
             _this.name = 'RotateMultiple';
             return _this;
         }
@@ -66,16 +69,18 @@ var __extends = (this && this.__extends) || (function () {
             _super.prototype.doActivate.call(this);
             var diagram = this.diagram;
             // center point of the collection
-            this.centerPoint = diagram.computePartsBounds(diagram.selection).center;
+            this._centerPoint = diagram.computePartsBounds(diagram.selection).center;
             // remember the angle relative to the center point when rotating the whole collection
-            this.initialAngle = this.centerPoint.directionPoint(diagram.lastInput.documentPoint);
+            this._initialAngle = this._centerPoint.directionPoint(diagram.lastInput.documentPoint);
             // remember initial angle and distance for each Part
             var infos = new go.Map();
             var tool = this;
             diagram.selection.each(function (part) {
                 tool.walkTree(part, infos);
             });
-            this.initialInfo = infos;
+            this._initialInfo = infos;
+            // forget the rotationPoint since we use _centerPoint instead
+            this.rotationPoint = new go.Point(NaN, NaN);
         };
         /**
          * @hidden @internal
@@ -83,10 +88,10 @@ var __extends = (this && this.__extends) || (function () {
         RotateMultipleTool.prototype.walkTree = function (part, infos) {
             if (part === null || part instanceof go.Link)
                 return;
-            // distance from centerPoint to locationSpot of part
-            var dist = Math.sqrt(this.centerPoint.distanceSquaredPoint(part.location));
+            // distance from _centerPoint to locationSpot of part
+            var dist = Math.sqrt(this._centerPoint.distanceSquaredPoint(part.location));
             // calculate initial relative angle
-            var dir = this.centerPoint.directionPoint(part.location);
+            var dir = this._centerPoint.directionPoint(part.location);
             // saves part-angle combination in array
             infos.add(part, new PartInfo(dir, dist, part.rotateObject.angle));
             // recurse into Groups
@@ -100,7 +105,7 @@ var __extends = (this && this.__extends) || (function () {
          * Clean up any references to Parts.
          */
         RotateMultipleTool.prototype.doDeactivate = function () {
-            this.initialInfo = null;
+            this._initialInfo = null;
             _super.prototype.doDeactivate.call(this);
         };
         /**
@@ -109,7 +114,7 @@ var __extends = (this && this.__extends) || (function () {
          */
         RotateMultipleTool.prototype.rotate = function (newangle) {
             var diagram = this.diagram;
-            if (this.initialInfo === null)
+            if (this._initialInfo === null)
                 return;
             var node = this.adornedObject !== null ? this.adornedObject.part : null;
             if (node === null)
@@ -118,13 +123,13 @@ var __extends = (this && this.__extends) || (function () {
             // when rotating individual parts, remember the original angle difference
             var angleDiff = newangle - node.rotateObject.angle;
             var tool = this;
-            this.initialInfo.each(function (kvp) {
+            this._initialInfo.each(function (kvp) {
                 var part = kvp.key;
                 if (part instanceof go.Link)
                     return; // only Nodes and simple Parts
                 var partInfo = kvp.value;
                 // rotate every selected non-Link Part
-                // find information about the part set in RotateMultipleTool.initialInformation
+                // find information about the part set in RotateMultipleTool._initialInformation
                 if (e.control || e.meta) {
                     if (node === part) {
                         part.rotateObject.angle = newangle;
@@ -139,7 +144,7 @@ var __extends = (this && this.__extends) || (function () {
                     var offsetX = partInfo.distance * Math.cos(radAngle + partInfo.placementAngle);
                     var offsetY = partInfo.distance * Math.sin(radAngle + partInfo.placementAngle);
                     // move part
-                    part.location = new go.Point(tool.centerPoint.x + offsetX, tool.centerPoint.y + offsetY);
+                    part.location = new go.Point(tool._centerPoint.x + offsetX, tool._centerPoint.y + offsetY);
                     // rotate part
                     part.rotateObject.angle = partInfo.rotationAngle + newangle;
                 }
@@ -164,7 +169,7 @@ var __extends = (this && this.__extends) || (function () {
                 }
             }
             else { // relative to the center of the whole selection
-                angle = this.centerPoint.directionPoint(newPoint) - this.initialAngle;
+                angle = this._centerPoint.directionPoint(newPoint) - this._initialAngle;
             }
             if (angle >= 360)
                 angle -= 360;

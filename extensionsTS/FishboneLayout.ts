@@ -1,17 +1,16 @@
 ﻿/*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { TreeVertex } from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * FishboneLayout is a custom {@link Layout} derived from {@link TreeLayout} for creating "fishbone" diagrams.
@@ -22,7 +21,7 @@ import { TreeVertex } from '../release/go';
  * This layout assumes Links are automatically routed in the way needed by fishbone diagrams,
  * by using the FishboneLink class instead of go.Link.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/Fishbone.html">Fishbone Layout</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/Fishbone.html">Fishbone Layout</a> sample.
  * @category Layout Extension
  */
 export class FishboneLayout extends go.TreeLayout {
@@ -45,7 +44,7 @@ export class FishboneLayout extends go.TreeLayout {
    * @param {Diagram|Group|Iterable.<Part>} coll A {@link Diagram} or a {@link Group} or a collection of {@link Part}s.
    * @return {LayoutNetwork}
    */
-  public makeNetwork(coll: go.Diagram | go.Group | go.Iterable<go.Part>): go.LayoutNetwork {
+  public override makeNetwork(coll: go.Diagram | go.Group | go.Iterable<go.Part>): go.LayoutNetwork {
     // assert(this.angle === 0 || this.angle === 180);
     // assert(this.alignment === go.TreeLayout.AlignmentBusBranching);
     // assert(this.path !== go.TreeLayout.PathSource);
@@ -54,7 +53,7 @@ export class FishboneLayout extends go.TreeLayout {
     const net = super.makeNetwork(coll);
     // make a copy of the collection of TreeVertexes
     // because we will be modifying the TreeNetwork.vertexes collection in the loop
-    const verts = new go.List<go.TreeVertex>().addAll(net.vertexes as any as go.Set<TreeVertex>);
+    const verts = new go.List<go.TreeVertex>().addAll(net.vertexes.iterator as go.Iterator<go.TreeVertex>);
     verts.each(function(v: go.TreeVertex) {
       // ignore leaves of tree
       if (v.destinationEdges.count === 0) return;
@@ -80,7 +79,7 @@ export class FishboneLayout extends go.TreeLayout {
   /**
    * Add a direction property to each vertex and modify {@link TreeVertex#layerSpacing}.
    */
-  public assignTreeVertexValues(v: go.TreeVertex): void {
+  public override assignTreeVertexValues(v: go.TreeVertex): void {
     super.assignTreeVertexValues(v);
     (v as any)['_direction'] = 0;  // add this property to each TreeVertex
     if (v.parent !== null) {
@@ -98,7 +97,7 @@ export class FishboneLayout extends go.TreeLayout {
    * Assigns {@link Link#fromSpot}s and {@link Link#toSpot}s based on branching and angle
    * and moves vertexes based on dummy locations.
    */
-  public commitNodes(): void {
+  public override commitNodes(): void {
     if (this.network === null) return;
     // vertex Angle is set by BusBranching "inheritance";
     // assign spots assuming overall Angle === 0 or 180
@@ -113,15 +112,15 @@ export class FishboneLayout extends go.TreeLayout {
       const w: go.TreeVertex = e.toVertex as go.TreeVertex;
 
       if (v.angle === 0) {
-        link.fromSpot = go.Spot.MiddleLeft;
+        link.fromSpot = go.Spot.Left;
       } else if (v.angle === 180) {
-        link.fromSpot = go.Spot.MiddleRight;
+        link.fromSpot = go.Spot.Right;
       }
 
       if (w.angle === 0) {
-        link.toSpot = go.Spot.MiddleLeft;
+        link.toSpot = go.Spot.Left;
       } else if (w.angle === 180) {
-        link.toSpot = go.Spot.MiddleRight;
+        link.toSpot = go.Spot.Right;
       }
     });
 
@@ -153,7 +152,7 @@ export class FishboneLayout extends go.TreeLayout {
   /**
    * This override stops links from being committed since the work is done by the {@link FishboneLink} class.
    */
-  public commitLinks(): void { }
+  public override commitLinks(): void { }
 
   /**
    * Shifts subtrees within the fishbone based on angle and node spacing.
@@ -235,14 +234,15 @@ export class FishboneLayout extends go.TreeLayout {
  * @category Part Extension
  */
 export class FishboneLink extends go.Link {
+  public override computeAdjusting(): go.EnumValue { return this.adjusting; }
   /**
    * Determines the points for this link based on spots and maintains horizontal lines.
    */
-  public computePoints(): boolean {
+  public override computePoints(): boolean {
     const result = super.computePoints();
     if (result) {
       // insert middle point to maintain horizontal lines
-      if (this.fromSpot.equals(go.Spot.MiddleRight) || this.fromSpot.equals(go.Spot.MiddleLeft)) {
+      if (this.fromSpot.equals(go.Spot.Right) || this.fromSpot.equals(go.Spot.Left)) {
         let p1: go.Point;
         // deal with root node being on the "wrong" side
         const fromnode = this.fromNode;
@@ -251,13 +251,13 @@ export class FishboneLink extends go.Link {
           // pretend the link is coming from the opposite direction than the declared FromSpot
           const fromctr = fromport.getDocumentPoint(go.Spot.Center);
           const fromfar = fromctr.copy();
-          fromfar.x += (this.fromSpot.equals(go.Spot.MiddleLeft) ? 99999 : -99999);
+          fromfar.x += (this.fromSpot.equals(go.Spot.Left) ? 99999 : -99999);
           p1 = this.getLinkPointFromPoint(fromnode, fromport, fromctr, fromfar, true).copy();
           // update the route points
           this.setPoint(0, p1);
           let endseg = this.fromEndSegmentLength;
           if (isNaN(endseg)) endseg = fromport.fromEndSegmentLength;
-          p1.x += (this.fromSpot.equals(go.Spot.MiddleLeft)) ? endseg : -endseg;
+          p1.x += (this.fromSpot.equals(go.Spot.Left)) ? endseg : -endseg;
           this.setPoint(1, p1);
         } else {
           p1 = this.getPoint(1);  // points 0 & 1 should be OK already
@@ -267,15 +267,15 @@ export class FishboneLink extends go.Link {
         if (tonode !== null && toport !== null) {
           const toctr = toport.getDocumentPoint(go.Spot.Center);
           const far = toctr.copy();
-          far.x += (this.fromSpot.equals(go.Spot.MiddleLeft)) ? -99999 / 2 : 99999 / 2;
+          far.x += (this.fromSpot.equals(go.Spot.Left)) ? -99999 / 2 : 99999 / 2;
           far.y += (toctr.y < p1.y) ? 99999 : -99999;
           const p2 = this.getLinkPointFromPoint(tonode, toport, toctr, far, false);
           this.setPoint(2, p2);
           let dx = Math.abs(p2.y - p1.y) / 2;
-          if (this.fromSpot.equals(go.Spot.MiddleLeft)) dx = -dx;
+          if (this.fromSpot.equals(go.Spot.Left)) dx = -dx;
           this.insertPoint(2, new go.Point(p2.x + dx, p1.y));
         }
-      } else if (this.toSpot.equals(go.Spot.MiddleRight) || this.toSpot.equals(go.Spot.MiddleLeft)) {
+      } else if (this.toSpot.equals(go.Spot.Right) || this.toSpot.equals(go.Spot.Left)) {
         const p1: go.Point = this.getPoint(1);  // points 1 & 2 should be OK already
         const fromnode = this.fromNode;
         const fromport = this.fromPort;
@@ -283,12 +283,12 @@ export class FishboneLink extends go.Link {
           const parentlink = fromnode.findLinksInto().first();
           const fromctr = fromport.getDocumentPoint(go.Spot.Center);
           const far = fromctr.copy();
-          far.x += (parentlink !== null && parentlink.fromSpot.equals(go.Spot.MiddleLeft)) ? -99999 / 2 : 99999 / 2;
+          far.x += (parentlink !== null && parentlink.fromSpot.equals(go.Spot.Left)) ? -99999 / 2 : 99999 / 2;
           far.y += (fromctr.y < p1.y) ? 99999 : -99999;
           const p0 = this.getLinkPointFromPoint(fromnode, fromport, fromctr, far, true);
           this.setPoint(0, p0);
           let dx = Math.abs(p1.y - p0.y) / 2;
-          if (parentlink !== null && parentlink.fromSpot.equals(go.Spot.MiddleLeft)) dx = -dx;
+          if (parentlink !== null && parentlink.fromSpot.equals(go.Spot.Left)) dx = -dx;
           this.insertPoint(1, new go.Point(p0.x + dx, p1.y));
         }
       }

@@ -1,19 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Treeload animation GoJS Sample</title>
-  <meta name="description" content="Loading a tree with custom GoJS animation." />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Copyright 1998-2019 by Northwoods Software Corporation. -->
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"/>
+<meta name="description" content="Loading a tree with custom GoJS animation."/> 
+<link rel="stylesheet" href="../assets/css/style.css"/> 
+<!-- Copyright 1998-2022 by Northwoods Software Corporation. -->
+<title>Treeload animation GoJS Sample</title>
+</head>
 
-  <script src="../release/go.js"></script>
-  <script src="../assets/js/goSamples.js"></script> <!-- this is only for the GoJS Samples framework -->
+<body>
+  <!-- This top nav is not part of the sample code -->
+  <nav id="navTop" class="w-full z-30 top-0 text-white bg-nwoods-primary">
+    <div class="w-full container max-w-screen-lg mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between mt-0 py-2">
+      <div class="md:pl-4">
+        <a class="text-white hover:text-white no-underline hover:no-underline
+        font-bold text-2xl lg:text-4xl rounded-lg hover:bg-nwoods-secondary " href="../">
+          <h1 class="mb-0 p-1 ">GoJS</h1>
+        </a>
+      </div>
+      <button id="topnavButton" class="rounded-lg sm:hidden focus:outline-none focus:ring" aria-label="Navigation">
+        <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+          <path id="topnavOpen" fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+          <path id="topnavClosed" class="hidden" fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+      <div id="topnavList" class="hidden sm:block items-center w-auto mt-0 text-white p-0 z-20">
+        <ul class="list-reset list-none font-semibold flex justify-end flex-wrap sm:flex-nowrap items-center px-0 pb-0">
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../learn/">Learn</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../samples/">Samples</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../intro/">Intro</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../api/">API</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/products/register.html">Register</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../download.html">Download</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://forum.nwoods.com/c/gojs/11">Forum</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/contact.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/contact.html', 'contact');">Contact</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/sales/index.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/sales/index.html', 'buy');">Buy</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="border-b border-gray-600 opacity-50 my-0 py-0" />
+  </nav>
+  <div class="md:flex flex-col md:flex-row md:min-h-screen w-full max-w-screen-xl mx-auto">
+    <div id="navSide" class="flex flex-col w-full md:w-48 text-gray-700 bg-white flex-shrink-0"></div>
+    <!-- * * * * * * * * * * * * * -->
+    <!-- Start of GoJS sample code -->
+    
+    <script src="../release/go.js"></script>
+    <div id="allSampleContent" class="p-4 w-full">
   <script id="code">
     function init() {
-      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
 
-      var $ = go.GraphObject.make;
+
+      // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+      // For details, see https://gojs.net/latest/intro/buildingObjects.html
+      const $ = go.GraphObject.make;
       var animationDiagram = null;
       // Sliders for customizing the links and duration of the animation
       var durationSlider = document.getElementById("duration");
@@ -36,48 +79,46 @@
       }
 
       myDiagram =
-        $(go.Diagram, "myDiagramDiv", {
-          // We want no default animation when the diagram loads
-          "animationManager.isInitial": false,
-          autoScale: go.Diagram.Uniform,
-          // Disable the diagram during the animation so that the links cannot be moved, which would call compute points
-          // The Diagram is reset to enabled when the animation is finished
-          isEnabled: false,
-          layout: $(go.ForceDirectedLayout, {
-            defaultSpringLength: 20,      // forces nodes closer together (default: 50)
-            defaultSpringStiffness: 0.20, // forces nodes closer together (default: 0.05)
-            isOngoing: false,
-            isRealtime: false
-          })
-        });
+        $(go.Diagram, "myDiagramDiv",
+          {
+            // We want no default animation when the diagram loads
+            "animationManager.isInitial": false,
+            autoScale: go.Diagram.Uniform,
+            // Disable the diagram during the animation so that the links cannot be moved, which would call compute points
+            // The Diagram is reset to enabled when the animation is finished
+            isEnabled: false,
+            layout: $(go.ForceDirectedLayout,
+              {
+                defaultSpringLength: 20,      // forces nodes closer together (default: 50)
+                defaultSpringStiffness: 0.20, // forces nodes closer together (default: 0.05)
+                isOngoing: false,
+                isRealtime: false
+              })
+          });
 
       myDiagram.nodeTemplate =
-        $(go.Node, {
-          locationSpot: go.Spot.Center,
-          resizable: true,
-          rotatable: true,
-          opacity: 0
-        }, "Auto",
-          new go.Binding("location"),
+        $(go.Node, "Auto",
+          {
+            locationSpot: go.Spot.Center,
+            resizable: true,
+            rotatable: true,
+            opacity: 0
+          },
+          new go.Binding("location").makeTwoWay(),
           new go.Binding("desiredSize"),
-          $(go.Shape, "RoundedRectangle", {
-            fill: "lightBlue"
-          }),
-          $(go.TextBlock, new go.Binding("text", "key")));
+          $(go.Shape, "RoundedRectangle", { fill: "lightBlue" }),
+          $(go.TextBlock, new go.Binding("text", "key"))
+        );
 
       myDiagram.linkTemplate =
-        $(go.Link, {
-          opacity: 0
-        },
+        $(go.Link,
+          { opacity: 0 },
           $(go.Shape),
-          $(go.Shape, {
-            toArrow: "Standard"
-          })
+          $(go.Shape, { toArrow: "Standard" })
         );
-      var treeArr = [{
-        key: 0
-      }];
+
       // Generate a tree
+      var treeArr = [{ key: 0 }];
       var childCount = 0;
       var currParent = 0;
       for (var i = 1; i < 100; i++) {
@@ -97,9 +138,10 @@
 
       var queue = [myDiagram.nodes.first()];
       // Start with the root node visible
-      myDiagram.commit(function() {
-        myDiagram.nodes.first().opacity = 1;
+      myDiagram.commit(diag => {
+        diag.nodes.first().opacity = 1;
       }, null);
+
       // Begin
       animateLinks(queue);
 
@@ -133,8 +175,7 @@
                   // Calculate waiting time for the element depending on how far it is along the link
                   if (link.geometry.figures.length === 0 || link.elt(i).segmentFraction < 0) {
                     offsetTime = link.elt(i).segmentFraction * animation.duration;
-                  }
-                  else {
+                  } else {
                     offsetTime = link.elt(i).segmentIndex / link.points.count * animation.duration
                   }
                   // Start scale animations after an offset
@@ -194,16 +235,14 @@
       function orthog() {
         myDiagram.startTransaction("change links");
         myDiagram.linkTemplate =
-          $(go.Link, {
-            opacity: 0, // links start out invisible
-            routing: go.Link.Orthogonal,
-            corner: Number(cornerSlider.value),
-          },
+          $(go.Link,
+            {
+              opacity: 0, // links start out invisible
+              routing: go.Link.Orthogonal,
+              corner: Number(cornerSlider.value)
+            },
             $(go.Shape),
-            $(go.Shape, {
-              toArrow: "Standard",
-              scale: 1
-            })
+            $(go.Shape, { toArrow: "Standard" })
           );
         myDiagram.layout.doLayout(myDiagram);
         // Root node should start visible
@@ -218,15 +257,14 @@
       function bezierLinks() {
         myDiagram.startTransaction("change links");
         myDiagram.linkTemplate =
-          $(go.Link, {
-            opacity: 0, // links start out invisible
-            curve: go.Link.Bezier,
-            curviness: Number(curvatureSlider.value),
-          },
+          $(go.Link,
+            {
+              opacity: 0, // links start out invisible
+              curve: go.Link.Bezier,
+              curviness: Number(curvatureSlider.value)
+            },
             $(go.Shape),
-            $(go.Shape, {
-              toArrow: "Standard"
-            }),
+            $(go.Shape, { toArrow: "Standard" })
           );
         myDiagram.layout.doLayout(myDiagram);
         // Root node should start visible
@@ -241,13 +279,10 @@
       function linearLinks() {
         myDiagram.startTransaction("change links");
         myDiagram.linkTemplate =
-          $(go.Link, {
-            opacity: 0, // links start out invisible
-          },
+          $(go.Link,
+            { opacity: 0 }, // links start out invisible
             $(go.Shape),
-            $(go.Shape, {
-              toArrow: "Standard"
-            })
+            $(go.Shape, { toArrow: "Standard" })
           );
         myDiagram.layout.doLayout(myDiagram);
         // Root node should start visible
@@ -262,8 +297,7 @@
     go.AnimationManager.defineAnimationEffect('customScale', function (part, startValue, endObj, easing, currentTime, duration, animation) {
       if (endObj.offsetTime < currentTime) {
         part.scale = easing(currentTime - endObj.offsetTime, startValue, (endObj.endValue - startValue), duration - endObj.offsetTime);
-      }
-      else {
+      } else {
         part.scale = startValue;
       }
     })
@@ -400,6 +434,7 @@
         }
       }
     );
+
     // Function returns points to draw a cubic bezier
     function sliceCubicBezier(currentTime, p1, p2, p3, p4, segment, duration, offsetX, offsetY) {
       var t = currentTime / duration;
@@ -421,6 +456,7 @@
       segment.endX = newp4.x + offsetX;
       segment.endY = newp4.y + offsetY;
     }
+
     // Uses same algorithm just for a quadratic bezier
     function sliceQuadBezier(currentTime, p1, p2, p3, segment, duration, offsetX, offsetY) {
       var t = currentTime / duration;
@@ -459,6 +495,7 @@
       }
       return tempMakeGeometry;
     }
+
     /*
       This custom makeGeometry slowly builds the geometry of the link, animating a segment then adding it to the geometry until all of the segments
       have been iterated through. Orthogonal links are made up of linear path segments and quadratic bezier corners which have to be treated
@@ -473,7 +510,6 @@
       var currptY = 0;
 
       function tempMakeGeometry() {
-
         animationState.newGeometry = geometry.copy();
 
         // Offset the position values so it is in the right spot relative to the document coordinates
@@ -534,9 +570,7 @@
             animationState.points[3],
             currSegment, animationState.duration, animationState.offsetX,
             animationState.offsetY);
-        }
-        // Line segment case
-        else {
+        } else {  // Line segment case
           // Only do once per segment
           if (animationState.firstItr === true) {
             animationState.endValue = new go.Point(currSegment.endX, currSegment.endY);
@@ -555,6 +589,10 @@
             animationState.startValue.x, animationState.duration);
           var currY = animationState.easing(usedTime, animationState.startValue.y, animationState.endValue.y -
             animationState.startValue.y, animationState.duration);
+          if (animationState.duration === 0) {
+            currX = animationState.endValue.x;
+            currY = animationState.endValue.y;
+          }
           currSegment.endX = currX + animationState.offsetX;
           currSegment.endY = currY + animationState.offsetY;
         }
@@ -594,10 +632,10 @@
       }
       return tempMakeGeometry;
     }
-  </script>
-</head>
 
-<body onload="init()">
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+
   <div id="sample">
     <!-- The DIV for the Diagram needs an explicit size or else we won't see anything.
            This also adds a border to help see the edges of the viewport. -->
@@ -611,14 +649,16 @@
     <span id="cornerDisplay"></span><br> Curvature: <input type="range" min="-50" max="50" value="40" class="slider"
       id="curvature">
     <span id="curvatureDisplay"></span><br>
-
-
     <p>
       This sample demonstrates defining custom animation effects with <a>AnimationManager,defineAnimationEffect</a>,
       and chaining animations to recursively animate a tree.
     </p>
   </div>
-
+    </div>
+    <!-- * * * * * * * * * * * * * -->
+    <!--  End of GoJS sample code  -->
+  </div>
 </body>
-
+<!--  This script is part of the gojs.net website, and is not needed to run the sample -->
+<script src="../assets/js/goSamples.js"></script>
 </html>

@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 export function init() {
   if ((window as any).goSamples) (window as any).goSamples();  // init for these samples -- you don't need to call this
@@ -20,12 +20,36 @@ export function init() {
   const myDiagram =
     $(go.Diagram, 'myDiagramDiv',
       {
-        'PartResized': function(e: go.DiagramEvent) {
-          const node = e.subject;
-          const scroller = node.findObject('SCROLLER');
-          if (scroller !== null) scroller._updateScrollBar(scroller.findObject('TABLE'));
+        "LayoutCompleted": e => {
+          e.diagram.nodes.each(n => {
+            const table = n.findObject("TABLE");
+            if (table !== null && (table.panel as any)._updateScrollBar) (table.panel as any)._updateScrollBar(table);
+          });
         }
       });
+
+  // support mouse wheel scrolling of table when the mouse is in the table
+  myDiagram.toolManager.doMouseWheel = function() {  // method override
+    const e = this.diagram.lastInput;
+    let tab = this.diagram.findObjectAt(e.documentPoint);
+    while (tab !== null && !(tab as any)._updateScrollBar) tab = tab.panel;
+    if (tab instanceof go.Panel) {
+      const table = tab.findObject("TABLE");
+      if (table instanceof go.Panel) {
+        const delta = e.delta;
+        const incr = e.shift ? 5 : 1;
+        if (delta > 0) {
+          table.topIndex = Math.max(0, table.topIndex - incr);
+        } else if (delta < 0) {
+          table.topIndex = Math.min(table.topIndex + incr, table.rowCount-1);
+        }
+      }
+      (tab as any)._updateScrollBar(table);
+      e.handled = true;
+      return;
+    }
+    go.ToolManager.prototype.doMouseWheel.call(this);
+  }
 
   myDiagram.nodeTemplate =
     $(go.Node, 'Vertical',
@@ -34,7 +58,7 @@ export function init() {
         resizable: true, resizeObjectName: 'SCROLLER',
         portSpreading: go.Node.SpreadingNone
       },
-      new go.Binding('location').makeTwoWay(),
+      new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
       $(go.TextBlock,
         { font: 'bold 14px sans-serif' },
         new go.Binding('text', 'key')),
@@ -43,14 +67,14 @@ export function init() {
         $('ScrollingTable',
           {
             name: 'SCROLLER',
-            desiredSize: new go.Size(NaN, 60),  // fixed width
-            stretch: go.GraphObject.Fill,       // but stretches vertically
+            desiredSize: new go.Size(NaN, 60),
+            stretch: go.GraphObject.Fill,
             defaultColumnSeparatorStroke: 'gray',
             defaultColumnSeparatorStrokeWidth: 0.5
           },
           new go.Binding('TABLE.itemArray', 'items'),
           new go.Binding('TABLE.column', 'left', function(left) { return left ? 2 : 0; }),
-          new go.Binding('desiredSize', 'size').makeTwoWay(),
+          new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
           {
             'TABLE.itemTemplate':
               $(go.Panel, 'TableRow',
@@ -73,13 +97,13 @@ export function init() {
       )
     );
 
-  myDiagram.model = $(go.GraphLinksModel,
+  myDiagram.model = new go.GraphLinksModel(
     {
       linkFromPortIdProperty: 'fromPort',
       linkToPortIdProperty: 'toPort',
       nodeDataArray: [
         {
-          key: 'Alpha', left: true, location: new go.Point(0, 0), size: new go.Size(100, 50),
+          key: 'Alpha', left: true, loc: "0 0", size: "100 50",
           items:
             [
               { name: 'A', value: 1 },
@@ -92,7 +116,7 @@ export function init() {
             ]
         },
         {
-          key: 'Beta', location: new go.Point(150, 0),
+          key: 'Beta', loc: "150 0", size: "80 70",
           items:
             [
               { name: 'Aa', value: 1 },

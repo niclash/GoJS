@@ -1,16 +1,16 @@
 ﻿/*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 // A "HyperlinkText" is either a TextBlock or a Panel containing a TextBlock that when clicked
 // opens a new browser window with a given or computed URL.
@@ -63,7 +63,7 @@ go.GraphObject.defineBuilder('HyperlinkText', (args) => {
   const click =
     (e: go.InputEvent, obj: go.GraphObject) => {
       let u = (obj as any)._url;
-      if (typeof u === 'function') u = u(obj.findTemplateBinder());
+      if (typeof u === 'function') u = u(obj.findBindingPanel());
       if (u) window.open(u, '_blank');
     };
 
@@ -76,7 +76,7 @@ go.GraphObject.defineBuilder('HyperlinkText', (args) => {
           // here OBJ will be in the Adornment, need to get the HyperlinkText/TextBlock
           obj = obj.part.adornedObject;
           let u = obj._url;
-          if (typeof u === 'function') u = u(obj.findTemplateBinder());
+          if (typeof u === 'function') u = u(obj.findBindingPanel());
           return u;
         }).ofObject()
       ),
@@ -92,10 +92,11 @@ go.GraphObject.defineBuilder('HyperlinkText', (args) => {
         cursor: 'pointer',
         mouseEnter: function(e: go.InputEvent, obj: go.GraphObject) {
           let u = (obj as any)._url;
-          if (typeof u === 'function') u = u(obj.findTemplateBinder());
+          if (typeof u === 'function') u = u(obj.findBindingPanel());
           if (u && obj instanceof go.TextBlock) obj.isUnderline = true;
         },
         mouseLeave: (e: go.InputEvent, obj: go.GraphObject) => { if (obj instanceof go.TextBlock) obj.isUnderline = false; },
+        isActionable: true,
         click: click,  // defined above
         toolTip: tooltip // shared by all HyperlinkText textblocks
       }
@@ -127,13 +128,14 @@ go.GraphObject.defineBuilder('HyperlinkText', (args) => {
         mouseEnter: (e: go.InputEvent, panel: go.GraphObject) => {
           const tb = findTextBlock(panel);
           let u = (panel as any)._url;
-          if (typeof u === 'function') u = u(panel.findTemplateBinder());
+          if (typeof u === 'function') u = u(panel.findBindingPanel());
           if (tb !== null && u) tb.isUnderline = true;
         },
         mouseLeave: (e: go.InputEvent, panel: go.GraphObject) => {
           const tb = findTextBlock(panel);
           if (tb !== null) tb.isUnderline = false;
         },
+        isActionable: true,
         click: click,  // defined above
         toolTip: tooltip  // shared by all HyperlinkText panels
       }

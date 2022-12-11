@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,20 +7,21 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go", "./LinkShiftingTool"], factory);
+        define(["require", "exports", "../release/go.js", "./LinkShiftingTool.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.init = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
-    var LinkShiftingTool_1 = require("./LinkShiftingTool");
+    var go = require("../release/go.js");
+    var LinkShiftingTool_js_1 = require("./LinkShiftingTool.js");
     function init() {
         if (window.goSamples)
             window.goSamples(); // init for these samples -- you don't need to call this
@@ -28,7 +29,7 @@
         var myDiagram = $(go.Diagram, 'myDiagramDiv', {
             'undoManager.isEnabled': true
         });
-        myDiagram.toolManager.mouseDownTools.add($(LinkShiftingTool_1.LinkShiftingTool));
+        myDiagram.toolManager.mouseDownTools.add($(LinkShiftingTool_js_1.LinkShiftingTool));
         myDiagram.nodeTemplate =
             $(go.Node, 'Auto', {
                 fromSpot: go.Spot.AllSides, toSpot: go.Spot.AllSides,

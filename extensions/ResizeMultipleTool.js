@@ -1,13 +1,13 @@
 ﻿"use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -32,7 +32,7 @@ ResizeMultipleTool.prototype.resize = function(newr) {
   var diagram = this.diagram;
   if (diagram === null) return;
   diagram.selection.each(function(part) {
-    if (part instanceof go.Link || part instanceof go.Group) return; // only Nodes and simple Parts
+    if (part instanceof go.Link) return; // only Nodes and simple Parts
     var obj = part.resizeObject;
 
     // calculate new location
@@ -56,6 +56,6 @@ ResizeMultipleTool.prototype.resize = function(newr) {
     pos.y += sc * ((newr.x + deltaWidth * angleTop) * angleSin + (newr.y + deltaHeight * angleLeft) * angleCos);
 
     obj.desiredSize = newr.size;
-    part.position = pos;
+    part.move(pos);
   });
 }

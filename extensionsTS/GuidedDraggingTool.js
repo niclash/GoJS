@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,24 +22,25 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.GuidedDraggingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * The GuidedDraggingTool class makes guidelines visible as the parts are dragged around a diagram
      * when the selected part is nearly aligned with another part.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/GuidedDragging.html">Guided Dragging</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/GuidedDragging.html">Guided Dragging</a> sample.
      * @category Tool Extension
      */
     var GuidedDraggingTool = /** @class */ (function (_super) {
@@ -80,22 +83,20 @@ var __extends = (this && this.__extends) || (function () {
              * Gets or sets the margin of error for which guidelines show up.
              *
              * The default value is 6.
-             * Guidelines will show up when the aligned nods are ± 6px away from perfect alignment.
+             * Guidelines will show up when the aligned nodes are ± 6px away from perfect alignment.
              */
             get: function () { return this._guidelineSnapDistance; },
             set: function (val) {
                 if (typeof val !== 'number' || isNaN(val) || val < 0)
-                    throw new Error('new value for GuideddraggingTool.guidelineSnapDistance must be a non-negative number');
-                if (this._guidelineSnapDistance !== val) {
-                    this._guidelineSnapDistance = val;
-                }
+                    throw new Error('new value for GuidedDraggingTool.guidelineSnapDistance must be a non-negative number');
+                this._guidelineSnapDistance = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(GuidedDraggingTool.prototype, "isGuidelineEnabled", {
             /**
-             * Gets or sets whether the guidelines are enabled or disable.
+             * Gets or sets whether the guidelines are enabled or disables.
              *
              * The default value is true.
              */
@@ -103,11 +104,9 @@ var __extends = (this && this.__extends) || (function () {
             set: function (val) {
                 if (typeof val !== 'boolean')
                     throw new Error('new value for GuidedDraggingTool.isGuidelineEnabled must be a boolean value.');
-                if (this._isGuidelineEnabled !== val) {
-                    this._isGuidelineEnabled = val;
-                }
+                this._isGuidelineEnabled = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(GuidedDraggingTool.prototype, "horizontalGuidelineColor", {
@@ -120,11 +119,13 @@ var __extends = (this && this.__extends) || (function () {
             set: function (val) {
                 if (this._horizontalGuidelineColor !== val) {
                     this._horizontalGuidelineColor = val;
-                    this.guidelineHbottom.elements.first().stroke = this._horizontalGuidelineColor;
-                    this.guidelineHtop.elements.first().stroke = this._horizontalGuidelineColor;
+                    if (this.guidelineHbottom)
+                        this.guidelineHbottom.elements.first().stroke = this._horizontalGuidelineColor;
+                    if (this.guidelineHtop)
+                        this.guidelineHtop.elements.first().stroke = this._horizontalGuidelineColor;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(GuidedDraggingTool.prototype, "verticalGuidelineColor", {
@@ -137,11 +138,13 @@ var __extends = (this && this.__extends) || (function () {
             set: function (val) {
                 if (this._verticalGuidelineColor !== val) {
                     this._verticalGuidelineColor = val;
-                    this.guidelineVleft.elements.first().stroke = this._verticalGuidelineColor;
-                    this.guidelineVright.elements.first().stroke = this._verticalGuidelineColor;
+                    if (this.guidelineVleft)
+                        this.guidelineVleft.elements.first().stroke = this._verticalGuidelineColor;
+                    if (this.guidelineVright)
+                        this.guidelineVright.elements.first().stroke = this._verticalGuidelineColor;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(GuidedDraggingTool.prototype, "centerGuidelineColor", {
@@ -154,16 +157,18 @@ var __extends = (this && this.__extends) || (function () {
             set: function (val) {
                 if (this._centerGuidelineColor !== val) {
                     this._centerGuidelineColor = val;
-                    this.guidelineVcenter.elements.first().stroke = this._centerGuidelineColor;
-                    this.guidelineHcenter.elements.first().stroke = this._centerGuidelineColor;
+                    if (this.guidelineVcenter)
+                        this.guidelineVcenter.elements.first().stroke = this._centerGuidelineColor;
+                    if (this.guidelineHcenter)
+                        this.guidelineHcenter.elements.first().stroke = this._centerGuidelineColor;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(GuidedDraggingTool.prototype, "guidelineWidth", {
             /**
-             * Gets or sets the width guidelines.
+             * Gets or sets the strokeWidth of the guidelines.
              *
              * The default value is 1.
              */
@@ -173,15 +178,21 @@ var __extends = (this && this.__extends) || (function () {
                     throw new Error('New value for GuidedDraggingTool.guidelineWidth must be a non-negative number.');
                 if (this._guidelineWidth !== val) {
                     this._guidelineWidth = val;
-                    this.guidelineVcenter.elements.first().strokeWidth = val;
-                    this.guidelineHcenter.elements.first().strokeWidth = val;
-                    this.guidelineVleft.elements.first().strokeWidth = val;
-                    this.guidelineVright.elements.first().strokeWidth = val;
-                    this.guidelineHbottom.elements.first().strokeWidth = val;
-                    this.guidelineHtop.elements.first().strokeWidth = val;
+                    if (this.guidelineVcenter)
+                        this.guidelineVcenter.elements.first().strokeWidth = val;
+                    if (this.guidelineHcenter)
+                        this.guidelineHcenter.elements.first().strokeWidth = val;
+                    if (this.guidelineVleft)
+                        this.guidelineVleft.elements.first().strokeWidth = val;
+                    if (this.guidelineVright)
+                        this.guidelineVright.elements.first().strokeWidth = val;
+                    if (this.guidelineHbottom)
+                        this.guidelineHbottom.elements.first().strokeWidth = val;
+                    if (this.guidelineHtop)
+                        this.guidelineHtop.elements.first().strokeWidth = val;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(GuidedDraggingTool.prototype, "searchDistance", {
@@ -195,11 +206,9 @@ var __extends = (this && this.__extends) || (function () {
             set: function (val) {
                 if (typeof val !== 'number' || isNaN(val) || val <= 0)
                     throw new Error('new value for GuidedDraggingTool.searchDistance must be a positive number.');
-                if (this._searchDistance !== val) {
-                    this._searchDistance = val;
-                }
+                this._searchDistance = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(GuidedDraggingTool.prototype, "isGuidelineSnapEnabled", {
@@ -212,23 +221,27 @@ var __extends = (this && this.__extends) || (function () {
             set: function (val) {
                 if (typeof val !== 'boolean')
                     throw new Error('new value for GuidedDraggingTool.isGuidelineSnapEnabled must be a boolean.');
-                if (this._isGuidelineSnapEnabled !== val) {
-                    this._isGuidelineSnapEnabled = val;
-                }
+                this._isGuidelineSnapEnabled = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
          * Removes all of the guidelines from the grid.
          */
         GuidedDraggingTool.prototype.clearGuidelines = function () {
-            this.diagram.remove(this.guidelineHbottom);
-            this.diagram.remove(this.guidelineHcenter);
-            this.diagram.remove(this.guidelineHtop);
-            this.diagram.remove(this.guidelineVleft);
-            this.diagram.remove(this.guidelineVright);
-            this.diagram.remove(this.guidelineVcenter);
+            if (this.guidelineHbottom)
+                this.diagram.remove(this.guidelineHbottom);
+            if (this.guidelineHcenter)
+                this.diagram.remove(this.guidelineHcenter);
+            if (this.guidelineHtop)
+                this.diagram.remove(this.guidelineHtop);
+            if (this.guidelineVleft)
+                this.diagram.remove(this.guidelineVleft);
+            if (this.guidelineVright)
+                this.diagram.remove(this.guidelineVright);
+            if (this.guidelineVcenter)
+                this.diagram.remove(this.guidelineVcenter);
         };
         /**
          * Calls the base method and removes the guidelines from the graph.
@@ -285,6 +298,19 @@ var __extends = (this && this.__extends) || (function () {
                 node.invalidateConnectedLinks();
         };
         /**
+         * This predicate decides whether or not the given Part should guide the dragged part.
+         * @param {Part} part  a stationary Part to which the dragged part might be aligned
+         * @param {Part} guidedpart  the Part being dragged
+         */
+        GuidedDraggingTool.prototype.isGuiding = function (part, guidedpart) {
+            return part instanceof go.Part &&
+                !part.isSelected &&
+                !(part instanceof go.Link) &&
+                guidedpart instanceof go.Part &&
+                part.containingGroup === guidedpart.containingGroup &&
+                part.layer !== null && !part.layer.isTemporary;
+        };
+        /**
          * This finds parts that are aligned near the selected part along horizontal lines. It compares the selected
          * part to all parts within a rectangle approximately twice the {@link #searchDistance} wide.
          * The guidelines appear when a part is aligned within a margin-of-error equal to {@link #guidelineSnapDistance}.
@@ -293,16 +319,19 @@ var __extends = (this && this.__extends) || (function () {
          * @param {boolean} snap if true, snap the part to where the guideline would be
          */
         GuidedDraggingTool.prototype.showHorizontalMatches = function (part, guideline, snap) {
+            var _this = this;
             var objBounds = part.locationObject.getDocumentBounds();
             var p0 = objBounds.y;
             var p1 = objBounds.y + objBounds.height / 2;
             var p2 = objBounds.y + objBounds.height;
             var marginOfError = this.guidelineSnapDistance;
             var distance = this.searchDistance;
+            if (distance === Infinity)
+                distance = this.diagram.documentBounds.width;
             // compares with parts within narrow vertical area
             var area = objBounds.copy();
             area.inflate(distance, marginOfError + 1);
-            var otherObjs = this.diagram.findObjectsIn(area, function (obj) { return obj.part; }, function (p) { return p instanceof go.Part && !p.isSelected && !(p instanceof go.Link) && p.isTopLevel && p.layer !== null && !p.layer.isTemporary; }, true);
+            var otherObjs = this.diagram.findObjectsIn(area, function (obj) { return obj.part; }, function (p) { return _this.isGuiding(p, part); }, true);
             var bestDiff = marginOfError;
             var bestObj = null; // TS 2.6 won't let this be go.Part | null
             var bestSpot = go.Spot.Default;
@@ -316,33 +345,33 @@ var __extends = (this && this.__extends) || (function () {
                 var q1 = otherBounds.y + otherBounds.height / 2;
                 var q2 = otherBounds.y + otherBounds.height;
                 // compare center with center of OTHER part
-                if (Math.abs(p1 - q1) < bestDiff) {
+                if (_this.guidelineHcenter && Math.abs(p1 - q1) < bestDiff) {
                     bestDiff = Math.abs(p1 - q1);
                     bestObj = other;
                     bestSpot = go.Spot.Center;
                     bestOtherSpot = go.Spot.Center;
                 }
                 // compare top side with top and bottom sides of OTHER part
-                if (Math.abs(p0 - q0) < bestDiff) {
+                if (_this.guidelineHtop && Math.abs(p0 - q0) < bestDiff) {
                     bestDiff = Math.abs(p0 - q0);
                     bestObj = other;
                     bestSpot = go.Spot.Top;
                     bestOtherSpot = go.Spot.Top;
                 }
-                else if (Math.abs(p0 - q2) < bestDiff) {
+                else if (_this.guidelineHtop && Math.abs(p0 - q2) < bestDiff) {
                     bestDiff = Math.abs(p0 - q2);
                     bestObj = other;
                     bestSpot = go.Spot.Top;
                     bestOtherSpot = go.Spot.Bottom;
                 }
                 // compare bottom side with top and bottom sides of OTHER part
-                if (Math.abs(p2 - q0) < bestDiff) {
+                if (_this.guidelineHbottom && Math.abs(p2 - q0) < bestDiff) {
                     bestDiff = Math.abs(p2 - q0);
                     bestObj = other;
                     bestSpot = go.Spot.Bottom;
                     bestOtherSpot = go.Spot.Top;
                 }
-                else if (Math.abs(p2 - q2) < bestDiff) {
+                else if (_this.guidelineHbottom && Math.abs(p2 - q2) < bestDiff) {
                     bestDiff = Math.abs(p2 - q2);
                     bestObj = other;
                     bestSpot = go.Spot.Bottom;
@@ -403,16 +432,19 @@ var __extends = (this && this.__extends) || (function () {
          * @param {boolean} snap if true, don't show guidelines but just snap the part to where the guideline would be
          */
         GuidedDraggingTool.prototype.showVerticalMatches = function (part, guideline, snap) {
+            var _this = this;
             var objBounds = part.locationObject.getDocumentBounds();
             var p0 = objBounds.x;
             var p1 = objBounds.x + objBounds.width / 2;
             var p2 = objBounds.x + objBounds.width;
             var marginOfError = this.guidelineSnapDistance;
             var distance = this.searchDistance;
+            if (distance === Infinity)
+                distance = this.diagram.documentBounds.height;
             // compares with parts within narrow vertical area
             var area = objBounds.copy();
             area.inflate(marginOfError + 1, distance);
-            var otherObjs = this.diagram.findObjectsIn(area, function (obj) { return obj.part; }, function (p) { return p instanceof go.Part && !p.isSelected && !(p instanceof go.Link) && p.isTopLevel && p.layer !== null && !p.layer.isTemporary; }, true);
+            var otherObjs = this.diagram.findObjectsIn(area, function (obj) { return obj.part; }, function (p) { return _this.isGuiding(p, part); }, true);
             var bestDiff = marginOfError;
             var bestObj = null; // TS 2.6 won't let this be go.Part | null
             var bestSpot = go.Spot.Default;
@@ -426,33 +458,33 @@ var __extends = (this && this.__extends) || (function () {
                 var q1 = otherBounds.x + otherBounds.width / 2;
                 var q2 = otherBounds.x + otherBounds.width;
                 // compare center with center of OTHER part
-                if (Math.abs(p1 - q1) < bestDiff) {
+                if (_this.guidelineVcenter && Math.abs(p1 - q1) < bestDiff) {
                     bestDiff = Math.abs(p1 - q1);
                     bestObj = other;
                     bestSpot = go.Spot.Center;
                     bestOtherSpot = go.Spot.Center;
                 }
                 // compare left side with left and right sides of OTHER part
-                if (Math.abs(p0 - q0) < bestDiff) {
+                if (_this.guidelineVleft && Math.abs(p0 - q0) < bestDiff) {
                     bestDiff = Math.abs(p0 - q0);
                     bestObj = other;
                     bestSpot = go.Spot.Left;
                     bestOtherSpot = go.Spot.Left;
                 }
-                else if (Math.abs(p0 - q2) < bestDiff) {
+                else if (_this.guidelineVleft && Math.abs(p0 - q2) < bestDiff) {
                     bestDiff = Math.abs(p0 - q2);
                     bestObj = other;
                     bestSpot = go.Spot.Left;
                     bestOtherSpot = go.Spot.Right;
                 }
                 // compare right side with left and right sides of OTHER part
-                if (Math.abs(p2 - q0) < bestDiff) {
+                if (_this.guidelineVright && Math.abs(p2 - q0) < bestDiff) {
                     bestDiff = Math.abs(p2 - q0);
                     bestObj = other;
                     bestSpot = go.Spot.Right;
                     bestOtherSpot = go.Spot.Left;
                 }
-                else if (Math.abs(p2 - q2) < bestDiff) {
+                else if (_this.guidelineVright && Math.abs(p2 - q2) < bestDiff) {
                     bestDiff = Math.abs(p2 - q2);
                     bestObj = other;
                     bestSpot = go.Spot.Right;

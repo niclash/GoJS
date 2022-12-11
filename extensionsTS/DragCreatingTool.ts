@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * The DragCreatingTool lets the user create a new node by dragging in the background
@@ -40,7 +40,7 @@ import * as go from '../release/go';
  * but it does temporarily add the {@link #box} Part to the diagram.
  * This tool does conduct a transaction when inserting the new node.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/DragCreating.html">Drag Creating</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/DragCreating.html">Drag Creating</a> sample.
  * @category Tool Extension
  */
 export class DragCreatingTool extends go.Tool {
@@ -107,7 +107,7 @@ export class DragCreatingTool extends go.Tool {
    * and there has been delay of at least {@link #delay} milliseconds
    * after the mouse-down before a mouse-move.
    */
-  public canStart(): boolean {
+  public override canStart(): boolean {
     if (!this.isEnabled) return false;
 
     // gotta have some node data that can be copied
@@ -133,7 +133,7 @@ export class DragCreatingTool extends go.Tool {
   /**
    * Capture the mouse and show the {@link #box}.
    */
-  public doActivate(): void {
+  public override doActivate(): void {
     const diagram = this.diagram;
     this.isActive = true;
     diagram.isMouseCaptured = true;
@@ -144,7 +144,7 @@ export class DragCreatingTool extends go.Tool {
   /**
    * Release the mouse and remove any {@link #box}.
    */
-  public doDeactivate(): void {
+  public override doDeactivate(): void {
     const diagram = this.diagram;
     diagram.remove(this.box);
     diagram.isMouseCaptured = false;
@@ -155,7 +155,7 @@ export class DragCreatingTool extends go.Tool {
    * Update the {@link #box}'s position and size according to the value
    * of {@link #computeBoxBounds}.
    */
-  public doMouseMove(): void {
+  public override doMouseMove(): void {
     if (this.isActive && this.box !== null) {
       const r = this.computeBoxBounds();
       let shape = this.box.findObject('SHAPE');
@@ -168,7 +168,7 @@ export class DragCreatingTool extends go.Tool {
   /**
    * Call {@link #insertPart} with the value of a call to {@link #computeBoxBounds}.
    */
-  public doMouseUp(): void {
+  public override doMouseUp(): void {
     if (this.isActive) {
       const diagram = this.diagram;
       diagram.remove(this.box);
@@ -220,7 +220,7 @@ export class DragCreatingTool extends go.Tool {
       }
     }
     if (part !== null) {
-      part.position = bounds.position;
+      part.move(bounds.position);
       part.resizeObject.desiredSize = bounds.size;
       if (diagram.allowSelect) {
         diagram.clearSelection();

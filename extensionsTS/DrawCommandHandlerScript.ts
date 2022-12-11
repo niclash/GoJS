@@ -1,17 +1,17 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { DrawCommandHandler } from './DrawCommandHandler';
+import * as go from '../release/go.js';
+import { DrawCommandHandler } from './DrawCommandHandler.js';
 
 let myDiagram: go.Diagram;
 
@@ -23,6 +23,7 @@ export function init() {
   myDiagram = $(go.Diagram, 'myDiagramDiv',  // create a Diagram for the DIV HTML element
     {
       commandHandler: new DrawCommandHandler(),  // defined in DrawCommandHandler.js
+      "commandHandler.archetypeGroupData": { isGroup: true },
       'undoManager.isEnabled': true  // enable undo & redo
     });
 
@@ -94,3 +95,5 @@ export function rotateNeg45() { (myDiagram.commandHandler as DrawCommandHandler)
 export function rotate90() { (myDiagram.commandHandler as DrawCommandHandler).rotate(90); }
 export function rotateNeg90() { (myDiagram.commandHandler as DrawCommandHandler).rotate(-90); }
 export function rotate180() { (myDiagram.commandHandler as DrawCommandHandler).rotate(180); }
+export function front() { (myDiagram.commandHandler as DrawCommandHandler).pullToFront(); }
+export function back() { (myDiagram.commandHandler as DrawCommandHandler).pushToBack(); }

@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,24 +7,18 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    /*
-    * This is an extension and not part of the main GoJS library.
-    * Note that the API for this class may change with any version, even point releases.
-    * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
-    * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
-    */
-    var go = require("../release/go");
     // These are the definitions for all of the predefined templates and tool archetypes.
     // You do not need to load this file in order to use the default templates and archetypes.
     // Although we have tried to provide definitions here that are faithful to how they
     // are actually implemented, there may be some differences from what is in the library.
-    // Caution: these may change in version 2.0.
+    // Caution: these may change in a future version.
+    // @ts-nocheck
+    var go = require("../release/go.js");
     // Set up the default templates that each Diagram starts off with.
     function setupDiagramTemplates(diagram) {
         // Node Templates

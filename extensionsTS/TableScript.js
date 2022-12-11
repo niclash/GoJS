@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,20 +22,21 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go", "./TableLayout"], factory);
+        define(["require", "exports", "../release/go.js", "./TableLayout.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.init = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
-    var TableLayout_1 = require("./TableLayout");
+    var go = require("../release/go.js");
+    var TableLayout_js_1 = require("./TableLayout.js");
     // define a custom ResizingTool to limit how far one can shrink a row or column
     var LaneResizingTool = /** @class */ (function (_super) {
         __extends(LaneResizingTool, _super);
@@ -101,7 +104,7 @@ var __extends = (this && this.__extends) || (function () {
             window.goSamples(); // init for these samples -- you don't need to call this
         var $ = go.GraphObject.make;
         var myDiagram = $(go.Diagram, 'myDiagramDiv', {
-            layout: $(TableLayout_1.TableLayout, $(go.RowColumnDefinition, { row: 1, height: 22 }), // fixed size column headers
+            layout: $(TableLayout_js_1.TableLayout, $(go.RowColumnDefinition, { row: 1, height: 22 }), // fixed size column headers
             $(go.RowColumnDefinition, { column: 1, width: 22 }) // fixed size row headers
             ),
             'SelectionMoved': function (e) { e.diagram.layoutDiagram(true); },
@@ -239,7 +242,7 @@ var __extends = (this && this.__extends) || (function () {
             { key: 'Eta', color: 'coral', size: '50 50', group: 'ManApp' },
             { key: 'Theta', color: 'tomato', size: '100 50', group: 'AdmApp' }
         ]);
-        var myPalette = $(go.Palette, 'myPaletteDiv', {
+        $(go.Palette, 'myPaletteDiv', {
             nodeTemplateMap: myDiagram.nodeTemplateMap,
             'model.nodeDataArray': [
                 { key: 'Alpha', color: 'orange' },

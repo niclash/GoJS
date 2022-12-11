@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Layout that lays out a chain of nodes in a spiral
@@ -9,7 +9,7 @@
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -145,7 +145,7 @@ SpiralLayout.prototype.diameter = function(v) {
 * Gets or sets the radius distance.
 * The default value is NaN.
 * @name SpiralLayout#radius
-* @function.
+
 * @return {number}
 */
 Object.defineProperty(SpiralLayout.prototype, "radius", {
@@ -163,7 +163,7 @@ Object.defineProperty(SpiralLayout.prototype, "radius", {
 * Gets or sets the spacing between nodes.
 * The default value is 100.
 * @name SpiralLayout#spacing
-* @function.
+
 * @return {number}
 */
 Object.defineProperty(SpiralLayout.prototype, "spacing", {
@@ -181,7 +181,7 @@ Object.defineProperty(SpiralLayout.prototype, "spacing", {
 * Gets or sets whether the spiral should go clockwise or counter-clockwise.
 * The default value is true.
 * @name SpiralLayout#clockwise
-* @function.
+
 * @return {boolean}
 */
 Object.defineProperty(SpiralLayout.prototype, "clockwise", {

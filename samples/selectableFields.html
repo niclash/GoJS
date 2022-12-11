@@ -1,29 +1,110 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Mapping Selectable Fields of Records</title>
-  <meta name="description" content="Support selecting items inside nodes." />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Copyright 1998-2019 by Northwoods Software Corporation. -->
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"/>
+<meta name="description" content="Support selecting items inside nodes."/> 
+<link rel="stylesheet" href="../assets/css/style.css"/> 
+<!-- Copyright 1998-2022 by Northwoods Software Corporation. -->
+<title>Mapping Selectable Fields of Records</title>
+</head>
 
-  <script src="../release/go.js"></script>
-  <script src="../assets/js/goSamples.js"></script>  <!-- this is only for the GoJS Samples framework -->
-  <script id="code">
+<body>
+  <!-- This top nav is not part of the sample code -->
+  <nav id="navTop" class="w-full z-30 top-0 text-white bg-nwoods-primary">
+    <div class="w-full container max-w-screen-lg mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between mt-0 py-2">
+      <div class="md:pl-4">
+        <a class="text-white hover:text-white no-underline hover:no-underline
+        font-bold text-2xl lg:text-4xl rounded-lg hover:bg-nwoods-secondary " href="../">
+          <h1 class="mb-0 p-1 ">GoJS</h1>
+        </a>
+      </div>
+      <button id="topnavButton" class="rounded-lg sm:hidden focus:outline-none focus:ring" aria-label="Navigation">
+        <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+          <path id="topnavOpen" fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+          <path id="topnavClosed" class="hidden" fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+      <div id="topnavList" class="hidden sm:block items-center w-auto mt-0 text-white p-0 z-20">
+        <ul class="list-reset list-none font-semibold flex justify-end flex-wrap sm:flex-nowrap items-center px-0 pb-0">
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../learn/">Learn</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../samples/">Samples</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../intro/">Intro</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../api/">API</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/products/register.html">Register</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../download.html">Download</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://forum.nwoods.com/c/gojs/11">Forum</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/contact.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/contact.html', 'contact');">Contact</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/sales/index.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/sales/index.html', 'buy');">Buy</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="border-b border-gray-600 opacity-50 my-0 py-0" />
+  </nav>
+  <div class="md:flex flex-col md:flex-row md:min-h-screen w-full max-w-screen-xl mx-auto">
+    <div id="navSide" class="flex flex-col w-full md:w-48 text-gray-700 bg-white flex-shrink-0"></div>
+    <!-- * * * * * * * * * * * * * -->
+    <!-- Start of GoJS sample code -->
+    
+    <script src="../release/go.js"></script>
+    <div id="allSampleContent" class="p-4 w-full">
+    <script id="code">
     function init() {
-      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-      var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+      // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+      // For details, see https://gojs.net/latest/intro/buildingObjects.html
+      const $ = go.GraphObject.make;  // for conciseness in defining templates
 
       myDiagram =
         $(go.Diagram, "myDiagramDiv",
           {
             validCycle: go.Diagram.CycleNotDirected,  // don't allow loops
             // For this sample, automatically show the state of the diagram's model on the page
-            "ModelChanged": function(e) {
+            "ModelChanged": e => {
               if (e.isTransactionFinished) showModel();
             },
             "undoManager.isEnabled": true
           });
+
+      const UnselectedBrush = "transparent";  // item appearance, if not "selected"
+      const SelectedBrush = "dodgerblue";   // item appearance, if "selected"
+
+      function isFieldSelected(item) {
+        return item.background !== UnselectedBrush;
+      }
+
+      function setFieldSelected(item, sel) {
+        if (sel) {
+          item.background = SelectedBrush;
+        } else {
+          item.background = UnselectedBrush;
+        }
+      }
+
+      function onFieldClick(e, item) {
+        var oldskips = item.diagram.skipsUndoManager;
+        item.diagram.skipsUndoManager = true;
+        if (e.control || e.meta) {
+          setFieldSelected(item, !isFieldSelected(item));
+          item.part.isSelected = item.panel.elements.any(isFieldSelected);
+        } else if (e.shift) {
+          // alternative policy: select all fields between this item and some other one??
+          if (!isFieldSelected(item)) setFieldSelected(item, true);
+          item.part.isSelected = true;
+        } else {
+          if (!isFieldSelected(item)) {
+            // deselect all sibling items
+            item.panel.elements.each(it => {
+              if (it !== item) setFieldSelected(it, false);
+            });
+            setFieldSelected(item, true);
+          }
+          item.part.isSelected = true;
+        }
+        item.diagram.skipsUndoManager = oldskips;
+      }
 
       // This template is a Panel that is used to represent each item in a Panel.itemArray.
       // The Panel is data bound to the item object.
@@ -31,25 +112,14 @@
         $(go.Panel, "TableRow",  // this Panel is a row in the containing Table
           new go.Binding("portId", "name"),  // this Panel is a "port"
           {
-            background: "transparent",  // so this port's background can be picked by the mouse
+            background: UnselectedBrush,  // so this port's background can be picked by the mouse
             fromSpot: go.Spot.LeftRightSides,  // links only go from the right side to the left side
             toSpot: go.Spot.LeftRightSides,
             // allow drawing links from or to this port:
             fromLinkable: true, toLinkable: true
           },
-          { // allow the user to select items -- the background color indicates whether "selected"
-            //?? maybe this should be more sophisticated than simple toggling of selection
-            click: function(e, item) {
-              // assume "transparent" means not "selected", for items
-              var oldskips = item.diagram.skipsUndoManager;
-              item.diagram.skipsUndoManager = true;
-              if (item.background === "transparent") {
-                item.background = "dodgerblue";
-              } else {
-                item.background = "transparent";
-              }
-              item.diagram.skipsUndoManager = oldskips;
-            }
+          { // select items -- the background indicates "selected" when not UnselectedBrush
+            click: onFieldClick
           },
           $(go.Shape,
             {
@@ -117,7 +187,7 @@
         );
 
       myDiagram.model =
-        $(go.GraphLinksModel,
+        new go.GraphLinksModel(
           {
             copiesArrays: true,
             copiesArrayObjects: true,
@@ -160,7 +230,7 @@
           if (table) {
             for (var iit = table.elements; iit.next();) {
               var itempanel = iit.value;
-              if (itempanel.background !== "transparent") items.push(itempanel);
+              if (isFieldSelected(itempanel)) items.push(itempanel);
             }
           }
         }
@@ -200,9 +270,9 @@
         document.getElementById("mySavedModel").textContent = myDiagram.model.toJson();
       }
     }
+    window.addEventListener('DOMContentLoaded', init);
   </script>
-</head>
-<body onload="init()">
+
 <div id="sample">
   <div id="myDiagramDiv" style="border: solid 1px black; width:100%; height:300px"></div>
   <p>This shows a variable number of selectable "fields" for each "record".</p>
@@ -213,5 +283,11 @@
   <textarea id="mySavedModel" style="width:100%;height:300px"></textarea>
   <p>This sample was derived from the <a href="records.html">Records</a> sample.</p>
 </div>
+    </div>
+    <!-- * * * * * * * * * * * * * -->
+    <!--  End of GoJS sample code  -->
+  </div>
 </body>
+<!--  This script is part of the gojs.net website, and is not needed to run the sample -->
+<script src="../assets/js/goSamples.js"></script>
 </html>

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 1998-2019 by Northwoods Software Corporation
+* Copyright (C) 1998-2022 by Northwoods Software Corporation
 * All Rights Reserved.
 *
 * Floorplan Class
@@ -90,7 +90,7 @@ function Floorplan(div) {
                     if (idx < 0) currentFile.textContent = currentFile.textContent + "*";
                 }
                 else {
-                    if (idx >= 0) currentFile.textContent = currentFile.textContent.substr(0, idx);
+                    if (idx >= 0) currentFile.textContent = currentFile.textContent.slice(0, idx);
                 }
             }
         }

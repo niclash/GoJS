@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,19 +22,20 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.SectorReshapingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * The SectorReshapingTool class lets the user interactively modify the angles of a "pie"-shaped sector of a circle.
      * When a node is selected, this shows two handles for changing the angles of the sides of the sector and one handle for changing the radius.
@@ -40,7 +43,7 @@ var __extends = (this && this.__extends) || (function () {
      * This depends on there being three data properties, "angle", "sweep", and "radius",
      * that hold the needed information to be able to reproduce the sector.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/SectorReshaping.html">Sector Reshaping</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/SectorReshaping.html">Sector Reshaping</a> sample.
      * @category Tool Extension
      */
     var SectorReshapingTool = /** @class */ (function (_super) {
@@ -68,7 +71,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._radiusProperty; },
             set: function (val) { this._radiusProperty = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SectorReshapingTool.prototype, "angleProperty", {
@@ -79,7 +82,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._angleProperty; },
             set: function (val) { this._angleProperty = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(SectorReshapingTool.prototype, "sweepProperty", {
@@ -90,7 +93,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._sweepProperty; },
             set: function (val) { this._sweepProperty = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -228,7 +231,6 @@ var __extends = (this && this.__extends) || (function () {
          * Finish the transaction and stop the tool.
          */
         SectorReshapingTool.prototype.doMouseUp = function () {
-            var diagram = this.diagram;
             if (this.isActive) {
                 this.transactionResult = this.name; // successful finish
             }

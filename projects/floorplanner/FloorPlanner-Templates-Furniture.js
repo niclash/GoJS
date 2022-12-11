@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 1998-2019 by Northwoods Software Corporation
+* Copyright (C) 1998-2022 by Northwoods Software Corporation
 * All Rights Reserved.
 *
 * FLOOR PLANNER CODE: TEMPLATES - FURNITURE
@@ -133,10 +133,10 @@ function makeDefaultNode() {
             new go.Binding("width").makeTwoWay(),
             new go.Binding("height").makeTwoWay(),
             new go.Binding("angle").makeTwoWay(),
-            new go.Binding("fill", "color")),
-        new go.Binding("stroke", "isSelected", function (s, obj) {
+            new go.Binding("fill", "color"),
+            new go.Binding("stroke", "isSelected", function (s, obj) {
             return s ? go.Brush.lightenBy(obj.stroke, .5) : invertColor(obj.part.data.color);
-        }).ofObject()
+          }).ofObject())
     )
 }
 

@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,19 +7,20 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Inspector = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * This class implements an inspector for GoJS model data objects.
      * The constructor takes three arguments:
@@ -39,7 +40,7 @@
      * Options for properties:
      *   - `show` ***boolean | function*** a boolean value to show or hide the property from the inspector, or a predicate function to show conditionally.
      *   - `readOnly` ***boolean | function*** whether or not the property is read-only
-     *   - `type` ***string*** a string describing the data type. Supported values: "string|number|boolean|color|arrayofnumber|point|rect|size|spot|margin|select"
+     *   - `type` ***string*** a string describing the data type. Supported values: "string|number|boolean|color|arrayofnumber|point|rect|size|spot|margin|select|date|datetime-local|time"
      *   - `defaultValue` ***any*** a default value for the property. Defaults to the empty string.
      *   - `choices` ***Array | function*** when type === "select", the Array of choices to use or a function that returns the Array of choices.
      *
@@ -69,7 +70,7 @@
      * </div>
      * ```
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/DataInspector.html">Data Inspector</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/DataInspector.html">Data Inspector</a> sample.
      * @category Extension
      */
     var Inspector = /** @class */ (function () {
@@ -133,7 +134,7 @@
              * This read-only property returns the HTMLElement containing the Inspector.
              */
             get: function () { return this._div; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "diagram", {
@@ -158,7 +159,7 @@
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "inspectedObject", {
@@ -168,7 +169,7 @@
              * To set the inspected object, call {@link #inspectObject}.
              */
             get: function () { return this._inspectedObject; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "inspectSelection", {
@@ -192,7 +193,7 @@
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "includesOwnProperties", {
@@ -208,7 +209,7 @@
                     this.inspectObject();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "properties", {
@@ -226,7 +227,7 @@
                     this.inspectObject();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "propertyModified", {
@@ -242,7 +243,7 @@
                     this._propertyModified = val;
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "multipleSelection", {
@@ -258,7 +259,7 @@
                     this.inspectObject();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "showUnionProperties", {
@@ -274,7 +275,7 @@
                     this.inspectObject();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Inspector.prototype, "showLimit", {
@@ -290,7 +291,7 @@
                     this.inspectObject();
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -345,6 +346,7 @@
                 if (this._inspectSelection) {
                     if (this._multipleSelection) { // gets the selection if multiple selection is true
                         inspectedObjects = this._diagram.selection;
+                        this._inspectedObject = inspectedObjects.first();
                     }
                     else { // otherwise grab the first object
                         inspectedObject = this._diagram.selection.first();
@@ -628,34 +630,37 @@
                 }
             }
             if (decProp && decProp.type === 'select') {
-                input = document.createElement('select');
-                this.updateSelect(decProp, input, propertyName, propertyValue);
-                input.addEventListener('change', updateall);
+                var inputs = input = document.createElement('select');
+                this.updateSelect(decProp, inputs, propertyName, propertyValue);
+                inputs.addEventListener('change', updateall);
             }
             else {
-                input = document.createElement('input');
-                input.value = this.convertToString(propertyValue);
+                var inputi_1 = input = document.createElement('input');
+                if (inputi_1 && inputi_1.setPointerCapture) {
+                    inputi_1.addEventListener("pointerdown", function (e) { return inputi_1.setPointerCapture(e.pointerId); });
+                }
+                inputi_1.value = this.convertToString(propertyValue);
                 if (decProp) {
                     var t = decProp.type;
                     if (t !== 'string' && t !== 'number' && t !== 'boolean' &&
                         t !== 'arrayofnumber' && t !== 'point' && t !== 'size' &&
                         t !== 'rect' && t !== 'spot' && t !== 'margin') {
-                        input.setAttribute('type', decProp.type);
+                        inputi_1.setAttribute('type', decProp.type);
                     }
                     if (decProp.type === 'color') {
-                        if (input.type === 'color') {
-                            input.value = this.convertToColor(propertyValue);
+                        if (inputi_1.type === 'color') {
+                            inputi_1.value = this.convertToColor(propertyValue);
                             // input.addEventListener('input', updateall); // removed with multi select
-                            input.addEventListener('change', updateall);
+                            inputi_1.addEventListener('change', updateall);
                         }
                     }
                     if (decProp.type === 'checkbox') {
-                        input.checked = !!propertyValue;
-                        input.addEventListener('change', updateall);
+                        inputi_1.checked = !!propertyValue;
+                        inputi_1.addEventListener('change', updateall);
                     }
                 }
-                if (input.type !== 'color')
-                    input.addEventListener('blur', updateall);
+                if (inputi_1.type !== 'color')
+                    inputi_1.addEventListener('blur', updateall);
             }
             if (input) {
                 input.tabIndex = this.tabIndex++;

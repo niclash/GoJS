@@ -1,17 +1,17 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { TreeMapLayout } from './TreeMapLayout';
+import * as go from '../release/go.js';
+import { TreeMapLayout } from './TreeMapLayout.js';
 
 let myDiagram: go.Diagram;
 
@@ -122,19 +122,6 @@ export function rebuildGraph() {
   model.nodeGroupKeyProperty = 'parent';
   model.nodeDataArray = generateNodeData(minNodes, maxNodes, minChil, maxChil);
   myDiagram.model = model;
-}
-
-class Nodes {
-  public key: number;
-  public isGroup: boolean;
-  public parent: any;
-  public text: string;
-  public fill: string;
-  public size: number;
-  public total: number;
-  constructor(key: number, isGroup: boolean, parent: any, text: string, fill: string, size: number, total: number) {
-    this.key = key; this.isGroup = isGroup; this.parent = parent; this.text = text; this.fill = fill; this.size = size; this.total = total;
-  }
 }
 
 // Creates a random number (between MIN and MAX) of randomly colored nodes.

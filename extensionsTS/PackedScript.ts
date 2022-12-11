@@ -1,18 +1,17 @@
-'use strict';
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { PackedLayout } from './PackedLayout';
+import * as go from '../release/go.js';
+import { PackedLayout } from './PackedLayout.js';
 
 // define an interface for PackedLayout parameters so that they can easily be passed between functions
 interface PackedLayoutParams {
@@ -24,7 +23,6 @@ interface PackedLayoutParams {
   size: go.Size;
   spacing: number;
   hasCircularNodes: boolean;
-  arrangesToOrigin: boolean;
 }
 
 let myDiagram: go.Diagram;
@@ -53,7 +51,7 @@ export function init() {
     $(go.Diagram, 'myDiagramDiv',  // must be the ID or reference to div
       {
         'animationManager.isEnabled': true,
-        layout: $(PackedLayout),
+        layout: $(PackedLayout, { arrangesToOrigin: false }),
         scale: 0.75, isReadOnly: true
       });
 
@@ -187,8 +185,7 @@ export function rebuildGraph() {
     aspectRatio: parseFloat(aspectRatio.value),
     size: new go.Size(parseFloat(layoutWidth.value), parseFloat(layoutHeight.value)),
     spacing: parseFloat(nodeSpacing.value),
-    hasCircularNodes: hasCircularNodes.checked,
-    arrangesToOrigin: false
+    hasCircularNodes: hasCircularNodes.checked
   };
 
   disableInputs(params);
@@ -205,7 +202,15 @@ export function rebuildGraph() {
 
   myDiagram.startTransaction('packed layout');
   generateNodeData();
-  myDiagram.layout = go.GraphObject.make(PackedLayout, params /* defined above */);
+  var lay = myDiagram.layout as PackedLayout;
+  lay.packShape = params.packShape;
+  lay.packMode = params.packMode;
+  lay.aspectRatio = params.aspectRatio;
+  lay.size = params.size;
+  lay.spacing = params.spacing;
+  lay.sortOrder = params.sortOrder;
+  lay.sortMode = params.sortMode;
+  lay.hasCircularNodes = params.hasCircularNodes;
   myDiagram.commitTransaction('packed layout');
 }
 

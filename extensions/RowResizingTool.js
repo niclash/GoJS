@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Tool for resizing each row of a named Table Panel in a selected Part.
@@ -9,7 +9,7 @@
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -48,7 +48,7 @@ go.Diagram.inherit(RowResizingTool, go.Tool);
 * A small GraphObject used as a resize handle for each row.
 * This tool expects that this object's {@link GraphObject#desiredSize} (a.k.a width and height) has been set to real numbers.
 * @name RowResizingTool#handleArchetype
-* @function.
+
 * @return {GraphObject}
 */
 Object.defineProperty(RowResizingTool.prototype, "handleArchetype", {
@@ -59,7 +59,7 @@ Object.defineProperty(RowResizingTool.prototype, "handleArchetype", {
 /*
 * The name of the Table Panel to be resized, by default the name "TABLE".
 * @name RowResizingTool#tableName
-* @function.
+
 * @return {string}
 */
 Object.defineProperty(RowResizingTool.prototype, "tableName", {
@@ -72,7 +72,7 @@ Object.defineProperty(RowResizingTool.prototype, "tableName", {
 * This will be contained by an {@link Adornment} whose category is "RowResizing".
 * Its {@link Adornment#adornedObject} is the same as the {@link #adornedTable}.
 * @name RowResizingTool#handle
-* @function.
+
 * @return {GraphObject}
 */
 Object.defineProperty(RowResizingTool.prototype, "handle", {
@@ -83,7 +83,7 @@ Object.defineProperty(RowResizingTool.prototype, "handle", {
 * Gets the {@link Panel} of type {@link Panel#Table} whose rows may be resized.
 * This must be contained within the selected Part.
 * @name RowResizingTool#adornedTable
-* @function.
+
 * @return {Panel}
 */
 Object.defineProperty(RowResizingTool.prototype, "adornedTable", {

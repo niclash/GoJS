@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,20 +7,21 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go", "./TreeMapLayout"], factory);
+        define(["require", "exports", "../release/go.js", "./TreeMapLayout.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.generateNodeData = exports.rebuildGraph = exports.init = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
-    var TreeMapLayout_1 = require("./TreeMapLayout");
+    var go = require("../release/go.js");
+    var TreeMapLayout_js_1 = require("./TreeMapLayout.js");
     var myDiagram;
     function init() {
         if (window.goSamples)
@@ -31,7 +32,7 @@
             {
                 initialAutoScale: go.Diagram.Uniform,
                 'animationManager.isEnabled': false,
-                layout: $(TreeMapLayout_1.TreeMapLayout, { isTopLevelHorizontal: false }),
+                layout: $(TreeMapLayout_js_1.TreeMapLayout, { isTopLevelHorizontal: false }),
                 allowMove: false, allowCopy: false, allowDelete: false
             });
         // change selection behavior to cycle up the chain of containing Groups
@@ -110,18 +111,6 @@
         myDiagram.model = model;
     }
     exports.rebuildGraph = rebuildGraph;
-    var Nodes = /** @class */ (function () {
-        function Nodes(key, isGroup, parent, text, fill, size, total) {
-            this.key = key;
-            this.isGroup = isGroup;
-            this.parent = parent;
-            this.text = text;
-            this.fill = fill;
-            this.size = size;
-            this.total = total;
-        }
-        return Nodes;
-    }());
     // Creates a random number (between MIN and MAX) of randomly colored nodes.
     function generateNodeData(minNodes, maxNodes, minChil, maxChil) {
         var nodeArray = [];

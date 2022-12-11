@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /**
@@ -28,7 +28,7 @@
   Options for properties:
     show: {boolean|function} a boolean value to show or hide the property from the inspector, or a predicate function to show conditionally.
     readOnly: {boolean|function} whether or not the property is read-only
-    type: {string} a string describing the data type. Supported values: "string|number|boolean|color|arrayofnumber|point|rect|size|spot|margin|select"
+    type: {string} a string describing the data type. Supported values: "string|number|boolean|color|arrayofnumber|point|rect|size|spot|margin|select|checkbox|date|datetime-local|time"
     defaultValue: {*} a default value for the property. Defaults to the empty string.
     choices: {Array|function} when type == "select", the Array of choices to use or a function that returns the Array of choices.
 
@@ -121,6 +121,7 @@ Inspector.prototype.inspectObject = function(object) {
     if (this.inspectsSelection) {
       if (this.multipleSelection) { // gets the selection if multiple selection is true
         inspectedObjects = this._diagram.selection;
+        this._inspectedObject = inspectedObjects.first();
       } else { // otherwise grab the first object
         inspectedObject = this._diagram.selection.first();
       }
@@ -410,7 +411,9 @@ Inspector.prototype.buildPropertyRow = function(propertyName, propertyValue) {
     input.addEventListener("change", updateall);
   } else {
     input = document.createElement("input");
-
+    if (input.setPointerCapture) {
+      input.addEventListener("pointerdown", function(e) { input.setPointerCapture(e.pointerId); });
+    }
     input.value = this.convertToString(propertyValue);
     if (decProp) {
       var t = decProp.type;

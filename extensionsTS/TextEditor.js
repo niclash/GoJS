@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,19 +7,15 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    /*
-    * This is an extension and not part of the main GoJS library.
-    * Note that the API for this class may change with any version, even point releases.
-    * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
-    * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
-    */
-    var go = require("../release/go");
+    // This is the definitions of the predefined text editor used by TextEditingTool
+    // when you set or bind TextBlock.editable to true.
+    // You do not need to load this file in order to use in-place text editing.
+    var go = require("../release/go.js");
     // HTML + JavaScript text editor menu, made with HTMLInfo
     // This is a re-implementation of the default text editor
     // This file exposes one instance of HTMLInfo, window.TextEditor
@@ -41,19 +37,19 @@
             var tool = TextEditor.tool;
             if (tool.textBlock === null)
                 return;
-            var keynum = e.which;
-            if (keynum === 13) { // Enter
+            var key = e.key;
+            if (key === "Enter") { // Enter
                 if (tool.textBlock.isMultiline === false)
                     e.preventDefault();
                 tool.acceptText(go.TextEditingTool.Enter);
                 return;
             }
-            else if (keynum === 9) { // Tab
+            else if (key === "Tab") { // Tab
                 tool.acceptText(go.TextEditingTool.Tab);
                 e.preventDefault();
                 return;
             }
-            else if (keynum === 27) { // Esc
+            else if (key === "Escape") { // Esc
                 tool.doCancel();
                 if (tool.diagram !== null)
                     tool.diagram.doFocus();
@@ -87,12 +83,15 @@
         }, false);
         TextEditor.valueFunction = function () { return textarea.value; };
         TextEditor.mainElement = textarea; // to reference it more easily
+        TextEditor.tool = null; // Initialize
         // used to be in doActivate
         TextEditor.show = function (textBlock, diagram, tool) {
             if (!diagram || !diagram.div)
                 return;
             if (!(textBlock instanceof go.TextBlock))
                 return;
+            if (TextEditor.tool !== null)
+                return; // Only one at a time.
             TextEditor.tool = tool; // remember the TextEditingTool for use by listeners
             // This is called during validation, if validation failed:
             if (tool.state === go.TextEditingTool.StateInvalid) {
@@ -112,7 +111,13 @@
             var textwidth = (textBlock.naturalBounds.width * textscale) + 6;
             var textheight = (textBlock.naturalBounds.height * textscale) + 2;
             var left = (loc.x - pos.x) * sc;
-            var top = (loc.y - pos.y) * sc;
+            var yCenter = (loc.y - pos.y) * sc; // this is actually the center, used to set style.top
+            var valign = textBlock.verticalAlignment;
+            var oneLineHeight = textBlock.lineHeight + textBlock.spacingAbove + textBlock.spacingBelow;
+            var allLinesHeight = oneLineHeight * textBlock.lineCount * textscale;
+            var center = (0.5 * textheight) - (0.5 * allLinesHeight);
+            // add offset to yCenter to get the appropriate position:
+            var yOffset = ((valign.y * textheight) - (valign.y * allLinesHeight) + valign.offsetY) - center - (allLinesHeight / 2);
             textarea.value = textBlock.text;
             // the only way you can mix font and fontSize is if the font inherits and the fontSize overrides
             // in the future maybe have textarea contained in its own div
@@ -125,7 +130,7 @@
             textarea.style['lineHeight'] = 'normal';
             textarea.style['width'] = (textwidth) + 'px';
             textarea.style['left'] = ((left - (textwidth / 2) | 0) - paddingsize) + 'px';
-            textarea.style['top'] = ((top - (textheight / 2) | 0) - paddingsize) + 'px';
+            textarea.style['top'] = (((yCenter + yOffset) | 0) - paddingsize) + 'px';
             textarea.style['textAlign'] = textBlock.textAlign;
             textarea.style['margin'] = '0';
             textarea.style['padding'] = paddingsize + 'px';

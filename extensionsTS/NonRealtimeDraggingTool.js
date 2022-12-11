@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,35 +22,47 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.NonRealtimeDraggingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * The NonRealtimeDraggingTool class lets the user drag an image instead of actually moving any selected nodes,
      * until the mouse-up event.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/NonRealtimeDragging.html">Non Realtime Dragging</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/NonRealtimeDragging.html">Non Realtime Dragging</a> sample.
      * @category Tool Extension
      */
     var NonRealtimeDraggingTool = /** @class */ (function (_super) {
         __extends(NonRealtimeDraggingTool, _super);
         function NonRealtimeDraggingTool() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._duration = 0; // duration of movement animation; <= 0 to disable
             _this._imagePart = null; // a Part holding a translucent image of what would be dragged
             _this._ghostDraggedParts = null; // a Map of the _imagePart and its dragging information
             _this._originalDraggedParts = null; // the saved normal value of DraggingTool.draggedParts
             return _this;
         }
+        Object.defineProperty(NonRealtimeDraggingTool.prototype, "duration", {
+            /**
+            * Gets or sets how long the movement animation should be to move the actual parts upon a mouse-up.
+            * The default value is zero -- there is no animation of the movement.
+            */
+            get: function () { return this._duration; },
+            set: function (val) { this._duration = val; },
+            enumerable: false,
+            configurable: true
+        });
         /**
          * Call the base method, and then make an image of the returned collection,
          * show it using a Picture, and hold the Picture in a temporary Part, as _imagePart.
@@ -96,10 +110,20 @@ var __extends = (this && this.__extends) || (function () {
          * Do the normal mouse-up behavior, but only after restoring {@link #draggedParts}.
          */
         NonRealtimeDraggingTool.prototype.doMouseUp = function () {
-            if (this._originalDraggedParts !== null) {
-                this.draggedParts = this._originalDraggedParts;
+            var partsmap = this._originalDraggedParts;
+            if (partsmap !== null) {
+                this.draggedParts = partsmap;
             }
             _super.prototype.doMouseUp.call(this);
+            if (partsmap !== null && this.duration > 0) {
+                var anim = new go.Animation();
+                anim.duration = this.duration;
+                partsmap.each(function (kvp) {
+                    var part = kvp.key;
+                    anim.add(part, "location", kvp.value.point, part.location);
+                });
+                anim.start();
+            }
         };
         /**
          * If the user changes to "copying" mode by holding down the Control key,

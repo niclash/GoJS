@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,19 +22,20 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.PolygonDrawingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * The PolygonDrawingTool class lets the user draw a new polygon or polyline shape by clicking where the corners should go.
      * Right click or type ENTER to finish the operation.
@@ -44,7 +47,7 @@ var __extends = (this && this.__extends) || (function () {
      * This tool uses a temporary {@link Shape}, {@link #temporaryShape}, held by a {@link Part} in the "Tool" layer,
      * to show interactively what the user is drawing.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/PolygonDrawing.html">Polygon Drawing</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/PolygonDrawing.html">Polygon Drawing</a> sample.
      * @category Tool Extension
      */
     var PolygonDrawingTool = /** @class */ (function (_super) {
@@ -57,12 +60,13 @@ var __extends = (this && this.__extends) || (function () {
             _this._isPolygon = true;
             _this._hasArcs = false;
             _this._isOrthoOnly = false;
+            _this._isGridSnapEnabled = false;
             _this._archetypePartData = {}; // the data to copy for a new polygon Part
+            _this.name = 'PolygonDrawing';
             // this is the Shape that is shown during a drawing operation
             _this._temporaryShape = go.GraphObject.make(go.Shape, { name: 'SHAPE', fill: 'lightgray', strokeWidth: 1.5 });
             // the Shape has to be inside a temporary Part that is used during the drawing operation
-            _this.temp = go.GraphObject.make(go.Part, { layerName: 'Tool' }, _this._temporaryShape);
-            _this.name = 'PolygonDrawing';
+            go.GraphObject.make(go.Part, { layerName: 'Tool' }, _this._temporaryShape);
             return _this;
         }
         Object.defineProperty(PolygonDrawingTool.prototype, "isPolygon", {
@@ -73,28 +77,38 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._isPolygon; },
             set: function (val) { this._isPolygon = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(PolygonDrawingTool.prototype, "hasArcs", {
             /**
-             * Gets or sets whether this tools draws shapes with quadratic bezier curves for each segment, or just straight lines.
+             * Gets or sets whether this tool draws shapes with quadratic bezier curves for each segment, or just straight lines.
              *
              * The default value is false -- only use straight lines.
              */
             get: function () { return this._hasArcs; },
             set: function (val) { this._hasArcs = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(PolygonDrawingTool.prototype, "isOrthoOnly", {
             /**
-             * Gets or sets whether this tools draws shapes with only orthogonal segments, or segments in any direction.
+             * Gets or sets whether this tool draws shapes with only orthogonal segments, or segments in any direction.
              * The default value is false -- draw segments in any direction. This does not restrict the closing segment, which may not be orthogonal.
              */
             get: function () { return this._isOrthoOnly; },
             set: function (val) { this._isOrthoOnly = val; },
-            enumerable: true,
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(PolygonDrawingTool.prototype, "isGridSnapEnabled", {
+            /**
+             * Gets or sets whether this tool only places the shape's corners on the Diagram's visible grid.
+             * The default value is false
+             */
+            get: function () { return this._isGridSnapEnabled; },
+            set: function (val) { this._isGridSnapEnabled = val; },
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(PolygonDrawingTool.prototype, "archetypePartData", {
@@ -104,7 +118,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._archetypePartData; },
             set: function (val) { this._archetypePartData = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(PolygonDrawingTool.prototype, "temporaryShape", {
@@ -119,13 +133,15 @@ var __extends = (this && this.__extends) || (function () {
                     val.name = 'SHAPE';
                     var panel = this._temporaryShape.panel;
                     if (panel !== null) {
-                        panel.remove(this._temporaryShape);
+                        if (panel !== null)
+                            panel.remove(this._temporaryShape);
                         this._temporaryShape = val;
-                        panel.add(this._temporaryShape);
+                        if (panel !== null)
+                            panel.add(this._temporaryShape);
                     }
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -150,16 +166,29 @@ var __extends = (this && this.__extends) || (function () {
             return (obj === null);
         };
         /**
+        * Start a transaction, capture the mouse, use a "crosshair" cursor,
+        * and start accumulating points in the geometry of the {@link #temporaryShape}.
+        * @this {PolygonDrawingTool}
+        */
+        PolygonDrawingTool.prototype.doStart = function () {
+            _super.prototype.doStart.call(this);
+            var diagram = this.diagram;
+            if (!diagram)
+                return;
+            this.startTransaction(this.name);
+            diagram.currentCursor = diagram.defaultCursor = "crosshair";
+            if (!diagram.lastInput.isTouchEvent)
+                diagram.isMouseCaptured = true;
+        };
+        /**
          * Start a transaction, capture the mouse, use a "crosshair" cursor,
          * and start accumulating points in the geometry of the {@link #temporaryShape}.
          */
         PolygonDrawingTool.prototype.doActivate = function () {
             _super.prototype.doActivate.call(this);
             var diagram = this.diagram;
-            this.startTransaction(this.name);
-            if (!diagram.lastInput.isTouchEvent)
-                diagram.isMouseCaptured = true;
-            diagram.currentCursor = 'crosshair';
+            if (!diagram)
+                return;
             // the first point
             if (!diagram.lastInput.isTouchEvent)
                 this.addPoint(diagram.lastInput.documentPoint);
@@ -167,13 +196,15 @@ var __extends = (this && this.__extends) || (function () {
         /**
          * Stop the transaction and clean up.
          */
-        PolygonDrawingTool.prototype.doDeactivate = function () {
-            _super.prototype.doDeactivate.call(this);
+        PolygonDrawingTool.prototype.doStop = function () {
+            _super.prototype.doStop.call(this);
             var diagram = this.diagram;
+            if (!diagram)
+                return;
+            diagram.currentCursor = diagram.defaultCursor = "auto";
             if (this.temporaryShape !== null && this.temporaryShape.part !== null) {
                 diagram.remove(this.temporaryShape.part);
             }
-            diagram.currentCursor = '';
             if (diagram.isMouseCaptured)
                 diagram.isMouseCaptured = false;
             this.stopTransaction();
@@ -183,11 +214,12 @@ var __extends = (this && this.__extends) || (function () {
          * Given a potential Point for the next segment, return a Point it to snap to the grid, and remain orthogonal, if either is applicable.
          */
         PolygonDrawingTool.prototype.modifyPointForGrid = function (p) {
-            var grid = this.diagram.grid;
             var pregrid = p.copy();
-            if (grid !== null && grid.visible) {
+            var grid = this.diagram.grid;
+            if (grid !== null && grid.visible && this.isGridSnapEnabled) {
                 var cell = grid.gridCellSize;
                 var orig = grid.gridOrigin;
+                p = p.copy();
                 p.snapToGrid(orig.x, orig.y, cell.width, cell.height); // compute the closest grid point (modifies p)
             }
             if (this.temporaryShape.geometry === null)

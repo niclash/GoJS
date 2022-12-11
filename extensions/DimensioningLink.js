@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom routed Link for showing the distances between a point on one node and a point on another node.
@@ -18,7 +18,7 @@
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -65,7 +65,7 @@ DimensioningLink.prototype.cloneProtected = function(copy) {
 * New values must be one of: 0, 90, 180, 270, or NaN.
 * The value NaN indicates that the measurement is point-to-point and not orthogonal.
 * @name DimensioningLink#direction
-* @function.
+
 * @return {number}
 */
 Object.defineProperty(DimensioningLink.prototype, "direction", {
@@ -85,7 +85,7 @@ Object.defineProperty(DimensioningLink.prototype, "direction", {
 * Larger values mean further away from the nodes.
 * The new value must be greater than or equal to zero.
 * @name DimensioningLink#extension
-* @function.
+
 * @return {number}
 */
 Object.defineProperty(DimensioningLink.prototype, "extension", {
@@ -98,7 +98,7 @@ Object.defineProperty(DimensioningLink.prototype, "extension", {
 * extension lines that are orthogonal to the dimension line.
 * The default value is 10.
 * @name DimensioningLink#inset
-* @function.
+
 * @return {number}
 */
 Object.defineProperty(DimensioningLink.prototype, "inset", {
@@ -116,7 +116,7 @@ Object.defineProperty(DimensioningLink.prototype, "inset", {
 * The distance that the extension lines should come short of the measured points.
 * The default value is 10.
 * @name DimensioningLink#gap
-* @function.
+
 * @return {number}
 */
 Object.defineProperty(DimensioningLink.prototype, "gap", {

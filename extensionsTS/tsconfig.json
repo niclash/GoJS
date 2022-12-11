@@ -2,11 +2,8 @@
   "compilerOptions": {
     "module": "umd",
     "target": "es5",
-    "strict": true
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true
   }
-  // For ES6 modules you may wish to use a configuration like this instead:
-  // "compilerOptions": {
-  //   "target": "es6",
-  //   "strict": true
-  // }
 }

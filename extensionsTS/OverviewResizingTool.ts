@@ -1,21 +1,21 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * The OverviewResizingTool class lets the user resize the box within an overview.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/OverviewResizing.html">Overview Resizing</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/OverviewResizing.html">Overview Resizing</a> sample.
  * @category Tool Extension
  */
 export class OverviewResizingTool extends go.ResizingTool {
@@ -36,7 +36,7 @@ export class OverviewResizingTool extends go.ResizingTool {
    * @param {Shape} resizeBox
    * @return {Adornment}
    */
-  public makeAdornment(resizeBox: go.Shape): go.Adornment {
+  public override makeAdornment(resizeBox: go.Shape): go.Adornment {
     this._handleSize.setTo(resizeBox.strokeWidth * 3, resizeBox.strokeWidth * 3);
     // Set up the resize adornment
     const ad = new go.Adornment();
@@ -64,7 +64,7 @@ export class OverviewResizingTool extends go.ResizingTool {
    * @param {Adornment} elt
    * @param {number} angle
    */
-  public updateResizeHandles(elt: go.Adornment, angle: number) {
+  public override updateResizeHandles(elt: go.Adornment, angle: number) {
     if (elt === null) return;
     const handle = elt.findObject('RSZHND') as go.Shape;
     const box = elt.adornedObject as go.Shape;
@@ -76,7 +76,7 @@ export class OverviewResizingTool extends go.ResizingTool {
    * Overrides {@link ResizingTool#resize} to resize the overview box via setting the observed diagram's scale.
    * @param {Rect} newr the intended new rectangular bounds the overview box.
    */
-  public resize(newr: go.Rect): void {
+  public override resize(newr: go.Rect): void {
     const overview = this.diagram as go.Overview;
     const observed = overview.observed;
     if (observed === null) return;

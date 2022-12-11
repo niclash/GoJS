@@ -1,32 +1,73 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dragging Fields Between Records</title>
-  <meta name="description" content="Drag and drop items between nodes." />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Copyright 1998-2019 by Northwoods Software Corporation. -->
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"/>
+<meta name="description" content="Drag and drop items between nodes."/> 
+<link rel="stylesheet" href="../assets/css/style.css"/> 
+<!-- Copyright 1998-2022 by Northwoods Software Corporation. -->
+<title>Dragging Fields Between Records</title>
+</head>
 
-  <script src="../release/go.js"></script>
-  <script src="../assets/js/goSamples.js"></script>  <!-- this is only for the GoJS Samples framework -->
+<body>
+  <!-- This top nav is not part of the sample code -->
+  <nav id="navTop" class="w-full z-30 top-0 text-white bg-nwoods-primary">
+    <div class="w-full container max-w-screen-lg mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between mt-0 py-2">
+      <div class="md:pl-4">
+        <a class="text-white hover:text-white no-underline hover:no-underline
+        font-bold text-2xl lg:text-4xl rounded-lg hover:bg-nwoods-secondary " href="../">
+          <h1 class="mb-0 p-1 ">GoJS</h1>
+        </a>
+      </div>
+      <button id="topnavButton" class="rounded-lg sm:hidden focus:outline-none focus:ring" aria-label="Navigation">
+        <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+          <path id="topnavOpen" fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+          <path id="topnavClosed" class="hidden" fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+      <div id="topnavList" class="hidden sm:block items-center w-auto mt-0 text-white p-0 z-20">
+        <ul class="list-reset list-none font-semibold flex justify-end flex-wrap sm:flex-nowrap items-center px-0 pb-0">
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../learn/">Learn</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../samples/">Samples</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../intro/">Intro</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../api/">API</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/products/register.html">Register</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../download.html">Download</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://forum.nwoods.com/c/gojs/11">Forum</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/contact.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/contact.html', 'contact');">Contact</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/sales/index.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/sales/index.html', 'buy');">Buy</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="border-b border-gray-600 opacity-50 my-0 py-0" />
+  </nav>
+  <div class="md:flex flex-col md:flex-row md:min-h-screen w-full max-w-screen-xl mx-auto">
+    <div id="navSide" class="flex flex-col w-full md:w-48 text-gray-700 bg-white flex-shrink-0"></div>
+    <!-- * * * * * * * * * * * * * -->
+    <!-- Start of GoJS sample code -->
+    
+    <script src="../release/go.js"></script>
+    <div id="allSampleContent" class="p-4 w-full">
   <script id="code">
-    // Custom DraggingTool for dragging fields instead of whole Parts.
-    // FieldDraggingTool.fieldTemplate needs to be set to a template of the field that you want shown while dragging.
-    function FieldDraggingTool() {
-      go.DraggingTool.call(this);
+  // Custom DraggingTool for dragging fields instead of whole Parts.
+  // FieldDraggingTool.fieldTemplate needs to be set to a template of the field that you want shown while dragging.
+  class FieldDraggingTool extends go.DraggingTool {
+    constructor() {
+      super();
       this.fieldTemplate = null;  // THIS NEEDS TO BE SET before a drag starts
       this.temporaryPart = null;
     }
-    go.Diagram.inherit(FieldDraggingTool, go.DraggingTool);
 
     // override this method
-    FieldDraggingTool.prototype.findDraggablePart = function() {
-      var diagram = this.diagram;
-      var obj = diagram.findObjectAt(diagram.lastInput.documentPoint);
+    findDraggablePart() {
+      const diagram = this.diagram;
+      let obj = diagram.findObjectAt(diagram.lastInput.documentPoint);
       while (obj !== null && obj.type !== go.Panel.TableRow) obj = obj.panel;
       if (obj !== null && obj.type === go.Panel.TableRow &&
         this.fieldTemplate !== null && this.temporaryPart === null) {
-        var tempPart =
+        const tempPart =
           go.GraphObject.make(go.Node, "Table",
             { layerName: "Tool", locationSpot: go.Spot.Center },
             this.fieldTemplate.copy());  // copy the template!
@@ -38,72 +79,75 @@
         tempPart.data = obj.data;  // bind to the same field data as being dragged
         return tempPart;
       }
-      return go.DraggingTool.prototype.findDraggablePart.call(this);
-    };
+      return super.findDraggablePart();
+    }
 
-    FieldDraggingTool.prototype.doActivate = function() {
-      if (this.temporaryPart === null) return go.DraggingTool.prototype.doActivate.call(this);
-      var diagram = this.diagram;
+    doActivate() {
+      if (this.temporaryPart === null) return super.doActivate();
+      const diagram = this.diagram;
       this.standardMouseSelect();
       this.isActive = true;
       // instead of the usual result of computeEffectiveCollection, just use the temporaryPart alone
-      var map = new go.Map(/*go.Part, go.DraggingInfo*/);
+      const map = new go.Map(/*go.Part, go.DraggingInfo*/);
       map.set(this.temporaryPart, new go.DraggingInfo(diagram.lastInput.documentPoint.copy()));
       this.draggedParts = map;
       this.startTransaction("Drag Field");
       diagram.isMouseCaptured = true;
-    };
+    }
 
-    FieldDraggingTool.prototype.doDeactivate = function() {
-      if (this.temporaryPart === null) return go.DraggingTool.prototype.doDeactivate.call(this);
-      var diagram = this.diagram;
+    doDeactivate() {
+      if (this.temporaryPart === null) return super.doDeactivate();
+      const diagram = this.diagram;
       // make sure the temporary Part is no longer in the Diagram
       diagram.remove(this.temporaryPart);
       this.temporaryPart = null;
       // now do all the standard deactivation cleanup,
       // including setting isActive = false, clearing out draggedParts, calling stopTransaction(),
       // and setting diagram.isMouseCaptured = false
-      go.DraggingTool.prototype.doDeactivate.call(this);
-    };
+      super.doDeactivate();
+    }
 
-    FieldDraggingTool.prototype.doMouseMove = function() {
+    doMouseMove() {
       if (!this.isActive) return;
-      if (this.temporaryPart === null) return go.DraggingTool.prototype.doMouseMove.call(this);
-      var diagram = this.diagram;
+      if (this.temporaryPart === null) return super.doMouseMove();
+      const diagram = this.diagram;
       // just move the temporaryPart (in draggedParts), without regard to moving or copying permissions of the Node
-      var offset = diagram.lastInput.documentPoint.copy().subtract(diagram.firstInput.documentPoint);
+      const offset = diagram.lastInput.documentPoint.copy().subtract(diagram.firstInput.documentPoint);
       this.moveParts(this.draggedParts, offset, false);
-    };
+    }
 
-    FieldDraggingTool.prototype.doMouseUp = function() {
+    doMouseUp() {
       if (!this.isActive) return;
-      if (this.temporaryPart === null) return go.DraggingTool.prototype.doMouseUp.call(this);
-      var diagram = this.diagram;
-      var data = this.temporaryPart.data;
-      var dest = diagram.findPartAt(diagram.lastInput.documentPoint, false);
+      if (this.temporaryPart === null) return super.doMouseUp();
+      const diagram = this.diagram;
+      const data = this.temporaryPart.data;
+      const dest = diagram.findPartAt(diagram.lastInput.documentPoint, false);
       if (dest !== null && dest.data && dest.data.fields) {
-        var panel = dest.findObject("TABLE");
-        var idx = panel.findRowForLocalY(panel.getLocalPoint(diagram.lastInput.documentPoint).y);
+        const panel = dest.findObject("TABLE");
+        const idx = panel.findRowForLocalY(panel.getLocalPoint(diagram.lastInput.documentPoint).y);
         diagram.model.insertArrayItem(dest.data.fields, idx + 1,
           { name: data.name, info: data.info, color: data.color, figure: data.figure });
       }
-      var src = this.currentPart;
+      const src = this.currentPart;
       // whether or not there was a destination node, delete the original field
       if (!(diagram.lastInput.control || diagram.lastInput.meta)) {
-        var sidx = src.data.fields.indexOf(data);
+        const sidx = src.data.fields.indexOf(data);
         if (sidx >= 0) {
           diagram.model.removeArrayItem(src.data.fields, sidx);
         }
       }
       this.transactionResult = "Inserted Field";
       this.stopTool();
-    };
-    // end of FieldDraggingTool
+    }
+  }
+  // end of FieldDraggingTool
 
 
     function init() {
-      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-      var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+      // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+      // For details, see https://gojs.net/latest/intro/buildingObjects.html
+      const $ = go.GraphObject.make;  // for conciseness in defining templates
 
       myDiagram =
         $(go.Diagram, "myDiagramDiv",
@@ -111,14 +155,14 @@
             validCycle: go.Diagram.CycleNotDirected,  // don't allow loops
             draggingTool: $(FieldDraggingTool),  // use custom DraggingTool
             // automatically update the model that is shown on this page
-            "ModelChanged": function(e) { if (e.isTransactionFinished) showModel(); },
+            "ModelChanged": e => { if (e.isTransactionFinished) showModel(); },
             "undoManager.isEnabled": true
           });
 
       // This template is a Panel that is used to represent each item in a Panel.itemArray.
       // The Panel is data bound to the item object.
       // This template needs to be used by the FieldDraggingTool as well as the Diagram.nodeTemplate.
-      var fieldTemplate =
+      const fieldTemplate =
         $(go.Panel, "TableRow",  // this Panel is a row in the containing Table
           new go.Binding("portId", "name"),  // this Panel is a "port"
           {
@@ -186,7 +230,7 @@
         );  // end Node
 
       myDiagram.model =
-        $(go.GraphLinksModel,
+        new go.GraphLinksModel(
           {
             linkFromPortIdProperty: "fromPort",
             linkToPortIdProperty: "toPort",
@@ -220,9 +264,9 @@
         document.getElementById("mySavedModel").textContent = myDiagram.model.toJson();
       }
     }
+    window.addEventListener('DOMContentLoaded', init);
   </script>
-</head>
-<body onload="init()">
+
 <div id="sample">
   <div id="myDiagramDiv" style="border: solid 1px black; width:100%; height:300px"></div>
   <p>Drag fields between records to move them; dragging within the same node can reorder them.
@@ -231,5 +275,11 @@
   <p>The model data, automatically updated after each change or undo or redo:</p>
   <textarea id="mySavedModel" style="width:100%;height:300px"></textarea>
 </div>
+    </div>
+    <!-- * * * * * * * * * * * * * -->
+    <!--  End of GoJS sample code  -->
+  </div>
 </body>
+<!--  This script is part of the gojs.net website, and is not needed to run the sample -->
+<script src="../assets/js/goSamples.js"></script>
 </html>

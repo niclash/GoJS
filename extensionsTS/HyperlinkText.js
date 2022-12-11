@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,7 +7,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -16,10 +16,10 @@
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     // A "HyperlinkText" is either a TextBlock or a Panel containing a TextBlock that when clicked
     // opens a new browser window with a given or computed URL.
     // When the user's mouse passes over a "HyperlinkText", the text is underlined.
@@ -64,7 +64,7 @@
         var click = function (e, obj) {
             var u = obj._url;
             if (typeof u === 'function')
-                u = u(obj.findTemplateBinder());
+                u = u(obj.findBindingPanel());
             if (u)
                 window.open(u, '_blank');
         };
@@ -74,7 +74,7 @@
             obj = obj.part.adornedObject;
             var u = obj._url;
             if (typeof u === 'function')
-                u = u(obj.findTemplateBinder());
+                u = u(obj.findBindingPanel());
             return u;
         }).ofObject()), new go.Binding('visible', 'text', function (t) { return !!t; }).ofObject('TB'));
         // if the text is provided, use a new TextBlock; otherwise assume the TextBlock is provided
@@ -87,12 +87,13 @@
                 mouseEnter: function (e, obj) {
                     var u = obj._url;
                     if (typeof u === 'function')
-                        u = u(obj.findTemplateBinder());
+                        u = u(obj.findBindingPanel());
                     if (u && obj instanceof go.TextBlock)
                         obj.isUnderline = true;
                 },
                 mouseLeave: function (e, obj) { if (obj instanceof go.TextBlock)
                     obj.isUnderline = false; },
+                isActionable: true,
                 click: click,
                 toolTip: tooltip // shared by all HyperlinkText textblocks
             });
@@ -128,7 +129,7 @@
                     var tb = findTextBlock_1(panel);
                     var u = panel._url;
                     if (typeof u === 'function')
-                        u = u(panel.findTemplateBinder());
+                        u = u(panel.findBindingPanel());
                     if (tb !== null && u)
                         tb.isUnderline = true;
                 },
@@ -137,6 +138,7 @@
                     if (tb !== null)
                         tb.isUnderline = false;
                 },
+                isActionable: true,
                 click: click,
                 toolTip: tooltip // shared by all HyperlinkText panels
             });

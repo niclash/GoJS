@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * This {@link Layout} positions non-Link Parts into a table according to the values of
@@ -33,7 +33,7 @@ import * as go from '../release/go';
  * nor background ({@link RowColumnDefinition#background} and {@link RowColumnDefinition#coversSeparators} properties).
  * There is no support for {@link RowColumnDefinition#sizing}, either.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/Table.html">Table Layout</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/Table.html">Table Layout</a> sample.
  * @category Layout Extension
  */
 export class TableLayout extends go.Layout {
@@ -75,7 +75,7 @@ export class TableLayout extends go.Layout {
   /**
    * Copies properties to a cloned Layout.
    */
-  public cloneProtected(copy: this): void {
+  public override cloneProtected(copy: this): void {
     super.cloneProtected(copy);
     copy._defaultAlignment = this._defaultAlignment;
     copy._defaultStretch = this._defaultStretch;
@@ -234,7 +234,7 @@ export class TableLayout extends go.Layout {
    * This method performs the measuring and arranging of the table, assiging positions to each part.
    * @param {Iterable.<Part>} coll A collection of {@link Part}s.
    */
-  public doLayout(coll: go.Iterable<go.Part>): void {
+  public override doLayout(coll: go.Iterable<go.Part>): void {
     this.arrangementOrigin = this.initialOrigin(this.arrangementOrigin);
     // put all eligible Parts that are not Links into an Array
     const parts = new go.List<go.Part>();
@@ -330,13 +330,13 @@ export class TableLayout extends go.Layout {
       if (!rowcol[i]) continue;
       lcol = rowcol[i].length; // column length in this row
       const rowHerald = this.getRowDefinition(i);
-      rowHerald.actual = 0; // Reset rows (only on first pass)
+      rowHerald.measured = 0; // Reset rows (only on first pass)
       for (let j = 0; j < lcol; j++) {
         // foreach column j in row i...
         if (!rowcol[i][j]) continue;
         const colHerald = this.getColumnDefinition(j);
         if (resetCols[j] === undefined) { // make sure we only reset these once
-          colHerald.actual = 0;
+          colHerald.measured = 0;
           resetCols[j] = true;
         }
 
@@ -390,12 +390,13 @@ export class TableLayout extends go.Layout {
           const mheight = Math.max(m.height + margh, 0);
 
           //  Make sure the heralds have the right layout size
-          //    the row/column should use the largest meausured size of any
+          //    the row/column should use the largest measured size of any
           //    GraphObject contained, constrained by mins and maxes
           if (child.rowSpan === 1 && (realheight || stretch === go.GraphObject.None || stretch === go.GraphObject.Horizontal)) {
             const def = this.getRowDefinition(i);
             amt = Math.max(mheight - def.actual, 0);
             if (amt > rowleft) amt = rowleft;
+            def.measured = def.measured + amt;
             def.actual = def.actual + amt;
             rowleft = Math.max(rowleft - amt, 0);
           }
@@ -404,6 +405,7 @@ export class TableLayout extends go.Layout {
             const def = this.getColumnDefinition(j);
             amt = Math.max(mwidth - def.actual, 0);
             if (amt > colleft) amt = colleft;
+            def.measured = def.measured + amt;
             def.actual = def.actual + amt;
             colleft = Math.max(colleft - amt, 0);
           }
@@ -419,12 +421,12 @@ export class TableLayout extends go.Layout {
     l = this.columnCount;
     for (let i = 0; i < l; i++) {
       if (this._colDefs[i] === undefined) continue;
-      totalColWidth += this.getColumnDefinition(i).actual;
+      totalColWidth += this.getColumnDefinition(i).measured;
     }
     l = this.rowCount;
     for (let i = 0; i < l; i++) {
       if (this._rowDefs[i] === undefined) continue;
-      totalRowHeight += this.getRowDefinition(i).actual;
+      totalRowHeight += this.getRowDefinition(i).measured;
     }
     colleft = Math.max(width - totalColWidth, 0);
     rowleft = Math.max(height - totalRowHeight, 0);
@@ -443,12 +445,12 @@ export class TableLayout extends go.Layout {
       const margw = marg.right + marg.left;
       const margh = marg.top + marg.bottom;
 
-      if (colHerald.actual === 0 && (nosizeCols as any)[child.column] !== undefined) {
+      if (colHerald.measured === 0 && (nosizeCols as any)[child.column] !== undefined) {
         (nosizeCols as any)[child.column] = Math.max(mb.width + margw, (nosizeCols as any)[child.column]);
       } else {
         (nosizeCols as any)[child.column] = null; // obey the column herald
       }
-      if (rowHerald.actual === 0 && (nosizeRows as any)[child.row] !== undefined) {
+      if (rowHerald.measured === 0 && (nosizeRows as any)[child.row] !== undefined) {
         (nosizeRows as any)[child.row] = Math.max(mb.height + margh, (nosizeRows as any)[child.row]);
       } else {
         (nosizeRows as any)[child.row] = null; // obey the row herald
@@ -531,11 +533,13 @@ export class TableLayout extends go.Layout {
 
       oldAmount = rowHerald.actual;
       rowHerald.actual = Math.max(rowHerald.actual, mheight);
+      rowHerald.measured = Math.max(rowHerald.measured, mheight);
       amt = rowHerald.actual - oldAmount;
       rowleft = Math.max(rowleft - amt, 0);
 
       oldAmount = colHerald.actual;
       colHerald.actual = Math.max(colHerald.actual, mwidth);
+      colHerald.measured = Math.max(colHerald.measured, mwidth);
       amt = colHerald.actual - oldAmount;
       colleft = Math.max(colleft - amt, 0);
     } // end no fixed size objects
@@ -696,7 +700,6 @@ export class TableLayout extends go.Layout {
    * @hidden @internal
    */
   public arrangeTable(children: go.List<go.Part>, union: go.Size, rowcol: Array<Array<any>>): void {
-    const l = children.length;
     const originx = this.arrangementOrigin.x;
     const originy = this.arrangementOrigin.y;
     let x = 0.0;
@@ -708,6 +711,18 @@ export class TableLayout extends go.Layout {
       if (!(rowcol as any)[i]) continue;
       lcol = Math.max(lcol, (rowcol as any)[i].length); // column length in this row
     }
+    let firstRow = 0;
+    let firstColumn = 0;
+    let ll = this.columnCount;
+    for (let i = 0; i < ll; i++) {
+      if (this._colDefs[i] === undefined) continue;
+      firstColumn = i; break;
+    }
+    ll = this.rowCount;
+    for (let i = 0; i < ll; i++) {
+      if (this._rowDefs[i] === undefined) continue;
+      firstRow = i; break;
+    }
 
     const additionalSpan = new go.Size();
     // Find cell space and arrange objects:
@@ -715,12 +730,12 @@ export class TableLayout extends go.Layout {
       if (!rowcol[i]) continue;
       lcol = rowcol[i].length; // column length in this row
       const rowHerald = this.getRowDefinition(i);
-      y = originy + rowHerald.position + rowHerald.computeEffectiveSpacingTop();
+      y = originy + rowHerald.position + rowHerald.computeEffectiveSpacingTop(firstRow);
       for (let j = 0; j < lcol; j++) {
         // foreach column j in row i...
         if (!rowcol[i][j]) continue;
         const colHerald = this.getColumnDefinition(j);
-        x = originx + colHerald.position + colHerald.computeEffectiveSpacingTop();
+        x = originx + colHerald.position + colHerald.computeEffectiveSpacingTop(firstColumn);
         const cell = rowcol[i][j];
         const len = cell.length;
 
@@ -757,17 +772,6 @@ export class TableLayout extends go.Layout {
           ar.y = y;
           ar.width = colwidth;
           ar.height = rowheight;
-
-          // Also keep them for clip values
-          const cellx = x;
-          const celly = y;
-          let cellw = colwidth;
-          let cellh = rowheight;
-          // Ending rows/col might have actual spaces that are larger than the remaining space
-          // Modify them for clipping regions
-          if (x + colwidth > union.width) cellw = Math.max(union.width - x, 0);
-          if (y + rowheight > union.height) cellh = Math.max(union.height - y, 0);
-
 
           // Construct alignment:
           let align = child.alignment;

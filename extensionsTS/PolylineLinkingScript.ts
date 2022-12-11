@@ -1,17 +1,17 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { PolylineLinkingTool } from './PolylineLinkingTool';
+import * as go from '../release/go.js';
+import { PolylineLinkingTool } from './PolylineLinkingTool.js';
 
 let myDiagram: go.Diagram;
 
@@ -21,7 +21,8 @@ export function init() {
   const $ = go.GraphObject.make;
 
   myDiagram =
-    $(go.Diagram, 'myDiagramDiv');
+    $(go.Diagram, 'myDiagramDiv',
+      { "undoManager.isEnabled": true });
 
   // install custom linking tool, defined in PolylineLinkingTool.js
   const tool = new PolylineLinkingTool();
@@ -60,11 +61,9 @@ export function init() {
 
 // save a model to and load a model from Json text, displayed below the Diagram
 export function save() {
-  const str = myDiagram.model.toJson();
-  (document.getElementById('mySavedModel') as any).value = str;
+  (document.getElementById('mySavedModel') as any).value = myDiagram.model.toJson();
+  myDiagram.isModified = false;
 }
 export function load() {
-  const str = (document.getElementById('mySavedModel') as any).value;
-  myDiagram.model = go.Model.fromJson(str);
-  myDiagram.model.undoManager.isEnabled = true;
+  myDiagram.model = go.Model.fromJson((document.getElementById('mySavedModel') as any).value);
 }

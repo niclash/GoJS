@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * A custom routed {@link Link} for showing the distances between a point on one node and a point on another node.
@@ -24,7 +24,7 @@ import * as go from '../release/go';
  * {@link #inset}, for leaving room for a text label, and
  * {@link #gap}, for distance that the extension line starts from the measured points.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/Dimensioning.html">Dimensioning</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/Dimensioning.html">Dimensioning</a> sample.
  * @category Part Extension
  */
 export class DimensioningLink extends go.Link {
@@ -49,7 +49,7 @@ export class DimensioningLink extends go.Link {
   /**
    * Copies properties to a cloned DimensioningLink.
    */
-  public cloneProtected(copy: this): void {
+  public override cloneProtected(copy: this): void {
     super.cloneProtected(copy);
     copy._direction = this._direction;
     copy._extension = this._extension;
@@ -117,14 +117,16 @@ export class DimensioningLink extends go.Link {
    * Constructs the link's route by modifying {@link #points}.
    * @return {boolean} true if it computed a route of points
    */
-  public computePoints(): boolean {
+  public override computePoints(): boolean {
     const fromnode = this.fromNode;
     if (!fromnode) return false;
     const fromport = this.fromPort;
+    if (!fromport) return false;
     const fromspot = this.computeSpot(true);
     const tonode = this.toNode;
     if (!tonode) return false;
     const toport = this.toPort;
+    if (!toport) return false;
     const tospot = this.computeSpot(false);
     const frompoint = this.getLinkPoint(fromnode, fromport, fromspot, true, true, tonode, toport);
     if (!frompoint.isReal()) return false;
@@ -149,7 +151,6 @@ export class DimensioningLink extends go.Link {
       this.addPointAt(topoint.x + p.x, topoint.y + p.y);
       this.addPointAt(topoint.x + g.x, topoint.y + g.y);
     } else {
-      const dist = this.extension;
       let r = 0.0;
       let s = 0.0;
       let t0 = 0.0;

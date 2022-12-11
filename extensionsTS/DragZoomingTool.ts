@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * The DragZoomingTool lets the user zoom into a diagram by stretching a box
@@ -42,7 +42,7 @@ import * as go from '../release/go';
  * but it does temporarily add the {@link #box} part to the diagram.
  * This tool does not modify the model or conduct any transaction.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/DragZooming.html">Drag Zooming</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/DragZooming.html">Drag Zooming</a> sample.
  * @category Tool Extension
  */
 export class DragZoomingTool extends go.Tool {
@@ -108,7 +108,7 @@ export class DragZoomingTool extends go.Tool {
    * and there has been delay of at least {@link #delay} milliseconds
    * after the mouse-down before a mouse-move.
    */
-  public canStart(): boolean {
+  public override canStart(): boolean {
     if (!this.isEnabled) return false;
     const diagram = this.diagram;
     const e = diagram.lastInput;
@@ -126,7 +126,7 @@ export class DragZoomingTool extends go.Tool {
   /**
    * Capture the mouse and show the {@link #box}.
    */
-  public doActivate(): void {
+  public override doActivate(): void {
     const diagram = this.diagram;
     this.isActive = true;
     diagram.isMouseCaptured = true;
@@ -138,7 +138,7 @@ export class DragZoomingTool extends go.Tool {
   /**
    * Release the mouse and remove any {@link #box}.
    */
-  public doDeactivate(): void {
+  public override doDeactivate(): void {
     const diagram = this.diagram;
     diagram.remove(this.box);
     diagram.skipsUndoManager = false;
@@ -150,8 +150,7 @@ export class DragZoomingTool extends go.Tool {
    * Update the {@link #box}'s position and size according to the value
    * of {@link #computeBoxBounds}.
    */
-  public doMouseMove(): void {
-    const diagram = this.diagram;
+  public override doMouseMove(): void {
     if (this.isActive && this.box !== null) {
       const r = this.computeBoxBounds();
       let shape = this.box.findObject('SHAPE');
@@ -164,7 +163,7 @@ export class DragZoomingTool extends go.Tool {
   /**
    * Call {@link #zoomToRect} with the value of a call to {@link #computeBoxBounds}.
    */
-  public doMouseUp(): void {
+  public override doMouseUp(): void {
     if (this.isActive) {
       const diagram = this.diagram;
       diagram.remove(this.box);

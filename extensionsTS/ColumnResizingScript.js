@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,21 +7,22 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go", "./ColumnResizingTool", "./RowResizingTool"], factory);
+        define(["require", "exports", "../release/go.js", "./ColumnResizingTool.js", "./RowResizingTool.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.init = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
-    var ColumnResizingTool_1 = require("./ColumnResizingTool");
-    var RowResizingTool_1 = require("./RowResizingTool");
+    var go = require("../release/go.js");
+    var ColumnResizingTool_js_1 = require("./ColumnResizingTool.js");
+    var RowResizingTool_js_1 = require("./RowResizingTool.js");
     function init() {
         if (window.goSamples)
             window.goSamples(); // init for these samples -- you don't need to call this
@@ -30,8 +31,8 @@
             validCycle: go.Diagram.CycleNotDirected,
             'undoManager.isEnabled': true
         });
-        myDiagram.toolManager.mouseDownTools.add(new RowResizingTool_1.RowResizingTool());
-        myDiagram.toolManager.mouseDownTools.add(new ColumnResizingTool_1.ColumnResizingTool());
+        myDiagram.toolManager.mouseDownTools.add(new RowResizingTool_js_1.RowResizingTool());
+        myDiagram.toolManager.mouseDownTools.add(new ColumnResizingTool_js_1.ColumnResizingTool());
         // This template is a Panel that is used to represent each item in a Panel.itemArray.
         // The Panel is data bound to the item object.
         var fieldTemplate = $(go.Panel, 'TableRow', // this Panel is a row in the containing Table
@@ -98,10 +99,10 @@
             // this rectangular shape surrounds the content of the node
             $(go.Shape, { fill: '#EEEEEE' }), 
             // the content consists of a header and a list of items
-            $(go.Panel, 'Vertical', { stretch: go.GraphObject.Horizontal, alignment: go.Spot.TopLeft }, 
+            $(go.Panel, 'Vertical', { stretch: go.GraphObject.Horizontal, margin: 0.5 }, 
             // this is the header for the whole node
             $(go.Panel, 'Auto', { stretch: go.GraphObject.Horizontal }, // as wide as the whole node
-            $(go.Shape, { fill: '#1570A6', stroke: null }), $(go.TextBlock, {
+            $(go.Shape, { fill: '#1570A6', strokeWidth: 0 }), $(go.TextBlock, {
                 alignment: go.Spot.Center,
                 margin: 3,
                 stroke: 'white',
@@ -125,14 +126,9 @@
             $(go.Link, { relinkableFrom: true, relinkableTo: true, toShortLength: 4 }, // let user reconnect links
             $(go.Shape, { strokeWidth: 1.5 }), $(go.Shape, { toArrow: 'Standard', stroke: null }));
         myDiagram.model =
-            $(go.GraphLinksModel, {
+            new go.GraphLinksModel({
                 linkFromPortIdProperty: 'fromPort',
                 linkToPortIdProperty: 'toPort',
-                // automatically update the model that is shown on this page
-                'Changed': function (e) {
-                    if (e.isTransactionFinished)
-                        showModel();
-                },
                 nodeDataArray: [
                     {
                         key: 'Record1',
@@ -161,6 +157,9 @@
                     { from: 'Record1', fromPort: 'field2', to: 'Record2', toPort: 'fieldD' },
                     { from: 'Record1', fromPort: 'fieldThree', to: 'Record2', toPort: 'fieldB' }
                 ]
+            }).addChangedListener(function (e) {
+                if (e.isTransactionFinished)
+                    showModel();
             });
         showModel(); // show the diagram's initial model
         function showModel() {

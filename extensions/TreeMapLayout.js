@@ -1,6 +1,6 @@
 ﻿"use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Layout that lays out nested Groups according to how much area they should have
@@ -74,7 +74,7 @@ TreeMapLayout.prototype.doLayout = function(coll) {
 
 // Position and size the given node, and recurse if the node is a group
 TreeMapLayout.prototype.layoutNode = function(horiz, n, x, y, w, h) {
-  n.position = new go.Point(x, y);
+  n.moveTo(x, y);
   n.desiredSize = new go.Size(w, h);
   if (n instanceof go.Group) {
     var g = n;
@@ -131,7 +131,7 @@ TreeMapLayout.prototype.computeTotals = function(diagram) {
 * Gets or sets whether the top-level organization is horizontal or vertical.
 * The default value is false.
 * @name TreeMapLayout#isTopLevelHorizontal
-* @function.
+
 * @return {boolean}
 */
 Object.defineProperty(TreeMapLayout.prototype, "isTopLevelHorizontal", {

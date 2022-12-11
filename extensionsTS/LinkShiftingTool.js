@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,19 +22,20 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.LinkShiftingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * The LinkShiftingTool class lets the user shift the end of a link to be anywhere along the edges of the port;
      * use it in a diagram.toolManager.mouseDownTools list:
@@ -40,7 +43,7 @@ var __extends = (this && this.__extends) || (function () {
      * myDiagram.toolManager.mouseDownTools.add(new LinkShiftingTool());
      * ```
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/LinkShifting.html">Link Shifting</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/LinkShifting.html">Link Shifting</a> sample.
      * @category Tool Extension
      */
     var LinkShiftingTool = /** @class */ (function (_super) {
@@ -82,7 +85,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._fromHandleArchetype; },
             set: function (value) { this._fromHandleArchetype = value; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(LinkShiftingTool.prototype, "toHandleArchetype", {
@@ -91,7 +94,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._toHandleArchetype; },
             set: function (value) { this._toHandleArchetype = value; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -104,7 +107,7 @@ var __extends = (this && this.__extends) || (function () {
             // show handles if link is selected, remove them if no longer selected
             var category = 'LinkShiftingFrom';
             var adornment = null;
-            if (link.isSelected && !this.diagram.isReadOnly) {
+            if (link.isSelected && !this.diagram.isReadOnly && link.fromPort) {
                 var selelt = link.selectionObject;
                 if (selelt !== null && link.actualBounds.isReal() && link.isVisible() &&
                     selelt.actualBounds.isReal() && selelt.isVisibleObject()) {
@@ -127,7 +130,7 @@ var __extends = (this && this.__extends) || (function () {
                 link.removeAdornment(category);
             category = 'LinkShiftingTo';
             adornment = null;
-            if (link.isSelected && !this.diagram.isReadOnly) {
+            if (link.isSelected && !this.diagram.isReadOnly && link.toPort) {
                 var selelt = link.selectionObject;
                 if (selelt !== null && link.actualBounds.isReal() && link.isVisible() &&
                     selelt.actualBounds.isReal() && selelt.isVisibleObject()) {
@@ -283,8 +286,9 @@ var __extends = (this && this.__extends) || (function () {
             // support rotated ports
             var portang = port.getDocumentAngle();
             var center = port.getDocumentPoint(go.Spot.Center);
+            var farpt = pt.copy().offset((pt.x - center.x) * 1000, (pt.y - center.y) * 1000);
             var portb = new go.Rect(port.getDocumentPoint(go.Spot.TopLeft).subtract(center).rotate(-portang).add(center), port.getDocumentPoint(go.Spot.BottomRight).subtract(center).rotate(-portang).add(center));
-            var lp = link.getLinkPointFromPoint(port.part, port, center, pt, fromend);
+            var lp = link.getLinkPointFromPoint(port.part, port, center, farpt, fromend);
             lp = lp.copy().subtract(center).rotate(-portang).add(center);
             var spot = new go.Spot(Math.max(0, Math.min(1, (lp.x - portb.x) / (portb.width || 1))), Math.max(0, Math.min(1, (lp.y - portb.y) / (portb.height || 1))));
             if (fromend) {

@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,19 +22,20 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.DimensioningLink = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * A custom routed {@link Link} for showing the distances between a point on one node and a point on another node.
      *
@@ -45,7 +48,7 @@ var __extends = (this && this.__extends) || (function () {
      * {@link #inset}, for leaving room for a text label, and
      * {@link #gap}, for distance that the extension line starts from the measured points.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/Dimensioning.html">Dimensioning</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/Dimensioning.html">Dimensioning</a> sample.
      * @category Part Extension
      */
     var DimensioningLink = /** @class */ (function (_super) {
@@ -95,7 +98,7 @@ var __extends = (this && this.__extends) || (function () {
                     throw new Error('DimensioningLink: invalid new direction: ' + val);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DimensioningLink.prototype, "extension", {
@@ -108,7 +111,7 @@ var __extends = (this && this.__extends) || (function () {
              */
             get: function () { return this._extension; },
             set: function (val) { this._extension = val; },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DimensioningLink.prototype, "inset", {
@@ -127,7 +130,7 @@ var __extends = (this && this.__extends) || (function () {
                     throw new Error('DimensionLink: invalid new inset: ' + val);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(DimensioningLink.prototype, "gap", {
@@ -145,7 +148,7 @@ var __extends = (this && this.__extends) || (function () {
                     throw new Error('DimensionLink: invalid new gap: ' + val);
                 }
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -157,11 +160,15 @@ var __extends = (this && this.__extends) || (function () {
             if (!fromnode)
                 return false;
             var fromport = this.fromPort;
+            if (!fromport)
+                return false;
             var fromspot = this.computeSpot(true);
             var tonode = this.toNode;
             if (!tonode)
                 return false;
             var toport = this.toPort;
+            if (!toport)
+                return false;
             var tospot = this.computeSpot(false);
             var frompoint = this.getLinkPoint(fromnode, fromport, fromspot, true, true, tonode, toport);
             if (!frompoint.isReal())
@@ -187,7 +194,6 @@ var __extends = (this && this.__extends) || (function () {
                 this.addPointAt(topoint.x + g.x, topoint.y + g.y);
             }
             else {
-                var dist = this.extension;
                 var r = 0.0;
                 var s = 0.0;
                 var t0 = 0.0;

@@ -1,22 +1,22 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * The LinkLabelOnPathDraggingTool class lets the user move a label on a {@link Link} while keeping the label on the link's path.
  * This tool only works when the Link has a label marked by the "_isLinkLabel" property.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/LinkLabelOnPathDragging.html">Link Label On Path Dragging</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/LinkLabelOnPathDragging.html">Link Label On Path Dragging</a> sample.
  * @category Tool Extension
  */
 export class LinkLabelOnPathDraggingTool extends go.Tool {
@@ -24,7 +24,6 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
    * The label being dragged.
    */
   public label: go.GraphObject | null = null;
-  private _originalIndex: number = 0;
   private _originalFraction: number = 0.0;
 
   /**
@@ -59,7 +58,7 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
    * and if the mouse down point is on a GraphObject "label" in a Link Panel,
    * as determined by {@link #findLabel}.
    */
-  public canStart(): boolean {
+  public override canStart(): boolean {
     if (!super.canStart()) return false;
     const diagram = this.diagram;
     // require left button & that it has moved far enough away from the mouse down point, so it isn't a click
@@ -74,11 +73,10 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
    * Start a transaction, call findLabel and remember it as the "label" property,
    * and remember the original values for the label's segment properties.
    */
-  public doActivate(): void {
+  public override doActivate(): void {
     this.startTransaction('Shifted Label');
     this.label = this.findLabel();
     if (this.label !== null) {
-      this._originalIndex = this.label.segmentIndex;
       this._originalFraction = this.label.segmentFraction;
     }
     super.doActivate();
@@ -87,7 +85,7 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
   /**
    * Stop any ongoing transaction.
    */
-  public doDeactivate(): void {
+  public override doDeactivate(): void {
     super.doDeactivate();
     this.stopTransaction();
   }
@@ -95,7 +93,7 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
   /**
    * Clear any reference to a label element.
    */
-  public doStop(): void {
+  public override doStop(): void {
     this.label = null;
     super.doStop();
   }
@@ -103,9 +101,8 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
   /**
    * Restore the label's original value for GraphObject.segment... properties.
    */
-  public doCancel(): void {
+  public override doCancel(): void {
     if (this.label !== null) {
-      this.label.segmentIndex = this._originalIndex;
       this.label.segmentFraction = this._originalFraction;
     }
     super.doCancel();
@@ -114,7 +111,7 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
   /**
    * During the drag, call {@link #updateSegmentOffset} in order to set the segment... properties of the label.
    */
-  public doMouseMove(): void {
+  public override doMouseMove(): void {
     if (!this.isActive) return;
     this.updateSegmentOffset();
   }
@@ -123,7 +120,7 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
    * At the end of the drag, update the segment properties of the label and finish the tool,
    * completing a transaction.
    */
-  public doMouseUp(): void {
+  public override doMouseUp(): void {
     if (!this.isActive) return;
     this.updateSegmentOffset();
     this.transactionResult = 'Shifted Label';
@@ -131,24 +128,20 @@ export class LinkLabelOnPathDraggingTool extends go.Tool {
   }
 
   /**
-   * Save the label's {@link GraphObject#segmentIndex} and {@link GraphObject#segmentFraction}
+   * Save the label's {@link GraphObject#segmentFraction}
    * at the closest point to the mouse.
    */
   public updateSegmentOffset(): void {
     const lab = this.label;
     if (lab === null) return;
     const link = lab.part;
-    if (!(link instanceof go.Link)) return;
+    if (!(link instanceof go.Link) || link.path === null) return;
 
     const last = this.diagram.lastInput.documentPoint;
-    let idx = link.findClosestSegment(last);
-    idx = Math.min(Math.max(link.firstPickIndex, idx), link.lastPickIndex - 1);
-    const p1 = link.getPoint(idx);
-    const p2 = link.getPoint(idx + 1);
-    const total = Math.sqrt(p1.distanceSquaredPoint(p2));
-    const p = last.copy().projectOntoLineSegmentPoint(p1, p2);
-    const frac = Math.sqrt(p1.distanceSquaredPoint(p)) / total;
-    lab.segmentIndex = idx;
-    lab.segmentFraction = frac;
+    // find the fractional distance along the link path closest to this point
+    const path = link.path;
+    if (path.geometry === null) return;
+    const localpt = path.getLocalPoint(last);
+    lab.segmentFraction = path.geometry.getFractionForPoint(localpt);
   }
 }

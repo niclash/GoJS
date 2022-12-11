@@ -1,16 +1,12 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
-/*
-* This is an extension and not part of the main GoJS library.
-* Note that the API for this class may change with any version, even point releases.
-* If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
-* See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
-*/
+// This is the definitions of the predefined text editor used by TextEditingTool
+// when you set or bind TextBlock.editable to true.
+// You do not need to load this file in order to use in-place text editing.
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 // HTML + JavaScript text editor menu, made with HTMLInfo
 // This is a re-implementation of the default text editor
@@ -33,16 +29,16 @@ import * as go from '../release/go';
   textarea.addEventListener('keydown', (e) => {
     const tool = (TextEditor as any).tool;
     if (tool.textBlock === null) return;
-    const keynum = e.which;
-    if (keynum === 13) { // Enter
+    const key = e.key;
+    if (key === "Enter") { // Enter
       if (tool.textBlock.isMultiline === false) e.preventDefault();
       tool.acceptText(go.TextEditingTool.Enter);
       return;
-    } else if (keynum === 9) { // Tab
+    } else if (key === "Tab") { // Tab
       tool.acceptText(go.TextEditingTool.Tab);
       e.preventDefault();
       return;
-    } else if (keynum === 27) { // Esc
+    } else if (key === "Escape") { // Esc
       tool.doCancel();
       if (tool.diagram !== null) tool.diagram.doFocus();
     }
@@ -82,10 +78,13 @@ import * as go from '../release/go';
 
   TextEditor.mainElement = textarea; // to reference it more easily
 
+  (TextEditor as any).tool = null; // Initialize
+
   // used to be in doActivate
   TextEditor.show = (textBlock: go.GraphObject, diagram: go.Diagram, tool: go.Tool) => {
     if (!diagram || !diagram.div) return;
     if (!(textBlock instanceof go.TextBlock)) return;
+    if ((TextEditor as any).tool !== null) return; // Only one at a time.
 
     (TextEditor as any).tool = tool;  // remember the TextEditingTool for use by listeners
 
@@ -108,7 +107,13 @@ import * as go from '../release/go';
     const textwidth = (textBlock.naturalBounds.width * textscale) + 6;
     const textheight = (textBlock.naturalBounds.height * textscale) + 2;
     const left = (loc.x - pos.x) * sc;
-    const top = (loc.y - pos.y) * sc;
+    const yCenter = (loc.y - pos.y) * sc; // this is actually the center, used to set style.top
+    const valign = textBlock.verticalAlignment;
+    const oneLineHeight = textBlock.lineHeight + textBlock.spacingAbove + textBlock.spacingBelow;
+    const allLinesHeight = oneLineHeight * textBlock.lineCount * textscale;
+    const center = (0.5 * textheight) - (0.5 * allLinesHeight);
+    // add offset to yCenter to get the appropriate position:
+    const yOffset = ((valign.y * textheight) - (valign.y * allLinesHeight) + valign.offsetY) - center - (allLinesHeight / 2);
 
     textarea.value = textBlock.text;
     // the only way you can mix font and fontSize is if the font inherits and the fontSize overrides
@@ -123,7 +128,7 @@ import * as go from '../release/go';
     textarea.style['lineHeight'] = 'normal';
     textarea.style['width'] = (textwidth) + 'px';
     textarea.style['left'] = ((left - (textwidth / 2) | 0) - paddingsize) + 'px';
-    textarea.style['top'] = ((top - (textheight / 2) | 0) - paddingsize) + 'px';
+    textarea.style['top'] = (((yCenter + yOffset) | 0) - paddingsize) + 'px';
     textarea.style['textAlign'] = textBlock.textAlign;
     textarea.style['margin'] = '0';
     textarea.style['padding'] = paddingsize + 'px';

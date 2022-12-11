@@ -1,21 +1,21 @@
 ﻿/*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * A custom {@link Layout} that lays out hierarchical data using nested rectangles.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/TreeMap.html">Tree Map Layout</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/TreeMap.html">Tree Map Layout</a> sample.
  * @category Layout Extension
  */
 export class TreeMapLayout extends go.Layout {
@@ -35,7 +35,7 @@ export class TreeMapLayout extends go.Layout {
   /**
    * Copies properties to a cloned Layout.
    */
-  public cloneProtected(copy: this): void {
+  public override cloneProtected(copy: this): void {
     super.cloneProtected(copy);
     copy._isTopLevelHorizontal = this._isTopLevelHorizontal;
   }
@@ -44,7 +44,7 @@ export class TreeMapLayout extends go.Layout {
    * This method actually positions all of the nodes by determining total area and then recursively tiling nodes from the top-level down.
    * @param {Diagram|Group|Iterable.<Part>} coll A {@link Diagram} or a {@link Group} or a collection of {@link Part}s.
    */
-  public doLayout(coll: go.Diagram | go.Group | go.Iterable<go.Part>): void {
+  public override doLayout(coll: go.Diagram | go.Group | go.Iterable<go.Part>): void {
     if (!(coll instanceof go.Diagram)) throw new Error('TreeMapLayout only works as the Diagram.layout');
     const diagram = coll;
     this.computeTotals(diagram);  // make sure data.total has been computed for every node
@@ -58,7 +58,7 @@ export class TreeMapLayout extends go.Layout {
     if (isNaN(w)) w = 1000;
     if (isNaN(h)) h = 1000;
     // collect all top-level nodes, and sum their totals
-    const tops = new go.Set<go.Node>();
+    const tops = new go.Set<go.Part>();
     let total = 0;
     diagram.nodes.each((n) => {
       if (n.isTopLevel) {
@@ -71,15 +71,15 @@ export class TreeMapLayout extends go.Layout {
     let gx = x;
     let gy = y;
     const lay = this;
-    tops.each((n: go.Node) => {
-      const tot = n.data.total;
+    tops.each(part => {
+      const tot = part.data.total;
       if (horiz) {
         const pw = w * tot / total;
-        lay.layoutNode(!horiz, n, gx, gy, pw, h);
+        lay.layoutNode(!horiz, part, gx, gy, pw, h);
         gx += pw;
       } else {
         const ph = h * tot / total;
-        lay.layoutNode(!horiz, n, gx, gy, w, ph);
+        lay.layoutNode(!horiz, part, gx, gy, w, ph);
         gy += ph;
       }
     });
@@ -88,16 +88,16 @@ export class TreeMapLayout extends go.Layout {
   /**
    * @hidden @internal
    */
-  public layoutNode(horiz: boolean, n: go.Panel, x: number, y: number, w: number, h: number): void {
-    n.position = new go.Point(x, y);
-    n.desiredSize = new go.Size(w, h);
-    if (n instanceof go.Group) {
-      const g = n;
+  public layoutNode(horiz: boolean, part: go.Part, x: number, y: number, w: number, h: number): void {
+    part.moveTo(x, y);
+    part.desiredSize = new go.Size(w, h);
+    if (part instanceof go.Group) {
+      const g = part;
       const total = g.data.total;
       let gx = x;
       let gy = y;
       const lay = this;
-      g.memberParts.each((p) => {
+      g.memberParts.each(p => {
         if (p instanceof go.Link) return;
         const tot = p.data.total;
         if (horiz) {

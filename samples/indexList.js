@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved. */
+/* Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved. */
 /**
  * Be sure to add any new samples to this list, to assets/js/goSamples.js, and to samples/all.html.
  */
@@ -41,7 +41,8 @@ var tags = [
   "html",
   "inspector",
   "frameworks",
-  "storage"
+  "storage",
+  "export"
 ].sort();
 tags.unshift("all", "featured");
 
@@ -89,19 +90,19 @@ arr.push([
   ["featured", "buttons", "process"]
 ]);
 
-arr.push(["minimal",
-  "Minimal",
-  "Shows default Diagram interactivity and basic data binding. Select, move, copy, delete, undo, redo with keyboard or touch.",
-  "minimal",
-  ["featured"]
-]);
-
 arr.push([
   "basic",
   "Basic",
   "Shows many of the commands possible in GoJS, templates for Links and for Groups, plus tooltips and context menus for Nodes, for Links, for Groups, and for the Diagram.",
   "basic",
-  ["featured", "groups", "tooltips", "contextmenus", "buttons"]
+  ["groups", "tooltips", "contextmenus", "buttons"]
+]);
+
+arr.push(["blockEditor",
+  "Block Diagram",
+  "A simple block diagram editor that makes it easy for the user to chain together new nodes, with context menus for changing shapes and colors.",
+  "blockEditor",
+  ["featured"]
 ]);
 
 arr.push([
@@ -109,7 +110,7 @@ arr.push([
   "Genogram",
   "A genogram or pedigree chart is an extended family tree diagram that show information about each person or each relationship.",
   "genogram",
-  ["itemarrays", "collections", "layereddigraphlayout", "customlayout", "geometries"]
+  ["featured", "itemarrays", "collections", "layereddigraphlayout", "customlayout", "geometries"]
 ]);
 
 arr.push([
@@ -125,7 +126,7 @@ arr.push([
   "SVG Icons",
   "Create your own custom Shapes using SVG path strings. This sample uses SVG strings from a free icon set.",
   "icons",
-  ["featured", "gridlayout", "treelayout", "tooltips", "geometries", "svg"]
+  ["gridlayout", "treelayout", "tooltips", "geometries", "svg"]
 ]);
 
 // Commonly Used Charts/Diagrams
@@ -134,15 +135,7 @@ arr.push([
   "Sankey",
   "Sankey diagrams show the amount of flow between nodes by the width of the links.",
   "sankey",
-  ["links", "layereddigraphlayout", "customlayout"]
-]);
-
-arr.push([
-  "customAnimations",
-  "Custom Animations",
-  "Shows how to create several custom Node animations.",
-  "customAnimations",
-  ["animation"]
+  ["featured", "links", "layereddigraphlayout", "customlayout"]
 ]);
 
 arr.push([
@@ -174,7 +167,7 @@ arr.push([
   "Shapes",
   "Showcases all pre-defined GoJS figures. You can define your own named Shape figures.",
   "shapes",
-  ["featured", "gridlayout", "geometries"]
+  ["gridlayout", "geometries"]
 ]);
 
 arr.push([
@@ -276,17 +269,9 @@ arr.push([
 arr.push([
   "doubleTree",
   "Double Tree",
-  "Displays a single diagram of two trees sharing a single root node growing in opposite directions, using two layouts.",
+  "Displays a single diagram of two trees sharing a single root node growing in opposite directions, using the DoubleTreeLayout extension.",
   "doubleTree",
   ["collections", "treelayout"]
-]);
-
-arr.push([
-  "doubleTreeJSON",
-  "Double Tree JSON",
-  "Double Tree, loading JSON from server.",
-  "doubleTree",
-  ["collections", "treelayout", "frameworks"]
 ]);
 
 arr.push([
@@ -324,9 +309,9 @@ arr.push([
 arr.push([
   "treeMapper",
   "Tree Mapper",
-  "Displays two trees, allowing the user to dynamically draw or reconnect links mapping one tree node to another.",
+  "Displays two trees, allowing the user to dynamically draw or reconnect links mapping data from field to another.",
   "treeMapper",
-  ["groups", "treelayout", "buttons"]]);
+  ["featured", "groups", "treelayout", "buttons"]]);
 
 arr.push([
   "parseTree",
@@ -384,7 +369,7 @@ arr.push([
   "Path Animation",
   "Animation of diagram parts (tokens) along link paths.",
   "pathAnimation",
-  ["collections", "forcedirectedlayout"]
+  ["collections", "forcedirectedlayout", "animation"]
 ]);
 
 arr.push([
@@ -413,19 +398,19 @@ arr.push([
 ]);
 
 arr.push([
-  "curviness",
-  "Link Curviness",
-  "An example customization of the Link.curviness property and having an arrowhead at the middle of the link route.",
-  "curviness",
-  ["links"]
-]);
-
-arr.push([
   "multiNodePathLinks",
   "Multi-Node Path Links",
   "Demonstrates custom routing for Links running through other Nodes.",
   "multiNodePathLinks",
   ["collections", "links"]
+]);
+
+arr.push([
+  "multiColorLinks",
+  "Multi-color Links",
+  "Demonstrates a custom Link that can be stroked with multiple consecutive colors.",
+  "multiColorLinks",
+  ["links", "forcedirectedlayout", "geometries"]
 ]);
 
 arr.push([
@@ -498,7 +483,7 @@ arr.push([
   "Kanban Board",
   "A Kanban board editor, allowing the categorization of editable tasks.",
   "kanban",
-  ["tables", "gridlayout", "customlayout", "groups", "buttons", "process"]
+  ["featured", "tables", "gridlayout", "customlayout", "groups", "buttons", "process"]
 ]);
 
 arr.push([
@@ -506,7 +491,7 @@ arr.push([
   "Layer Bands",
   "Layer Bands are automatically created for each \"layer\" of a TreeLayout, and run perpendicular to the layout.",
   "swimBands",
-  ["itemarrays", "treelayout", "customlayout"]
+  ["featured", "itemarrays", "treelayout", "customlayout"]
 ]);
 
 arr.push([
@@ -514,7 +499,7 @@ arr.push([
   "Swim Lanes",
   "Demonstrates collapsible, resizable, re-orderable swimlanes, a kind of process-flow diagram, with custom dragging rules that disallow nodes from leaving their lane.",
   "swimLanes",
-  ["tables", "gridlayout", "layereddigraphlayout", "customlayout", "groups", "tools", "buttons"]
+  ["featured", "tables", "gridlayout", "layereddigraphlayout", "customlayout", "groups", "tools", "buttons"]
 ]);
 
 arr.push([
@@ -649,11 +634,19 @@ arr.push([
 ]);
 
 arr.push([
+  "productionEditor",
+  "Process Editor",
+  "A designer for creating production process diagrams.",
+  "productionEditor",
+  ["featured", "geometries", "svg", "process", "palette", "inspector", "html"]
+]);
+
+arr.push([
   "systemDynamics",
   "System Dynamics",
   "A System Dynamics diagram shows the storages and flows of material in some system, and the factors that influence the rates of flow.",
   "systemDynamics",
-  ["process"]
+  ["featured", "process"]
 ]);
 
 arr.push([
@@ -685,7 +678,7 @@ arr.push([
   "Logic Circuit",
   "A functioning logic circuit diagram, which allows the user to make circuits using gates and wires.",
   "logicCircuit",
-  ["tooltips", "palette", "grid", "process"]
+  ["featured", "tooltips", "palette", "grid", "process"]
 ]);
 
 arr.push([
@@ -710,7 +703,15 @@ arr.push([
   "Dynamic Ports",
   "Add ports to a selected node by clicking buttons or by using a context menu. Draw links by dragging between ports. If you select a link you can relink or reshape it.",
   "dynamicPorts",
-  ["tables", "itemarrays", "links", "ports", "contextmenus", "buttons"]
+  ["featured", "tables", "itemarrays", "links", "ports", "contextmenus", "buttons"]
+]);
+
+arr.push([
+  "connectionBoxNode",
+  "Connection Box",
+  "A Node containing ports that allow linking between them, within the node as well as between nodes, with custom link validation.",
+  "connectionBoxNode",
+  ["tables", "itemarrays", "links", "ports"]
 ]);
 
 arr.push([
@@ -719,14 +720,6 @@ arr.push([
   "A Node with ports that can be selected and deleted.",
   "selectablePorts",
   ["itemarrays", "ports", "geometries"]
-]);
-
-arr.push([
-  "draggablePorts",
-  "Draggable Ports",
-  "A Group with Nodes acting as ports that can be dragged within and between nodes.",
-  "draggablePorts",
-  ["ports", "customlayout", "groups", "geometries"]
 ]);
 
 // Charts
@@ -747,6 +740,22 @@ arr.push([
 ]);
 
 arr.push([
+  "dynamicPieChart",
+  "Dynamic Pie Chart",
+  "Dynamic pie chart with selectable slices that can change size.",
+  "dynamicPieChart",
+  ["tables", "itemarrays", "collections", "tooltips", "buttons", "geometries", "charts"]
+]);
+
+arr.push([
+  "donutCharts",
+  "Donut Charts",
+  "Ring-shaped pie charts within nodes.",
+  "donutCharts",
+  ["itemarrays", "geometries", "charts"]
+]);
+
+arr.push([
   "candlestickCharts",
   "Candlestick Charts",
   "Simple candlestick or range charts within nodes.",
@@ -760,14 +769,6 @@ arr.push([
   "Simple sparkline charts within nodes.",
   "sparklineGraphs",
   ["treelayout", "geometries", "charts"]
-]);
-
-arr.push([
-  "dynamicPieChart",
-  "Dynamic Pie Chart",
-  "Dynamic pie chart with selectable slices that can change size.",
-  "dynamicPieChart",
-  ["tables", "itemarrays", "collections", "tooltips", "buttons", "geometries", "charts"]
 ]);
 
 // Gauges
@@ -785,6 +786,14 @@ arr.push([
   "A gauge using a scale made with a Graduated Panel.",
   "instrumentGauge",
   ["gauges", "geometries"]
+]);
+
+arr.push([
+  "controlGauges",
+  "Meter and Gauge Controls",
+  "Various meters and gauges that show particular values and can be modified by the user by dragging.",
+  "controlGauges",
+  ["featured", "gauges", "geometries", "tools"]
 ]);
 
 // HTML
@@ -825,7 +834,7 @@ arr.push([
   "Charts in Nodes",
   "Shows how to render a data-driven chart within each Node using the Chart.js library.",
   "canvases",
-  ["charts", "palette", "html", "frameworks"]
+  ["charts", "html", "frameworks"]
 ]);
 
 arr.push([
@@ -837,6 +846,30 @@ arr.push([
 ]);
 
 // Other
+arr.push([
+  "customAnimations",
+  "Custom Animations",
+  "Shows how to create several custom Node animations.",
+  "customAnimations",
+  ["animation"]
+]);
+
+arr.push([
+  "animatedFocus",
+  "Animated Scroll and Attention",
+  "Aninmated focus by scrolling to a node along with animation of the size of the node to draw attention to it..",
+  "animatedFocus",
+  ["animation"]
+]);
+
+arr.push([
+  "treeLoadAnimation",
+  "Tree Load Animation",
+  "Shows how to create a custom Diagram loading animation.",
+  "treeLoadAnimation",
+  ["animation"]
+]);
+
 arr.push([
   "leaflet",
   "GoJS and Leaflet Map",
@@ -850,7 +883,7 @@ arr.push([
   "Seating Chart",
   "This sample demonstrates custom logic in a GoJS diagram - a \"Person\" node can be dropped onto a \"Table\" node, causing the person to be assigned a position at the closest empty seat at that table.",
   "seatingChart",
-  ["tools", "palette"]
+  ["featured", "tools", "palette"]
 ]);
 
 arr.push([
@@ -858,7 +891,7 @@ arr.push([
   "Pipes",
   "Showcasing nodes (Pipes) that can be joined, and will snap and drag together.",
   "pipes",
-  ["itemarrays", "collections", "contextmenus", "tools", "palette", "buttons", "geometries"]
+  ["featured", "itemarrays", "collections", "contextmenus", "tools", "palette", "buttons", "geometries"]
 ]);
 
 arr.push([
@@ -866,6 +899,14 @@ arr.push([
   "Adornment Buttons",
   "Selected nodes show a row of buttons that execute commands or start tools.",
   "adornmentButtons",
+  ["buttons", "geometries"]
+]);
+
+arr.push([
+  "radialAdornment",
+  "Radial Adornment Buttons",
+  "An adornment showing buttons in a circle on one selected node.",
+  "radialAdornment",
   ["buttons", "geometries"]
 ]);
 
@@ -896,7 +937,7 @@ arr.push([
 arr.push([
   "kittenMonitor",
   "Kitten Monitor",
-  "A monitoring diagram where the nodes (kittens) move about a house, with tooltips for each kitten.",
+  "A monitoring diagram where the nodes (kittens) move on a background image (a house plan), with tooltips describing kittens.",
   "kittenMonitor",
   ["tooltips", "monitoring", "animation"]
 ]);
@@ -909,14 +950,12 @@ arr.push([
   ["tables", "itemarrays", "buttons", "geometries"]
 ]);
 
-
-
 arr.push([
   "records",
   "Record Mapper",
   "Displays a variable number of fields for each record, with links mapping one field to another.",
   "records",
-  ["tables", "itemarrays"]
+  ["featured", "tables", "itemarrays"]
 ]);
 
 arr.push([
@@ -941,6 +980,14 @@ arr.push([
   "Showcases two Diagrams observing the same Model. Modifying positions in one Diagram will modify them in the model, updating the other Diagram as well.",
   "updateDemo",
   ["treelayout", "buttons", "html"]
+]);
+
+arr.push([
+  "singlePage",
+  "Single Page View",
+  "Show a diagram on a sheet of paper, limiting dragging and resizing to stay within the page minus margins.",
+  "singlePage",
+  []
 ]);
 
 arr.push([
@@ -976,23 +1023,39 @@ arr.push([
 ]);
 
 arr.push([
+  "../extensionsJSM/PackedHierarchy",
+  "Packed Hierarchy",
+  "A customized PackedLayout that arranges nested circular groups.",
+  "PackedHierarchy",
+  ["customlayout", "extensions"]
+]);
+
+arr.push([
   "svgDataUrl",
   "SVG Data URL",
-  "In makeSVG, replace image sources with Base64",
+  "In makeSvg, replace image sources with Base64",
   "svgDataUrl",
-  ["svg"]
+  ["svg", "export"]
 ]);
 
 arr.push([
   "tiger",
   "SVG Tiger",
-  "Shows a tiger rendered in SVG.",
+  "Shows a tiger rendered in SVG without using a Picture",
   "tiger",
   ["geometries", "svg"]
 ]);
 
 // EXTENSIONS
 // Layouts
+arr.push([
+  "../extensions/Arranging",
+  "Arranging Layout",
+  "The Arranging layout is a layout of layouts, plus a third layout for arranging left-overs.",
+  "Arranging",
+  ["gridlayout", "customlayout", "extensions"]
+]);
+
 arr.push([
   "../extensions/Fishbone",
   "Fishbone Layout",
@@ -1026,6 +1089,14 @@ arr.push([
 ]);
 
 arr.push([
+  "../extensions/SwimLaneLayout",
+  "Swim Lane Layout",
+  "A custom Layout that puts nodes into swimlanes with dependencies that cross lanes.",
+  "SwimLaneLayout",
+  ["customlayout", "extensions"]
+]);
+
+arr.push([
   "../extensions/TreeMap",
   "Tree Map Layout",
   "A custom Layout that renders nested Groups into the viewport with each Node having an area proportional to its declared 'size'.",
@@ -1042,10 +1113,18 @@ arr.push([
 ]);
 
 arr.push([
-  "../extensions/PackedLayout",
+  "../extensionsJSM/PackedLayout",
   "Packed Layout",
   "A custom Layout that positions nodes in a packed area.",
   "PackedLayout",
+  ["customlayout", "extensions"]
+]);
+
+arr.push([
+  "../extensions/PanelLayoutFlow",
+  "Flow PanelLayout",
+  "A custom PanelLayout that arranges panel elements into rows or columns.",
+  "PanelLayoutFlow",
   ["customlayout", "extensions"]
 ]);
 
@@ -1086,6 +1165,22 @@ arr.push([
   "Rotate Multiple",
   "A custom RotatingTool that lets the user rotate many selected objects at once.",
   "RotateMultiple",
+  ["tools", "extensions"]
+]);
+
+arr.push([
+  "../extensions/SpotRotating",
+  "Spot Rotating",
+  "A custom RotatingTool that lets the user shift the rotation point.",
+  "SpotRotating",
+  ["tools", "extensions"]
+]);
+
+arr.push([
+  "../extensions/Rescaling",
+  "Rescaling",
+  "A custom Tool that lets a user change the scale of an object.",
+  "Rescaling",
   ["tools", "extensions"]
 ]);
 
@@ -1230,15 +1325,7 @@ arr.push([
   "../extensions/DataInspector",
   "Data Inspector",
   "A simple drop-in for inspecting and editing Part data.",
-  "dataInspector",
-  ["groups", "extensions", "inspector", "html"]
-]);
-
-arr.push([
-  "../extensions/DebugInspector",
-  "Debug Inspector",
-  "A more complex inspector for inspecting all sorts of GraphObject, Node, Link, Shape, etc properties, and Part data.",
-  "debugInspector",
+  "DataInspector",
   ["groups", "extensions", "inspector", "html"]
 ]);
 
@@ -1382,11 +1469,19 @@ arr.push([
 ]);
 
 arr.push([
+  "../projects/pdf/minimalPDF",
+  "PDF generation",
+  "Generating a PDF file holding all of the pages of a Diagram's rendering.",
+  "minimal",
+  ["export"]
+]);
+
+arr.push([
   "../projects/bpmn/BPMN",
   "BPMN Editor",
   "The start of a Business Process Model and Notation editor.",
   "BPMN",
-  ["tables", "itemarrays", "collections", "customlayout", "groups", "tooltips", "contextmenus", "tools", "palette", "overview", "buttons", "extensions", "geometries", "html", "frameworks"]
+  ["tables", "itemarrays", "collections", "customlayout", "groups", "tooltips", "contextmenus", "tools", "palette", "overview", "buttons", "geometries", "html", "frameworks"]
 ]);
 
 arr.push([
@@ -1394,56 +1489,31 @@ arr.push([
   "Floor Planner (TypeScript)",
   "A feature-rich editor for users to create robust, detailed floor plans.",
   "FloorPlannerTS",
-  ["collections", "groups", "tooltips", "contextmenus", "tools", "palette", "overview", "buttons", "extensions", "geometries", "grid", "html"]
+  ["featured", "collections", "groups", "tooltips", "contextmenus", "tools", "palette", "overview", "buttons", "geometries", "grid", "html"]
+]);
+
+arr.push(["minimal",
+  "Minimal",
+  "Shows default Diagram interactivity and basic data binding. Select, move, copy, delete, undo, redo with keyboard or touch.",
+  "minimal",
+  []
 ]);
 
 // Previously unlisted samples
-arr.push([
-  "minimalJSON",
-  "Minimal JSON",
-  "Minimal, loading JSON from server.",
-  "minimal",
-  ["frameworks"]
-]);
-
-arr.push([
-  "minimalXML",
-  "Minimal XML",
-  "Minimal, loading XML from server.",
-  "minimal",
-  ["frameworks"]
-]);
-
 arr.push([
   "minimalBlob",
   "Minimal Image Download",
   "Minimal, showing image Blob creation with Diagram.makeImageData, and download.",
   "minimal",
-  []
+  ["export"]
 ]);
 
 arr.push([
-  "minimalSVG",
+  "minimalSvg",
   "Minimal SVG Download",
   "Minimal, showing SVG creation with Diagram.makeSvg, and download.",
   "minimal",
-  []
-]);
-
-arr.push([
-  "require",
-  "Minimal RequireJS",
-  "Minimal, using RequireJS.",
-  "minimal",
-  ["frameworks"]
-]);
-
-arr.push([
-  "angular",
-  "Minimal AngularJS",
-  "Minimal, using AngularJS.",
-  "minimal",
-  ["frameworks"]
+  ["svg", "export"]
 ]);
 
 arr.push([
@@ -1543,6 +1613,14 @@ arr.push([
 ]);
 
 arr.push([
+  "../extensionsJSM/VirtualizedPacked",
+  "Virtualized Packed Layout",
+  "A virtualized version of PackedLayout that positions nodes in a packed area.",
+  "VirtualizedPacked",
+  ["customlayout", "extensions", "performance"]
+]);
+
+arr.push([
   "flowBuilder",
   "Flow Builder",
   "Demonstrates a flow builder where nodes/links can be created or dropped onto a recycling node.",
@@ -1553,7 +1631,7 @@ arr.push([
 arr.push([
   "flowgrammer",
   "Flowgrammer",
-  "Demonstrates a flow-chart-like editor of a restricted syntax language.",
+  "Demonstrates a flow-chart-like editor of a restricted syntax language.  Uses the ParallelLayout extension.",
   "flowgrammer",
   ["collections", "layereddigraphlayout", "palette", "overview"]
 ]);
@@ -1572,14 +1650,6 @@ arr.push([
   "State Chart using incremental JSON.",
   "stateChart",
   ["buttons", "html"]
-]);
-
-arr.push([
-  "regroupingScaled",
-  "Regrouping Scaled",
-  "Regrouping with nested groups scaled ever smaller.",
-  "regroupingScaled",
-  ["gridlayout", "groups", "palette", "buttons"]
 ]);
 
 arr.push([
@@ -1617,17 +1687,9 @@ arr.push([
 arr.push([
   "htmlDragDrop",
   "HTML Drag and Drop",
-  "Demonstrates dragging and dropping from HTML.",
+  "Demonstrates dragging and dropping from HTML, and pasting from the external clipboard.",
   "htmlDragDrop",
   ["palette", "html"]
-]);
-
-arr.push([
-  "jQueryDragDrop",
-  "jQuery Drag and Drop",
-  "Demonstrates dragging and dropping from HTML using jQuery.",
-  "jQueryDragDrop",
-  ["frameworks"]
 ]);
 
 arr.push([
@@ -1636,6 +1698,14 @@ arr.push([
   "Demonstrates an automatic ungrouping of nodes when dropping an element on the diagram.",
   "macros",
   ["groups", "palette"]
+]);
+
+arr.push([
+  "addToPalette",
+  "Adding Nodes to the Palette",
+  "Select and edit a node and add a copy of it to the palette.",
+  "addToPalette",
+  ["palette", "overview"]
 ]);
 
 arr.push([
@@ -1655,25 +1725,25 @@ arr.push([
 ]);
 
 arr.push([
-  "tabs",
-  "jQuery Tabs",
-  "Shows how to create a Diagram within a jQuery UI Tab.",
-  "tabs",
-  ["frameworks"]
-]);
-
-arr.push([
   "panelLayout",
   "Panel Layout",
   "Shows how to create a custom PaneLayout.",
   "minimal",
-  [""]
+  []
 ]);
 
 arr.push([
-  "treeLoadAnimation",
-  "Tree Load Animation",
-  "Shows how to create a custom Diagram loading animation.",
-  "treeLoadAnimation",
-  ["animation"]
+  "gameOfLife",
+  "Game of Life",
+  "A cellular automation simulation.",
+  "gameOfLife",
+  []
 ]);
+
+arr.push([
+  "belts",
+  "Belts and Rollers",
+  "Show continuous belts winding by circular rollers",
+  "belts",
+  ["animation", "geometries"]
+])

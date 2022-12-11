@@ -1,9 +1,9 @@
 /*
-* Copyright (C) 1998-2019 by Northwoods Software Corporation
+* Copyright (C) 1998-2022 by Northwoods Software Corporation
 * All Rights Reserved.
 *
 * FLOOR PLANNER CODE: TEMPLATES - WALLS
-* GraphObject templates for Wall Groups, Wall Part Nodes (and their dependecies) used in the Floor Planner sample   
+* GraphObject templates for Wall Groups, Wall Part Nodes (and their dependecies) used in the Floor Planner sample
 * Includes Wall Group, Palette Wall Node, Window Node, Door Node
 */
 
@@ -116,7 +116,7 @@ var addWallPart = function (e, wall) {
     if ((wallPart && (wallPart.category === "WindowNode" || wallPart.category === "DoorNode") && wallPart.containingGroup === null)) {
         var newLoc = findClosestLocOnWall(wall, wallPart);
         if (newLoc !== null) {
-            wall.findObject("SHAPE").stroke = "black";
+            wall.findObject("SHAPE").stroke = makeBrush(wall.data);
             floorplan.model.setDataProperty(wallPart.data, "group", wall.data.key);
             wallPart.location = newLoc.projectOntoLineSegmentPoint(wall.data.startpoint, wall.data.endpoint);
             wallPart.angle = wall.rotateObject.angle;
@@ -147,7 +147,7 @@ var wallPartDragOver = function (e, wall) {
 // MouseDragLeave event for walls; if a wall part is dragged past a wall, unhighlight the wall and change back the wall part's angle to 0
 var wallPartDragAway = function (e, wall) {
     var floorplan = e.diagram;
-    wall.findObject("SHAPE").stroke = "black";
+    wall.findObject("SHAPE").stroke = makeBrush(wall.data);
     var parts = floorplan.toolManager.draggingTool.draggingParts;
     parts.iterator.each(function (part) {
         if ((part.category === "WindowNode" || part.category === "DoorNode") && part.containingGroup === null) part.angle = 0
@@ -178,19 +178,20 @@ function makeWallGroup() {
             doubleClick: function (e) { if (e.diagram.floorplanUI) e.diagram.floorplanUI.hideShow("selectionInfoWindow"); }
         },
         $(go.Shape,
-        {
-            name: "SHAPE",
-            fill: "black",
-        },
+        { name: "SHAPE" },
         new go.Binding("strokeWidth", "thickness"),
         new go.Binding("stroke", "isSelected", function (s, obj) {
             if (obj.part.containingGroup != null) {
                 var group = obj.part.containingGroup;
                 if (s) { group.data.isSelected = true; }
             }
-            return s ? "dodgerblue" : "black";
+            return s ? "dodgerblue" : makeBrush(obj.part.data);
         }).ofObject()
       ))
+}
+
+function makeBrush(data) {
+  return "black";
 }
 
 /*

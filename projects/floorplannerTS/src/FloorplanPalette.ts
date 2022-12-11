@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 1998-2019 by Northwoods Software Corporation
+* Copyright (C) 1998-2022 by Northwoods Software Corporation
 * All Rights Reserved.
 *
 * FloorplanPalette Class
@@ -7,7 +7,7 @@
 */
 
 import * as go from '../../../release/go';
-import { Floorplan } from './Floorplan';
+import { Floorplan } from './Floorplan.js';
 
 export class FloorplanPalette extends go.Palette {
 

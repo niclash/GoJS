@@ -1,19 +1,62 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Basic GoJS Sample</title>
-  <meta name="description" content="Interactive GoJS diagram demonstrating creating new nodes and links, reconnecting links, grouping and ungrouping, and context menus and tooltips for nodes, for links, and for the diagram background." />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Copyright 1998-2019 by Northwoods Software Corporation. -->
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"/>
+<meta name="description" content="Interactive GoJS diagram demonstrating creating new nodes and links, reconnecting links, grouping and ungrouping, and context menus and tooltips for nodes, for links, and for the diagram background."/> 
+<link rel="stylesheet" href="../assets/css/style.css"/> 
+<!-- Copyright 1998-2022 by Northwoods Software Corporation. -->
+<title>Basic GoJS Sample</title>
+</head>
 
-  <script src="../release/go.js"></script>
-  <script src="../assets/js/goSamples.js"></script>  <!-- this is only for the GoJS Samples framework -->
-  <script id="code">
+<body>
+  <!-- This top nav is not part of the sample code -->
+  <nav id="navTop" class="w-full z-30 top-0 text-white bg-nwoods-primary">
+    <div class="w-full container max-w-screen-lg mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between mt-0 py-2">
+      <div class="md:pl-4">
+        <a class="text-white hover:text-white no-underline hover:no-underline
+        font-bold text-2xl lg:text-4xl rounded-lg hover:bg-nwoods-secondary " href="../">
+          <h1 class="mb-0 p-1 ">GoJS</h1>
+        </a>
+      </div>
+      <button id="topnavButton" class="rounded-lg sm:hidden focus:outline-none focus:ring" aria-label="Navigation">
+        <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+          <path id="topnavOpen" fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+          <path id="topnavClosed" class="hidden" fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+      <div id="topnavList" class="hidden sm:block items-center w-auto mt-0 text-white p-0 z-20">
+        <ul class="list-reset list-none font-semibold flex justify-end flex-wrap sm:flex-nowrap items-center px-0 pb-0">
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../learn/">Learn</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../samples/">Samples</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../intro/">Intro</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../api/">API</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/products/register.html">Register</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../download.html">Download</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://forum.nwoods.com/c/gojs/11">Forum</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/contact.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/contact.html', 'contact');">Contact</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/sales/index.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/sales/index.html', 'buy');">Buy</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="border-b border-gray-600 opacity-50 my-0 py-0" />
+  </nav>
+  <div class="md:flex flex-col md:flex-row md:min-h-screen w-full max-w-screen-xl mx-auto">
+    <div id="navSide" class="flex flex-col w-full md:w-48 text-gray-700 bg-white flex-shrink-0"></div>
+    <!-- * * * * * * * * * * * * * -->
+    <!-- Start of GoJS sample code -->
+    
+    <script src="../release/go.js"></script>
+    <div id="allSampleContent" class="p-4 w-full">
+    <script id="code">
     function init() {
-      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
 
-      var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+      // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+      // For details, see https://gojs.net/latest/intro/buildingObjects.html
+      const $ = go.GraphObject.make;  // for conciseness in defining templates
 
       myDiagram =
         $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
@@ -38,14 +81,14 @@
           $(go.TextBlock, text),
           { click: action },
           // don't bother with binding GraphObject.visible if there's no predicate
-          visiblePredicate ? new go.Binding("visible", "", function(o, e) { return o.diagram ? visiblePredicate(o, e) : false; }).ofObject() : {});
+          visiblePredicate ? new go.Binding("visible", "", (o, e) => o.diagram ? visiblePredicate(o, e) : false).ofObject() : {});
       }
 
       // a context menu is an Adornment with a bunch of buttons in them
       var partContextMenu =
         $("ContextMenu",
           makeButton("Properties",
-            function(e, obj) {  // OBJ is this Button
+            (e, obj) => {  // OBJ is this Button
               var contextmenu = obj.part;  // the Button is in the context menu Adornment
               var part = contextmenu.adornedPart;  // the adornedPart is the Part that the context menu adorns
               // now can do something with PART, or with its data, or with the Adornment (the context menu)
@@ -54,29 +97,29 @@
               else alert(nodeInfo(part.data));
             }),
           makeButton("Cut",
-            function(e, obj) { e.diagram.commandHandler.cutSelection(); },
-            function(o) { return o.diagram.commandHandler.canCutSelection(); }),
+            (e, obj) => e.diagram.commandHandler.cutSelection(),
+            o => o.diagram.commandHandler.canCutSelection()),
           makeButton("Copy",
-            function(e, obj) { e.diagram.commandHandler.copySelection(); },
-            function(o) { return o.diagram.commandHandler.canCopySelection(); }),
+            (e, obj) => e.diagram.commandHandler.copySelection(),
+            o => o.diagram.commandHandler.canCopySelection()),
           makeButton("Paste",
-            function(e, obj) { e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint); },
-            function(o) { return o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint); }),
+            (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+            o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
           makeButton("Delete",
-            function(e, obj) { e.diagram.commandHandler.deleteSelection(); },
-            function(o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            (e, obj) => e.diagram.commandHandler.deleteSelection(),
+            o => o.diagram.commandHandler.canDeleteSelection()),
           makeButton("Undo",
-            function(e, obj) { e.diagram.commandHandler.undo(); },
-            function(o) { return o.diagram.commandHandler.canUndo(); }),
+            (e, obj) => e.diagram.commandHandler.undo(),
+            o => o.diagram.commandHandler.canUndo()),
           makeButton("Redo",
-            function(e, obj) { e.diagram.commandHandler.redo(); },
-            function(o) { return o.diagram.commandHandler.canRedo(); }),
+            (e, obj) => e.diagram.commandHandler.redo(),
+            o => o.diagram.commandHandler.canRedo()),
           makeButton("Group",
-            function(e, obj) { e.diagram.commandHandler.groupSelection(); },
-            function(o) { return o.diagram.commandHandler.canGroupSelection(); }),
+            (e, obj) => e.diagram.commandHandler.groupSelection(),
+            o => o.diagram.commandHandler.canGroupSelection()),
           makeButton("Ungroup",
-            function(e, obj) { e.diagram.commandHandler.ungroupSelection(); },
-            function(o) { return o.diagram.commandHandler.canUngroupSelection(); })
+            (e, obj) => e.diagram.commandHandler.ungroupSelection(),
+            o => o.diagram.commandHandler.canUngroupSelection())
         );
 
       function nodeInfo(d) {  // Tooltip info for a node data object
@@ -157,7 +200,7 @@
         var g = adornment.adornedPart;  // get the Group that the tooltip adorns
         var mems = g.memberParts.count;
         var links = 0;
-        g.memberParts.each(function(part) {
+        g.memberParts.each(part => {
           if (part instanceof go.Link) links++;
         });
         return "Group " + g.data.key + ": " + g.data.text + "\n" + mems + " members including " + links + " links";
@@ -221,14 +264,14 @@
       myDiagram.contextMenu =
         $("ContextMenu",
           makeButton("Paste",
-            function(e, obj) { e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint); },
-            function(o) { return o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint); }),
+            (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+            o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
           makeButton("Undo",
-            function(e, obj) { e.diagram.commandHandler.undo(); },
-            function(o) { return o.diagram.commandHandler.canUndo(); }),
+            (e, obj) => e.diagram.commandHandler.undo(),
+            o => o.diagram.commandHandler.canUndo()),
           makeButton("Redo",
-            function(e, obj) { e.diagram.commandHandler.redo(); },
-            function(o) { return o.diagram.commandHandler.canRedo(); })
+            (e, obj) => e.diagram.commandHandler.redo(),
+            o => o.diagram.commandHandler.canRedo())
         );
 
       // Create the Diagram's Model:
@@ -247,9 +290,9 @@
       ];
       myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
     }
+    window.addEventListener('DOMContentLoaded', init);
   </script>
-</head>
-<body onload="init()">
+
 <div id="sample">
   <div id="myDiagramDiv" style="border: solid 1px black; width:400px; height:400px"></div>
   <p>
@@ -279,5 +322,11 @@
     The default context menu supports most of the standard commands that are enabled at that time for that object.
   </p>
 </div>
+    </div>
+    <!-- * * * * * * * * * * * * * -->
+    <!--  End of GoJS sample code  -->
+  </div>
 </body>
+<!--  This script is part of the gojs.net website, and is not needed to run the sample -->
+<script src="../assets/js/goSamples.js"></script>
 </html>

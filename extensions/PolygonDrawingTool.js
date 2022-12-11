@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Tool for drawing polygons or polylines
@@ -9,7 +9,7 @@
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -33,6 +33,7 @@ function PolygonDrawingTool() {
   this._isPolygon = true;
   this._hasArcs = false;
   this._isOrthoOnly = false;
+  this._isGridSnapEnabled = false;
   this._archetypePartData = {}; // the data to copy for a new polygon Part
 
   // this is the Shape that is shown during a drawing operation
@@ -66,12 +67,23 @@ PolygonDrawingTool.prototype.canStart = function() {
 * and start accumulating points in the geometry of the {@link #temporaryShape}.
 * @this {PolygonDrawingTool}
 */
+PolygonDrawingTool.prototype.doStart = function() {
+  go.Tool.prototype.doStart.call(this);
+  var diagram = this.diagram;
+  if (!diagram) return;
+  this.startTransaction(this.name);
+  diagram.currentCursor = diagram.defaultCursor = "crosshair";
+  if (!diagram.lastInput.isTouchEvent) diagram.isMouseCaptured = true;
+}
+
+/**
+ * When activated, start the temporary shape with an initial point at the current mouse point.
+* @this {PolygonDrawingTool}
+ */
 PolygonDrawingTool.prototype.doActivate = function() {
   go.Tool.prototype.doActivate.call(this);
   var diagram = this.diagram;
-  this.startTransaction(this.name);
-  if (!diagram.lastInput.isTouchEvent) diagram.isMouseCaptured = true;
-  diagram.currentCursor = "crosshair";
+  if (!diagram) return;
   // the first point
   if (!diagram.lastInput.isTouchEvent) this.addPoint(diagram.lastInput.documentPoint);
 };
@@ -80,27 +92,29 @@ PolygonDrawingTool.prototype.doActivate = function() {
 * Stop the transaction and clean up.
 * @this {PolygonDrawingTool}
 */
-PolygonDrawingTool.prototype.doDeactivate = function() {
-  go.Tool.prototype.doDeactivate.call(this);
+PolygonDrawingTool.prototype.doStop = function() {
+  go.Tool.prototype.doStop.call(this);
   var diagram = this.diagram;
+  if (!diagram) return;
+  diagram.currentCursor = diagram.defaultCursor = "auto";
   if (this.temporaryShape !== null) {
     diagram.remove(this.temporaryShape.part);
   }
-  diagram.currentCursor = "";
   if (diagram.isMouseCaptured) diagram.isMouseCaptured = false;
   this.stopTransaction();
-};
+}
 
 /**
 * Given a potential Point for the next segment, return a Point it to snap to the grid, and remain orthogonal, if either is applicable.
 * @this {PolygonDrawingTool}
 */
 PolygonDrawingTool.prototype.modifyPointForGrid = function(p) {
-  var grid = this.diagram.grid;
   var pregrid = p.copy();
-  if (grid !== null && grid.visible) {
+  var grid = this.diagram.grid;
+  if (grid !== null && grid.visible && this.isGridSnapEnabled) {
     var cell = grid.gridCellSize;
     var orig = grid.gridOrigin;
+    p = p.copy();
     p.snapToGrid(orig.x, orig.y, cell.width, cell.height); // compute the closest grid point (modifies p)
   }
   if (this.temporaryShape.geometry === null) return p;
@@ -332,7 +346,7 @@ PolygonDrawingTool.prototype.undo = function() {
 * Gets or sets whether this tools draws a filled polygon or an unfilled open polyline.
 * The default value is true.
 * @name PolygonDrawingTool#isPolygon
-* @function.
+
 * @return {boolean}
 */
 Object.defineProperty(PolygonDrawingTool.prototype, "isPolygon", {
@@ -341,10 +355,10 @@ Object.defineProperty(PolygonDrawingTool.prototype, "isPolygon", {
 });
 
 /**
-* Gets or sets whether this tools draws shapes with quadratic bezier curves for each segment, or just straight lines.
+* Gets or sets whether this tool draws shapes with quadratic bezier curves for each segment, or just straight lines.
 * The default value is false -- only use straight lines.
 * @name PolygonDrawingTool#hasArcs
-* @function.
+
 * @return {boolean}
 */
 Object.defineProperty(PolygonDrawingTool.prototype, "hasArcs", {
@@ -353,10 +367,10 @@ Object.defineProperty(PolygonDrawingTool.prototype, "hasArcs", {
 });
 
 /**
-* Gets or sets whether this tools draws shapes with only orthogonal segments, or segments in any direction.
+* Gets or sets whether this tool draws shapes with only orthogonal segments, or segments in any direction.
 * The default value is false -- draw segments in any direction. This does not restrict the closing segment, which may not be orthogonal.
 * @name PolygonDrawingTool#isOrthoOnly
-* @function.
+
 * @return {boolean}
 */
 Object.defineProperty(PolygonDrawingTool.prototype, "isOrthoOnly", {
@@ -364,12 +378,24 @@ Object.defineProperty(PolygonDrawingTool.prototype, "isOrthoOnly", {
   set: function(val) { this._isOrthoOnly = val; }
 });
 
+/**
+* Gets or sets whether this tool only places the shape's corners on the Diagram's visible grid.
+* The default value is false.
+* @name PolygonDrawingTool#isGridSnapEnabled
+
+* @return {boolean}
+*/
+Object.defineProperty(PolygonDrawingTool.prototype, "isGridSnapEnabled", {
+  get: function() { return this._isGridSnapEnabled; },
+  set: function(val) { this._isGridSnapEnabled = val; }
+});
+
 
 /**
 * Gets or sets the Shape that is used to hold the line as it is being drawn.
 * The default value is a simple Shape drawing an unfilled open thin black line.
 * @name PolygonDrawingTool#temporaryShape
-* @function.
+
 * @return {Shape}
 */
 Object.defineProperty(PolygonDrawingTool.prototype, "temporaryShape", {
@@ -378,9 +404,9 @@ Object.defineProperty(PolygonDrawingTool.prototype, "temporaryShape", {
     if (this._temporaryShape !== val && val !== null) {
       val.name = "SHAPE";
       var panel = this._temporaryShape.panel;
-      panel.remove(this._temporaryShape);
+      if (panel !== null) panel.remove(this._temporaryShape);
       this._temporaryShape = val;
-      panel.add(this._temporaryShape);
+      if (panel !== null) panel.add(this._temporaryShape);
     }
   }
 });
@@ -389,7 +415,7 @@ Object.defineProperty(PolygonDrawingTool.prototype, "temporaryShape", {
 * Gets or sets the node data object that is copied and added to the model
 * when the drawing operation completes.
 * @name PolygonDrawingTool#archetypePartData
-* @function.
+
 * @return {Object}
 */
 Object.defineProperty(PolygonDrawingTool.prototype, "archetypePartData", {

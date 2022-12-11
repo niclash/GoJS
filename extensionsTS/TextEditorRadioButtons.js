@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,7 +7,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -16,10 +16,10 @@
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     // HTML + JavaScript text editor menu, using HTML radio inputs and HTMLInfo.
     // This file exposes one instance of HTMLInfo, window.TextEditorRadioButtons
     // see /samples/customTextEditingTool.html
@@ -80,17 +80,17 @@
             }
             // Do a few different things when a user presses a key
             customText.addEventListener('keydown', function (e) {
-                var keynum = e.which;
-                if (keynum === 13) { // Accept on Enter
+                var key = e.key;
+                if (key === "Enter") { // Accept on Enter
                     tool.acceptText(go.TextEditingTool.Enter);
                     return;
                 }
-                else if (keynum === 9) { // Accept on Tab
+                else if (key === "Tab") { // Accept on Tab
                     tool.acceptText(go.TextEditingTool.Tab);
                     e.preventDefault();
                     return false;
                 }
-                else if (keynum === 27) { // Cancel on Esc
+                else if (key === "Escape") { // Cancel on Esc
                     tool.doCancel();
                     if (tool.diagram)
                         tool.diagram.focus();

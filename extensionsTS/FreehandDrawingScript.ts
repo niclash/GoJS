@@ -1,18 +1,18 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { FreehandDrawingTool } from './FreehandDrawingTool';
-import { GeometryReshapingTool } from './GeometryReshapingTool';
+import * as go from '../release/go.js';
+import { FreehandDrawingTool } from './FreehandDrawingTool.js';
+import { GeometryReshapingTool } from './GeometryReshapingTool.js';
 
 let myDiagram: go.Diagram;
 
@@ -78,6 +78,7 @@ export function updateAllAdornments() {  // called after checkboxes change Diagr
 export function save() {
   const str = '{ "position": "' + go.Point.stringify(myDiagram.position) + '",\n  "model": ' + myDiagram.model.toJson() + ' }';
   (document.getElementById('mySavedDiagram') as any).value = str;
+  myDiagram.isModified = false;
 }
 export function load() {
   const str = (document.getElementById('mySavedDiagram') as any).value;

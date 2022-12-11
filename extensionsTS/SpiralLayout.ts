@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * A custom {@link Layout} that lays out a chain of nodes in a spiral.
@@ -18,7 +18,7 @@ import * as go from '../release/go';
  * This layout assumes the graph is a chain of {@link Node}s,
  * {@link #spacing} controls the spacing between nodes.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/Spiral.html">Spiral Layout</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/Spiral.html">Spiral Layout</a> sample.
  * @category Layout Extension
  */
 export class SpiralLayout extends go.Layout {
@@ -71,7 +71,7 @@ export class SpiralLayout extends go.Layout {
   /**
    * Copies properties to a cloned Layout.
    */
-  public cloneProtected(copy: this): void {
+  public override cloneProtected(copy: this): void {
     super.cloneProtected(copy);
     copy._radius = this._radius;
     copy._spacing = this._spacing;
@@ -84,7 +84,7 @@ export class SpiralLayout extends go.Layout {
    * This respects the {@link #spacing} property to affect the layout.
    * @param {Diagram|Group|Iterable.<Part>} coll A {@link Diagram} or a {@link Group} or a collection of {@link Part}s.
    */
-  public doLayout(coll: go.Diagram | go.Group | go.Iterable<go.Part>): void {
+  public override doLayout(coll: go.Diagram | go.Group | go.Iterable<go.Part>): void {
     if (this.network === null) {
       this.network = this.makeNetwork(coll);
     }

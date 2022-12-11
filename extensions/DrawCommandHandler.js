@@ -1,13 +1,13 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -261,6 +261,101 @@ DrawCommandHandler.prototype.rotate = function(angle) {
 
 
 /**
+ * Change the z-ordering of selected parts to pull them forward, in front of all other parts
+ * in their respective layers.
+ * All unselected parts in each layer with a selected Part with a non-numeric {@link Part#zOrder} will get a zOrder of zero.
+ * @this {DrawCommandHandler}
+ */
+DrawCommandHandler.prototype.pullToFront = function() {
+  var diagram = this.diagram;
+  diagram.startTransaction("pullToFront");
+  // find the affected Layers
+  var layers = new go.Map();
+  diagram.selection.each(function(part) {
+    layers.set(part.layer, 0);
+  });
+  // find the maximum zOrder in each Layer
+  layers.iteratorKeys.each(function(layer) {
+    var max = 0;
+    layer.parts.each(function(part) {
+      if (part.isSelected) return;
+      var z = part.zOrder;
+      if (isNaN(z)) {
+        part.zOrder = 0;
+      } else {
+        max = Math.max(max, z);
+      }
+    });
+    layers.set(layer, max);
+  });
+  // assign each selected Part.zOrder to the computed value for each Layer
+  diagram.selection.each(function(part) {
+    DrawCommandHandler._assignZOrder(part, layers.get(part.layer) + 1);
+  });
+  diagram.commitTransaction("pullToFront");
+};
+
+/**
+ * Change the z-ordering of selected parts to push them backward, behind of all other parts
+ * in their respective layers.
+ * All unselected parts in each layer with a selected Part with a non-numeric {@link Part#zOrder} will get a zOrder of zero.
+ * @this {DrawCommandHandler}
+ */
+DrawCommandHandler.prototype.pushToBack = function() {
+  var diagram = this.diagram;
+  diagram.startTransaction("pushToBack");
+  // find the affected Layers
+  var layers = new go.Map();
+  diagram.selection.each(function(part) {
+    layers.set(part.layer, 0);
+  });
+  // find the minimum zOrder in each Layer
+  layers.iteratorKeys.each(function(layer) {
+    var min = 0;
+    layer.parts.each(function(part) {
+      if (part.isSelected) return;
+      var z = part.zOrder;
+      if (isNaN(z)) {
+        part.zOrder = 0;
+      } else {
+        min = Math.min(min, z);
+      }
+    });
+    layers.set(layer, min);
+  });
+  // assign each selected Part.zOrder to the computed value for each Layer
+  diagram.selection.each(function(part) {
+    DrawCommandHandler._assignZOrder(part,
+        // make sure a group's nested nodes are also behind everything else
+        layers.get(part.layer) - 1 - DrawCommandHandler._findGroupDepth(part));
+  });
+  diagram.commitTransaction("pushToBack");
+};
+
+DrawCommandHandler._assignZOrder = function(part, z, root) {
+  if (root === undefined) root = part;
+  if (part.layer === root.layer) part.zOrder = z;
+  if (part instanceof go.Group) {
+    part.memberParts.each(function(m) {
+      DrawCommandHandler._assignZOrder(m, z+1, root);
+    });
+  }
+};
+
+DrawCommandHandler._findGroupDepth = function(part) {
+  if (part instanceof go.Group) {
+    var d = 0;
+    part.memberParts.each(function(m) {
+      d = Math.max(d, DrawCommandHandler._findGroupDepth(m));
+    });
+    return d+1;
+  } else {
+    return 0;
+  }
+};
+
+
+/**
 * This implements custom behaviors for arrow key keyboard events.
 * Set {@link #arrowKeyBehavior} to "select", "move" (the default), "scroll" (the standard behavior), or "none"
 * to affect the behavior when the user types an arrow key.
@@ -501,6 +596,7 @@ DrawCommandHandler.prototype._sortTreeChildrenByY = function(node) {
   return list;
 };
 
+
 /**
 * Reset the last offset for pasting.
 * @this {DrawCommandHandler}
@@ -523,11 +619,12 @@ DrawCommandHandler.prototype.pasteFromClipboard = function() {
   return coll;
 };
 
+
 /**
 * Gets or sets the arrow key behavior. Possible values are "move", "select", "scroll", and "tree".
 * The default value is "move".
 * @name DrawCommandHandler#arrowKeyBehavior
-* @function.
+
 * @return {string}
 */
 Object.defineProperty(DrawCommandHandler.prototype, "arrowKeyBehavior", {
@@ -544,7 +641,7 @@ Object.defineProperty(DrawCommandHandler.prototype, "arrowKeyBehavior", {
 * Gets or sets the offset at which each repeated pasteSelection() puts the new copied parts from the clipboard.
 * The default value is (10,10).
 * @name DrawCommandHandler#pasteOffset
-* @function.
+
 * @return {Point}
 */
 Object.defineProperty(DrawCommandHandler.prototype, "pasteOffset", {

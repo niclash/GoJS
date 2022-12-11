@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * This CommandHandler class uses localStorage as the repository for the clipboard,
@@ -34,7 +34,7 @@ import * as go from '../release/go';
  *   myDiagram.commandHandler = new LocalStorageCommandHandler();
  * ```
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/LocalStorageCommandHandler.html">Local Storage Commands</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/LocalStorageCommandHandler.html">Local Storage Commands</a> sample.
  * @category Extension
  */
 export class LocalStorageCommandHandler extends go.CommandHandler {
@@ -46,7 +46,7 @@ export class LocalStorageCommandHandler extends go.CommandHandler {
    * and stores it as JSON in LocalStorage.
    * @param {Iterable.<Part>} coll a collection of {@link Part}s.
    */
-  public copyToClipboard(coll: go.Iterable<go.Part>): void {
+  public override copyToClipboard(coll: go.Iterable<go.Part>): void {
     try {
       if (coll === null) {
         window.localStorage.setItem(this.StorageKey, '');
@@ -76,7 +76,7 @@ export class LocalStorageCommandHandler extends go.CommandHandler {
    * this makes a copy of the clipboard's parts and adds the copies to this {@link Diagram}.
    * @return {Set.<Part>} a collection of newly pasted {@link Part}s
    */
-  public pasteFromClipboard(): go.Set<go.Part> {
+  public override pasteFromClipboard(): go.Set<go.Part> {
     const coll = new go.Set<go.Part>();
     try {
       const clipstr = window.localStorage.getItem(this.StorageKey);
@@ -105,7 +105,7 @@ export class LocalStorageCommandHandler extends go.CommandHandler {
    *
    * This works just like {@link CommandHandler#canPasteSelection}, but looks at LocalStorage instead of a static variable.
    */
-  public canPasteSelection(pos?: go.Point): boolean {
+  public override canPasteSelection(pos?: go.Point): boolean {
     const diagram = this.diagram;
     if (diagram.isReadOnly || diagram.isModelReadOnly) return false;
     if (!diagram.allowInsert || !diagram.allowClipboard) return false;

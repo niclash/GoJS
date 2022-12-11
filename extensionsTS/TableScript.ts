@@ -1,22 +1,22 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { TableLayout } from './TableLayout';
+import * as go from '../release/go.js';
+import { TableLayout } from './TableLayout.js';
 
 // define a custom ResizingTool to limit how far one can shrink a row or column
 class LaneResizingTool extends go.ResizingTool {
 
-  public computeMinSize(): go.Size {
+  public override computeMinSize(): go.Size {
     const diagram = this.diagram;
     if (this.adornedObject === null) return new go.Size();
     const lane = this.adornedObject.part;  // might be row or column
@@ -45,7 +45,7 @@ class LaneResizingTool extends go.ResizingTool {
     return new go.Size(Math.max(msz.width, bounds.width), Math.max(msz.height, bounds.height));
   }
 
-  public resize(newr: go.Rect) {
+  public override resize(newr: go.Rect) {
     const diagram = this.diagram;
     if (this.adornedObject === null) return;
     const lane = this.adornedObject.part;
@@ -277,14 +277,13 @@ export function init() {
     { key: 'Theta', color: 'tomato', size: '100 50', group: 'AdmApp' }
   ]);
 
-  const myPalette =
-    $(go.Palette, 'myPaletteDiv',
-      {
-        nodeTemplateMap: myDiagram.nodeTemplateMap,
-        'model.nodeDataArray': [
-          { key: 'Alpha', color: 'orange' },
-          { key: 'Beta', color: 'tomato' },
-          { key: 'Gamma', color: 'goldenrod' }
-        ]
-      });
+  $(go.Palette, 'myPaletteDiv',
+    {
+      nodeTemplateMap: myDiagram.nodeTemplateMap,
+      'model.nodeDataArray': [
+        { key: 'Alpha', color: 'orange' },
+        { key: 'Beta', color: 'tomato' },
+        { key: 'Gamma', color: 'goldenrod' }
+      ]
+    });
 }

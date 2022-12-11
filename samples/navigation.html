@@ -1,18 +1,61 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Navigation of Graphs</title>
-  <meta name="description" content="Show the relationships of nodes and links and groups." />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Copyright 1998-2019 by Northwoods Software Corporation. -->
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"/>
+<meta name="description" content="Show the relationships of nodes and links and groups."/> 
+<link rel="stylesheet" href="../assets/css/style.css"/> 
+<!-- Copyright 1998-2022 by Northwoods Software Corporation. -->
+<title>Navigation of Graphs</title>
+</head>
 
-  <script src="../release/go.js"></script>
-  <script src="../assets/js/goSamples.js"></script>  <!-- this is only for the GoJS Samples framework -->
-  <script id="code">
+<body>
+  <!-- This top nav is not part of the sample code -->
+  <nav id="navTop" class="w-full z-30 top-0 text-white bg-nwoods-primary">
+    <div class="w-full container max-w-screen-lg mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between mt-0 py-2">
+      <div class="md:pl-4">
+        <a class="text-white hover:text-white no-underline hover:no-underline
+        font-bold text-2xl lg:text-4xl rounded-lg hover:bg-nwoods-secondary " href="../">
+          <h1 class="mb-0 p-1 ">GoJS</h1>
+        </a>
+      </div>
+      <button id="topnavButton" class="rounded-lg sm:hidden focus:outline-none focus:ring" aria-label="Navigation">
+        <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+          <path id="topnavOpen" fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+          <path id="topnavClosed" class="hidden" fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+      <div id="topnavList" class="hidden sm:block items-center w-auto mt-0 text-white p-0 z-20">
+        <ul class="list-reset list-none font-semibold flex justify-end flex-wrap sm:flex-nowrap items-center px-0 pb-0">
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../learn/">Learn</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../samples/">Samples</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../intro/">Intro</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../api/">API</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/products/register.html">Register</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="../download.html">Download</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://forum.nwoods.com/c/gojs/11">Forum</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/contact.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/contact.html', 'contact');">Contact</a></li>
+          <li class="p-1 sm:p-0"><a class="topnav-link" href="https://www.nwoods.com/sales/index.html"
+           target="_blank" rel="noopener" onclick="getOutboundLink('https://www.nwoods.com/sales/index.html', 'buy');">Buy</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="border-b border-gray-600 opacity-50 my-0 py-0" />
+  </nav>
+  <div class="md:flex flex-col md:flex-row md:min-h-screen w-full max-w-screen-xl mx-auto">
+    <div id="navSide" class="flex flex-col w-full md:w-48 text-gray-700 bg-white flex-shrink-0"></div>
+    <!-- * * * * * * * * * * * * * -->
+    <!-- Start of GoJS sample code -->
+    
+    <script src="../release/go.js"></script>
+    <div id="allSampleContent" class="p-4 w-full">
+    <script id="code">
     function init() {
-      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-      var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+      // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+      // For details, see https://gojs.net/latest/intro/buildingObjects.html
+      const $ = go.GraphObject.make;  // for conciseness in defining templates
 
       myDiagram =
         $(go.Diagram, "myDiagramDiv",  // Diagram refers to its DIV HTML element by id
@@ -23,7 +66,7 @@
       // define the node template
       myDiagram.nodeTemplate =
         $(go.Node, "Auto",
-          new go.Binding("location", "loc"),
+          new go.Binding("location").makeTwoWay(),
           {
             locationSpot: go.Spot.Center,
             toEndSegmentLength: 30, fromEndSegmentLength: 30
@@ -118,13 +161,13 @@
       // add nodes, including groups, and links to the model
       myDiagram.model = new go.GraphLinksModel(
         [ // node data
-          { key: "A", loc: new go.Point(320, 100) },
-          { key: "B", loc: new go.Point(420, 200) },
-          { key: "C", group: "Psi", loc: new go.Point(250, 225) },
-          { key: "D", group: "Omega", loc: new go.Point(270, 325) },
-          { key: "E", group: "Phi", loc: new go.Point(120, 225) },
-          { key: "F", group: "Omega", loc: new go.Point(200, 350) },
-          { key: "G", loc: new go.Point(180, 450) },
+          { key: "A", location: new go.Point(320, 100) },
+          { key: "B", location: new go.Point(420, 270) },
+          { key: "C", group: "Psi", location: new go.Point(270, 215) },
+          { key: "D", group: "Omega", location: new go.Point(270, 325) },
+          { key: "E", group: "Phi", location: new go.Point(120, 225) },
+          { key: "F", group: "Omega", location: new go.Point(200, 350) },
+          { key: "G", location: new go.Point(180, 450) },
           { key: "Chi", isGroup: true },
           { key: "Psi", isGroup: true, group: "Chi" },
           { key: "Phi", isGroup: true, group: "Psi" },
@@ -146,10 +189,9 @@
         ]);
 
       // whenever selection changes, run updateHighlights
-      myDiagram.addDiagramListener("ChangedSelection",
-        function() { updateHighlights(getRadioButton()); });
+      myDiagram.addDiagramListener("ChangedSelection", () => updateHighlights(getRadioButton()));
 
-      myDiagram.select(myDiagram.findNodeForKey('C'));
+      myDiagram.select(myDiagram.findNodeForKey('A'));
     }
 
     // This highlights all graph objects that should be highlighted
@@ -157,8 +199,8 @@
     // Parameter e is the checked radio button.
     function updateHighlights(e) {
       // Set highlight to 0 for everything before updating
-      myDiagram.nodes.each(function(node) { node.highlight = 0; });
-      myDiagram.links.each(function(link) { link.highlight = 0; });
+      myDiagram.nodes.each(node => node.highlight = 0);
+      myDiagram.links.each(link => link.highlight = 0);
 
       // Get the selected GraphObject and run the appropriate method
       var sel = myDiagram.selection.first();
@@ -182,14 +224,14 @@
 
       // Give everything the appropriate highlighting ( color and width of stroke )
       // nodes, including groups
-      myDiagram.nodes.each(function(node) {
+      myDiagram.nodes.each(node => {
         var shp = node.findObject("OBJSHAPE");
         var grp = node.findObject("GROUPTEXT");
         var hl = node.highlight;
         highlight(shp, grp, hl);
       });
       // links
-      myDiagram.links.each(function(link) {
+      myDiagram.links.each(link => {
         var hl = link.highlight;
         var shp = link.findObject("OBJSHAPE");
         var arw = link.findObject("ARWSHAPE");
@@ -204,21 +246,21 @@
     // if the link connects to this node, highlight it
     function linksTo(x, i) {
       if (x instanceof go.Node) {
-        x.findLinksInto().each(function(link) { link.highlight = i; });
+        x.findLinksInto().each(link => link.highlight = i);
       }
     }
 
     // if the link comes from this node, highlight it
     function linksFrom(x, i) {
       if (x instanceof go.Node) {
-        x.findLinksOutOf().each(function(link) { link.highlight = i; });
+        x.findLinksOutOf().each(link => link.highlight = i);
       }
     }
 
     // highlight all links connected to this node
     function linksAll(x, i) {
       if (x instanceof go.Node) {
-        x.linksConnected.each(function(link) { link.highlight = i; });
+        x.linksConnected.each(link => link.highlight = i);
       }
     }
 
@@ -231,7 +273,7 @@
         x.fromNode.highlight = i;
         nodesToList.add(x.data.from);
       } else {
-        x.findNodesInto().each(function(node) {
+        x.findNodesInto().each(node => {
           node.highlight = i;
           nodesToList.add(node.data.key);
         });
@@ -246,7 +288,7 @@
         x.toNode.highlight = i;
         nodesFromList.add(x.data.to);
       } else {
-        x.findNodesOutOf().each(function(node) {
+        x.findNodesOutOf().each(node => {
           node.highlight = i;
           nodesFromList.add(node.data.key);
         });
@@ -263,7 +305,7 @@
         x.toNode.highlight = i;
         nodesReach(x.toNode, i + 1);
       } else {
-        x.findNodesOutOf().each(function(node) {
+        x.findNodesOutOf().each(node => {
           if (node.highlight === 0 || node.highlight > i) {
             node.highlight = i;
             nodesReach(node, i + 1);
@@ -278,7 +320,7 @@
         x.toNode.highlight = i;
         x.fromNode.highlight = i;
       } else {
-        x.findNodesConnected().each(function(node) { node.highlight = i; });
+        x.findNodesConnected().each(node => node.highlight = i);
       }
     }
 
@@ -303,7 +345,7 @@
     function childNodes(x, i) {
       var childLst = new go.List(/*"string"*/);
       if (x instanceof go.Group) {
-        myDiagram.nodes.each(function(node) {
+        myDiagram.nodes.each(node => {
           if (node.containingGroup === x) {
             node.highlight = i;
             childLst.add(node.data.key);
@@ -316,7 +358,7 @@
     // same as childNodes, then run allMemberNodes for each child Group with the next color
     function allMemberNodes(x, i) {
       if (x instanceof go.Group) {
-        myDiagram.nodes.each(function(node) {
+        myDiagram.nodes.each(node => {
           if (node.containingGroup === x) {
             node.highlight = i;
             allMemberNodes(node, i + 1);
@@ -328,7 +370,7 @@
     // if the link"s containing Group is x, highlight it
     function childLinks(x, i) {
       var childLst = new go.List(/*go.Link*/);
-      myDiagram.links.each(function(link) {
+      myDiagram.links.each(link => {
         if (link.containingGroup === x) {
           link.highlight = i;
           childLst.add(link);
@@ -340,7 +382,7 @@
     // same as childLinks, then run allMemberLinks for each child Group with the next color
     function allMemberLinks(x, i) {
       childLinks(x, i);
-      myDiagram.nodes.each(function(node) {
+      myDiagram.nodes.each(node => {
         if (node instanceof go.Group && node.containingGroup === x) {
           allMemberLinks(node, i + 1);
         }
@@ -381,9 +423,9 @@
         text += x.data.key;
         var toLst = nodesTo(x, 0); // display names of nodes going into this node
         if (toLst.count > 0) {
-          toLst.sort(function(a, b) { return a < b ? -1 : 1 });
+          toLst.sort((a, b) => a < b ? -1 : 1);
           text += "\nNodes into: ";
-          toLst.each(function(key) {
+          toLst.each(key => {
             if (key !== text.substring(text.length - 3, text.length - 2)) {
               text += key + ", ";
             }
@@ -392,9 +434,9 @@
         }
         var frLst = nodesFrom(x, 0); // display names of nodes coming out of this node
         if (frLst.count > 0) {
-          frLst.sort(function(a, b) { return a < b ? -1 : 1 });
+          frLst.sort((a, b) => a < b ? -1 : 1);
           text += "\nNodes out of: ";
-          frLst.each(function(key) {
+          frLst.each(key => {
             if (key !== text.substring(text.length - 3, text.length - 2)) {
               text += key + ", ";
             }
@@ -407,8 +449,8 @@
           // if it"s a group, also display nodes and links contained in it
           text += "\nMember nodes: ";
           var children = childNodes(x, 0);
-          children.sort(function(a, b) { return a < b ? -1 : 1 });
-          children.each(function(key) {
+          children.sort((a, b) => a < b ? -1 : 1);
+          children.each(key => {
             if (key !== text.substring(text.length - 3, text.length - 2)) {
               text += key + ", ";
             }
@@ -419,11 +461,11 @@
           if (linkChildren.count > 0) {
             text += "\nMember links: ";
             var linkStrings = new go.List(/*"string"*/);
-            linkChildren.each(function(link) {
+            linkChildren.each(link => {
               linkStrings.add(link.data.from + " --> " + link.data.to);
             });
-            linkStrings.sort(function(a, b) { return a < b ? -1 : 1 });
-            linkStrings.each(function(str) {
+            linkStrings.sort((a, b) => a < b ? -1 : 1);
+            linkStrings.each(str => {
               text += str + ", ";
             });
             text = text.substring(0, text.length - 2);
@@ -438,23 +480,23 @@
       }
       return text;
     }
+    window.addEventListener('DOMContentLoaded', init);
   </script>
-</head>
-<body onload="init()">
+
 <div id="sample">
   <div id="displays" style="width:100%; white-space:nowrap;">
       <div id="myDiagramDiv" style="border: solid 1px black; height: 560px; display: inline-block; vertical-align: top; width: 70%"></div>
       <div id="controls" style="border: solid 1px black; height: 560px; width: 200px; display: inline-block; vertical-align: top;">
         <div id="buttons" style="border-radius: 10px; border: solid 1px gray; background-color: #eaeaea; margin: 5px;">
           <b style="margin: 5px">Related Parts Highlighted</b> <br />
-          <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="None" checked="checked">Unhighlight All</label><br />
+          <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="None">Unhighlight All</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="linksIn">Links Into</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="linksOut">Links Out Of</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="linksAll">Links Connected</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="nodesIn">Nodes Into</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="nodesOut">Nodes Out Of</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="nodesConnect">Nodes Connected</label><br />
-          <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="nodesReach">Nodes Reachable</label><br />
+          <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="nodesReach" checked="checked">Nodes Reachable</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="group">Containing Group (Parent)</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="groupsAll">Containing Groups (All)</label><br />
           <label><input type="radio" name="highlight" onclick="updateHighlights(this)" id="nodesMember">Member Nodes (Children)</label><br />
@@ -489,5 +531,11 @@
     </p>
   </div>
 </div>
+    </div>
+    <!-- * * * * * * * * * * * * * -->
+    <!--  End of GoJS sample code  -->
+  </div>
 </body>
+<!--  This script is part of the gojs.net website, and is not needed to run the sample -->
+<script src="../assets/js/goSamples.js"></script>
 </html>

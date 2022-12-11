@@ -1,22 +1,22 @@
 ﻿/*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { RadialLayout } from './RadialLayout';
+import * as go from '../release/go.js';
+import { RadialLayout } from './RadialLayout.js';
 
 let myDiagram: go.Diagram;
 
 class CustomRadialLayout extends RadialLayout {
-  rotateNode(node: go.Node, angle: number, sweep: number, radius: number) {
+  public override rotateNode(node: go.Node, angle: number, sweep: number, radius: number) {
     // rotate the nodes and make sure the text is not upside-down
     node.angle = angle;
     const label = node.findObject('TEXTBLOCK');
@@ -25,7 +25,7 @@ class CustomRadialLayout extends RadialLayout {
     }
   }
 
-  commitLayers() {
+  public override commitLayers() {
     // optional: add circles in the background
     // need to remove any old ones first
     const diagram = this.diagram;

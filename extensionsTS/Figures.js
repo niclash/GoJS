@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
@@ -7,20 +7,23 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    /*
-    * This is an extension and not part of the main GoJS library.
-    * Note that the API for this class may change with any version, even point releases.
-    * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
-    * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
-    */
-    var go = require("../release/go");
+    exports.FigureParameter = void 0;
     // This file holds definitions of all standard shape figures -- string values for Shape.figure.
+    // You do not need to load this file in order to use named Shape figure.
+    // The following figures are built-in to the go.js library and thus do not need to be redefined:
+    //   Rectangle, Square, RoundedRectangle, Border, Ellipse, Circle,
+    //   TriangleRight, TriangleDown, TriangleLeft, TriangleUp, Triangle,
+    //   LineH, LineV, None, BarH, BarV, MinusLine, PlusLine, XLine
+    // If you need any of the other figures that are defined in this file, we suggest that you copy
+    // just those definitions into your own code.  Do not load this file unless you really want to
+    // define a lot of code that your app does not use and will not get garbage-collected.
+    // See also the figures defined in the RoundedRectangles.js file.
+    var go = require("../release/go.js");
     // The following functions and variables are used throughout this file:
     /**
      * @hidden @internal
@@ -48,7 +51,7 @@
                     throw new Error('Shape name must be a valid string.');
                 this._name = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FigureParameter.prototype, "defaultValue", {
@@ -61,7 +64,7 @@
                     throw new Error('The default value must be a real number, not: ' + val);
                 this._defaultValue = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FigureParameter.prototype, "minimum", {
@@ -74,7 +77,7 @@
                     throw new Error('Minimum must be a real number, not: ' + val);
                 this._minimum = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(FigureParameter.prototype, "maximum", {
@@ -87,7 +90,7 @@
                     throw new Error('Maximum must be a real number, not: ' + val);
                 this._maximum = val;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         /**
@@ -254,23 +257,24 @@
     var GeneratorEllipseSpot2 = new go.Spot(0.844, 0.844);
     var KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
     // PREDEFINED figures, built into the v2.0 library:
-    go.Shape.defineFigureGenerator('Rectangle', function (shape, w, h) {
-        var geo = new go.Geometry(go.Geometry.Rectangle);
-        geo.startX = 0;
-        geo.startY = 0;
-        geo.endX = w;
-        geo.endY = h;
-        return geo;
-    });
-    go.Shape.defineFigureGenerator('Square', function (shape, w, h) {
-        var geo = new go.Geometry(go.Geometry.Rectangle);
-        geo.startX = 0;
-        geo.startY = 0;
-        geo.endX = w;
-        geo.endY = h;
-        geo.defaultStretch = go.GraphObject.Uniform;
-        return geo;
-    });
+    // These first few are commented out due to optimizations in the built-in definitions.
+    //go.Shape.defineFigureGenerator('Rectangle', (shape, w, h) => {  // predefined in 2.0
+    //  const geo = new go.Geometry(go.Geometry.Rectangle);
+    //  geo.startX = 0;
+    //  geo.startY = 0;
+    //  geo.endX = w;
+    //  geo.endY = h;
+    //  return geo;
+    //});
+    //go.Shape.defineFigureGenerator('Square', (shape, w, h) => {  // predefined in 2.0
+    //  const geo = new go.Geometry(go.Geometry.Rectangle);
+    //  geo.startX = 0;
+    //  geo.startY = 0;
+    //  geo.endX = w;
+    //  geo.endY = h;
+    //  geo.defaultStretch = go.GraphObject.Uniform;
+    //  return geo;
+    //});
     FigureParameter.setFigureParameter('RoundedRectangle', 0, new FigureParameter('CornerRounding', 5));
     go.Shape.defineFigureGenerator('RoundedRectangle', function (shape, w, h) {
         var param1 = shape ? shape.parameter1 : NaN;
@@ -296,27 +300,27 @@
         return geo;
     });
     go.Shape.defineFigureGenerator('Border', 'RoundedRectangle'); // predefined in 2.0
-    go.Shape.defineFigureGenerator('Ellipse', function (shape, w, h) {
-        var geo = new go.Geometry(go.Geometry.Ellipse);
-        geo.startX = 0;
-        geo.startY = 0;
-        geo.endX = w;
-        geo.endY = h;
-        geo.spot1 = GeneratorEllipseSpot1;
-        geo.spot2 = GeneratorEllipseSpot2;
-        return geo;
-    });
-    go.Shape.defineFigureGenerator('Circle', function (shape, w, h) {
-        var geo = new go.Geometry(go.Geometry.Ellipse);
-        geo.startX = 0;
-        geo.startY = 0;
-        geo.endX = w;
-        geo.endY = h;
-        geo.spot1 = GeneratorEllipseSpot1;
-        geo.spot2 = GeneratorEllipseSpot2;
-        geo.defaultStretch = go.GraphObject.Uniform;
-        return geo;
-    });
+    //go.Shape.defineFigureGenerator('Ellipse', (shape, w, h) => {  // predefined in 2.0
+    //  const geo = new go.Geometry(go.Geometry.Ellipse);
+    //  geo.startX = 0;
+    //  geo.startY = 0;
+    //  geo.endX = w;
+    //  geo.endY = h;
+    //  geo.spot1 = GeneratorEllipseSpot1;
+    //  geo.spot2 = GeneratorEllipseSpot2;
+    //  return geo;
+    //});
+    //go.Shape.defineFigureGenerator('Circle', (shape, w, h) => {  // predefined in 2.0
+    //  const geo = new go.Geometry(go.Geometry.Ellipse);
+    //  geo.startX = 0;
+    //  geo.startY = 0;
+    //  geo.endX = w;
+    //  geo.endY = h;
+    //  geo.spot1 = GeneratorEllipseSpot1;
+    //  geo.spot2 = GeneratorEllipseSpot2;
+    //  geo.defaultStretch = go.GraphObject.Uniform;
+    //  return geo;
+    //});
     go.Shape.defineFigureGenerator('TriangleRight', function (shape, w, h) {
         return new go.Geometry()
             .add(new go.PathFigure(0, 0)
@@ -386,6 +390,30 @@
             .add(new go.PathSegment(go.PathSegment.Line, w, 0))
             .add(new go.PathSegment(go.PathSegment.Move, 0, 0))
             .add(new go.PathSegment(go.PathSegment.Line, w, h)));
+    });
+    go.Shape.defineFigureGenerator('LineRight', function (shape, w, h) {
+        return new go.Geometry()
+            .add(new go.PathFigure(0.25 * w, 0, false)
+            .add(new go.PathSegment(go.PathSegment.Line, 0.75 * w, 0.5 * h))
+            .add(new go.PathSegment(go.PathSegment.Line, 0.25 * w, h)));
+    });
+    go.Shape.defineFigureGenerator('LineDown', function (shape, w, h) {
+        return new go.Geometry()
+            .add(new go.PathFigure(0, 0.25 * h, false)
+            .add(new go.PathSegment(go.PathSegment.Line, 0.5 * w, 0.75 * h))
+            .add(new go.PathSegment(go.PathSegment.Line, w, 0.25 * h)));
+    });
+    go.Shape.defineFigureGenerator('LineLeft', function (shape, w, h) {
+        return new go.Geometry()
+            .add(new go.PathFigure(0.75 * w, 0, false)
+            .add(new go.PathSegment(go.PathSegment.Line, 0.25 * w, 0.5 * h))
+            .add(new go.PathSegment(go.PathSegment.Line, 0.75 * w, h)));
+    });
+    go.Shape.defineFigureGenerator('LineUp', function (shape, w, h) {
+        return new go.Geometry()
+            .add(new go.PathFigure(0, 0.75 * h, false)
+            .add(new go.PathSegment(go.PathSegment.Line, 0.5 * w, 0.25 * h))
+            .add(new go.PathSegment(go.PathSegment.Line, w, 0.75 * h)));
     });
     // OPTIONAL figures, not predefined in the v2.0 library:
     go.Shape.defineFigureGenerator('AsteriskLine', function (shape, w, h) {
@@ -2852,7 +2880,6 @@
         var param1 = shape ? shape.parameter1 : NaN;
         if (isNaN(param1))
             param1 = .1; // Distance between 2 top lines
-        var l = 1 - param1; // Length of the top line
         var fig = new go.PathFigure(0, 0, true);
         geo.add(fig);
         fig.add(new go.PathSegment(go.PathSegment.Line, w, 0));
@@ -3269,7 +3296,6 @@
         var cpOffset = KAPPA * .1;
         var radius = .1;
         var centerx = .1;
-        var centery = .5;
         // Up
         var fig = new go.PathFigure((centerx - cpOffset * .5) * w, h, false);
         geo.add(fig);
@@ -3683,7 +3709,6 @@
         var centery = radiushead;
         var alpha2 = Math.PI / 4;
         var KAPPA2 = ((4 * (1 - Math.cos(alpha2))) / (3 * Math.sin(alpha2)));
-        var cpOffset = KAPPA2 * .5;
         var radiusw = radiushead;
         var radiush = radiushead;
         var offsetw = KAPPA2 * radiusw;
@@ -4465,7 +4490,7 @@
     });
     go.Shape.defineFigureGenerator('Hand', function (shape, w, h) {
         var geo = new go.Geometry();
-        var fig = new go.PathFigure(0, 0.5 * h, false);
+        var fig = new go.PathFigure(0, 0.5 * h, true);
         geo.add(fig);
         fig.add(new go.PathSegment(go.PathSegment.Bezier, 0.1 * w, 0.3 * h, 0, 0.375 * h, 0.05 * w, 0.325 * h));
         fig.add(new go.PathSegment(go.PathSegment.Bezier, 0.45 * w, 0.075 * h, 0.3 * w, 0.225 * h, 0.4 * w, 0.175 * h));
@@ -4474,16 +4499,15 @@
         fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0.4 * h));
         fig.add(new go.PathSegment(go.PathSegment.Bezier, 0.9 * w, 0.55 * h, w, 0.4 * h, w, 0.55 * h));
         fig.add(new go.PathSegment(go.PathSegment.Line, 0.425 * w, 0.55 * h));
-        fig.add(new go.PathSegment(go.PathSegment.Move, 0.6 * w, 0.55 * h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0.6 * w, 0.55 * h));
         fig.add(new go.PathSegment(go.PathSegment.Bezier, 0.6 * w, 0.7 * h, 0.675 * w, 0.55 * h, 0.675 * w, 0.7 * h));
         fig.add(new go.PathSegment(go.PathSegment.Line, 0.4 * w, 0.7 * h));
-        fig.add(new go.PathSegment(go.PathSegment.Move, 0.575 * w, 0.7 * h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0.575 * w, 0.7 * h));
         fig.add(new go.PathSegment(go.PathSegment.Bezier, 0.575 * w, 0.85 * h, 0.65 * w, 0.7 * h, 0.65 * w, 0.85 * h));
         fig.add(new go.PathSegment(go.PathSegment.Line, 0.4 * w, 0.85 * h));
-        fig.add(new go.PathSegment(go.PathSegment.Move, 0.525 * w, 0.85 * h));
+        fig.add(new go.PathSegment(go.PathSegment.Line, 0.525 * w, 0.85 * h));
         fig.add(new go.PathSegment(go.PathSegment.Bezier, 0.535 * w, h, 0.61 * w, 0.85 * h, 0.61 * w, h));
-        fig.add(new go.PathSegment(go.PathSegment.Bezier, 0, 0.9 * h, 0.435 * w, h, 0, h));
-        fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0.5 * h));
+        fig.add(new go.PathSegment(go.PathSegment.Bezier, 0, 0.9 * h, 0.435 * w, h, 0, h).close());
         return geo;
     });
     go.Shape.defineFigureGenerator('Map', function (shape, w, h) {

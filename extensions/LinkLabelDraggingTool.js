@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Tool for moving a label on a Link
@@ -9,7 +9,7 @@
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -153,13 +153,18 @@ LinkLabelDraggingTool.prototype.updateSegmentOffset = function() {
   var last = this.diagram.lastInput.documentPoint;
   var idx = lab.segmentIndex;
   var numpts = link.pointsCount;
-  // if the label is a "mid" label, assume it is positioned differently from a label at a particular segment
-  if (idx < -numpts || idx >= numpts) {
+  if (isNaN(idx) && link.path) {  // handle fractions along the whole path
+    var labpt = link.path.getDocumentPoint(link.geometry.getPointAlongPath(lab.segmentFraction));
+    var angle = link.geometry.getAngleAlongPath(lab.segmentFraction);
+    var p = new go.Point(last.x - this._offset.x - labpt.x, last.y - this._offset.y - labpt.y);
+    lab.segmentOffset = p.rotate(-angle);
+  } else if (idx < -numpts || idx >= numpts) {
+    // if the label is a "mid" label, assume it is positioned differently from a label at a particular segment
     var mid = link.midPoint;
     // need to rotate this point to account for the angle of the link segment at the mid-point
     var p = new go.Point(last.x - this._offset.x - mid.x, last.y - this._offset.y - mid.y);
     lab.segmentOffset = p.rotate(-link.midAngle);
-  } else {  // handle the label point being on a partiular segment with a given fraction
+  } else {  // handle the label point being on a particular segment with a given fraction
     var frac = lab.segmentFraction;
     var a, b;
     if (idx >= 0) {  // indexing forwards

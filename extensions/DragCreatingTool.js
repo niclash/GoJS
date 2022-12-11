@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Tool for creating a new Node with custom size by dragging its outline in the background.
@@ -9,7 +9,7 @@
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -206,7 +206,7 @@ DragCreatingTool.prototype.insertPart = function(bounds) {
     }
   }
   if (part !== null) {
-    part.position = bounds.position;
+    part.move(bounds.position);
     part.resizeObject.desiredSize = bounds.size;
     if (diagram.allowSelect) {
       diagram.clearSelection();
@@ -235,7 +235,7 @@ DragCreatingTool.prototype.insertPart = function(bounds) {
 * <p/>
 * Modifying this property while this tool {@link Tool#isActive} might have no effect.
 * @name DragCreatingTool#box
-* @function.
+
 * @return {Part}
 */
 Object.defineProperty(DragCreatingTool.prototype, "box", {
@@ -250,7 +250,7 @@ Object.defineProperty(DragCreatingTool.prototype, "box", {
 * A value of zero will allow this tool to run without any wait after the mouse down.
 * Setting this property does not raise any events.
 * @name DragCreatingTool#delay
-* @function.
+
 * @return {number}
 */
 Object.defineProperty(DragCreatingTool.prototype, "delay", {
@@ -264,7 +264,7 @@ Object.defineProperty(DragCreatingTool.prototype, "delay", {
 * The value must be non-null for this tool to be able to run.
 * Setting this property does not raise any events.
 * @name DragCreatingTool#archetypeNodeData
-* @function.
+
 * @return {Object}
 */
 Object.defineProperty(DragCreatingTool.prototype, "archetypeNodeData", {

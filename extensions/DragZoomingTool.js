@@ -1,6 +1,6 @@
 "use strict";
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 // A custom Tool for zooming into a selected area
@@ -9,7 +9,7 @@
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
@@ -235,7 +235,7 @@ DragZoomingTool.prototype.zoomToRect = function(r) {
 * <p/>
 * Modifying this property while this tool {@link Tool#isActive} might have no effect.
 * @name DragZoomingTool#box
-* @function.
+
 * @return {Part}
 */
 Object.defineProperty(DragZoomingTool.prototype, "box", {
@@ -249,7 +249,7 @@ Object.defineProperty(DragZoomingTool.prototype, "box", {
 * The default value is 175 milliseconds.
 * Setting this property does not raise any events.
 * @name DragZoomingTool#delay
-* @function.
+
 * @return {number}
 */
 Object.defineProperty(DragZoomingTool.prototype, "delay", {
@@ -264,7 +264,7 @@ Object.defineProperty(DragZoomingTool.prototype, "delay", {
 * The default value is null, which causes {@link #zoomToRect} to modify this tool's {@link Tool#diagram}.
 * Setting this property does not raise any events.
 * @name DragZoomingTool#zoomedDiagram
-* @function.
+
 * @return {Diagram}
 */
 Object.defineProperty(DragZoomingTool.prototype, "zoomedDiagram", {

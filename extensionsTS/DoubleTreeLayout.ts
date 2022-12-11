@@ -1,16 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * Perform two TreeLayouts, one going rightwards and one going leftwards.
@@ -99,7 +99,7 @@ export class DoubleTreeLayout extends go.Layout {
   * @ignore
   * Copies properties to a cloned Layout.
   */
-  protected cloneProtected(copy: this): void {
+  protected override cloneProtected(copy: this): void {
     super.cloneProtected(copy);
     copy._vertical = this._vertical;
     copy._directionFunction = this._directionFunction;
@@ -112,7 +112,7 @@ export class DoubleTreeLayout extends go.Layout {
    * into two separate subsets but sharing only a single root Node.
    * @param coll
    */
-  public doLayout(coll: (go.Diagram | go.Group | go.Iterable<go.Part>)): void {
+  public override doLayout(coll: (go.Diagram | go.Group | go.Iterable<go.Part>)): void {
     const coll2: go.Set<go.Part> = this.collectParts(coll);
     if (coll2.count === 0) return;
     const diagram = this.diagram;
@@ -192,7 +192,7 @@ export class DoubleTreeLayout extends go.Layout {
       });
     }
     if (root === null) return;
-  
+
     // the ROOT node is shared by both subtrees
     leftParts.add(root);
     rightParts.add(root);

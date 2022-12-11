@@ -1,12 +1,12 @@
 
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
-import { DrawCommandHandler } from '../../extensionsTS/DrawCommandHandler';
-import '../../extensionsTS/Figures';
-import * as go from '../../release/go';
-import { BPMNLinkingTool, BPMNRelinkingTool, PoolLink } from './BPMNClasses';
+import { DrawCommandHandler } from '../../extensionsTS/DrawCommandHandler.js';
+import '../../extensionsTS/Figures.js';
+import * as go from '../../release/go.js';
+import { BPMNLinkingTool, BPMNRelinkingTool, PoolLink } from './BPMNClasses.js';
 
 declare var jQuery: any;
 
@@ -96,16 +96,13 @@ export function init() {
     return new go.Geometry();
   });
 
-  const annotationStr = 'M 150,0L 0,0L 0,600L 150,600 M 800,0';
-  const annotationGeo = go.Geometry.parse(annotationStr);
-  annotationGeo.normalize();
   go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
-    const geo = annotationGeo.copy();
-    // calculate how much to scale the Geometry so that it fits in w x h
-    const bounds = geo.bounds;
-    const scale = Math.min(w / bounds.width, h / bounds.height);
-    geo.scale(scale, scale);
-    return geo;
+    var len = Math.min(w, 10);
+    return new go.Geometry()
+      .add(new go.PathFigure(len, 0)
+           .add(new go.PathSegment(go.PathSegment.Line, 0, 0))
+           .add(new go.PathSegment(go.PathSegment.Line, 0, h))
+           .add(new go.PathSegment(go.PathSegment.Line, len, h)));
   });
 
   const gearStr = 'F M 391,5L 419,14L 444.5,30.5L 451,120.5L 485.5,126L 522,141L 595,83L 618.5,92L 644,106.5' +
@@ -213,7 +210,7 @@ export function init() {
       'BpmnActivityCompensation',
       'Triangle',
       'Pentagon',
-      'ThickCross',
+      'ThinCross',
       'Circle'];
     if (s < tasks.length) return tasks[s];
     return 'NotAllowed'; // error
@@ -364,8 +361,6 @@ export function init() {
       },
       new go.Binding('itemArray', 'boundaryEventArray'),
       new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-      // move a selected part into the Foreground layer, so it isn"t obscured by any non-selected parts
-      new go.Binding('layerName', 'isSelected', function (s) { return s ? 'Foreground' : ''; }).ofObject(),
       $(go.Panel, 'Auto',
         {
           name: 'PANEL',
@@ -507,8 +502,6 @@ export function init() {
         toolTip: tooltiptemplate
       },
       new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-      // move a selected part into the Foreground layer, so it isn't obscured by any non-selected parts
-      new go.Binding('layerName', 'isSelected', function (s) { return s ? 'Foreground' : ''; }).ofObject(),
       // can be resided according to the user's desires
       { resizable: false, resizeObjectName: 'SHAPE' },
       $(go.Panel, 'Spot',
@@ -555,7 +548,7 @@ export function init() {
       'ThinX',          // 4 - Exclusive  (exclusive can also be no symbol, just bind to visible=false for no symbol)
       'Pentagon',       // 5 - double cicle event based gateway
       'Pentagon',       // 6 - exclusive event gateway to start a process (single circle)
-      'ThickCross'] ;   // 7 - parallel event gateway to start a process (single circle)
+      'ThinCross'] ;   // 7 - parallel event gateway to start a process (single circle)
     if (s < tasks.length) return tasks[s];
     return 'NotAllowed'; // error
   }
@@ -587,8 +580,6 @@ export function init() {
         toolTip: tooltiptemplate
       },
       new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-      // move a selected part into the Foreground layer, so it isn't obscured by any non-selected parts
-      new go.Binding('layerName', 'isSelected', function (s) { return s ? 'Foreground' : ''; }).ofObject(),
       // can be resided according to the user's desires
       { resizable: false, resizeObjectName: 'SHAPE' },
       $(go.Panel, 'Spot',
@@ -681,7 +672,10 @@ export function init() {
       { background: GradientLightGray, locationSpot: go.Spot.Center },
       new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
       $(go.Shape, 'Annotation', // A left bracket shape
-        { portId: '', fromLinkable: true, cursor: 'pointer', fromSpot: go.Spot.Left, strokeWidth: 2, stroke: 'gray' }),
+        {
+          portId: '', fromLinkable: true, cursor: 'pointer', fromSpot: go.Spot.Left,
+          strokeWidth: 2, stroke: 'gray', fill: 'transparent'
+        }),
       $(go.TextBlock,
         { margin: 5, editable: true },
         new go.Binding('text').makeTwoWay())
@@ -780,6 +774,14 @@ export function init() {
   const swimLanesGroupTemplateForPalette =
     $(go.Group, 'Vertical'); // empty in the palette
 
+
+  function assignGroupLayer(grp: go.Part): void {
+    if (!(grp instanceof go.Group)) return;
+    var lay = grp.isSelected ? "Foreground" : "";
+    grp.layerName = lay;
+    grp.findSubGraphParts().each(function(m: go.Part) { m.layerName = lay; });
+  }
+
   const subProcessGroupTemplate =
     $(go.Group, 'Spot',
       {
@@ -787,22 +789,28 @@ export function init() {
         locationObjectName: 'PH',
         // locationSpot: go.Spot.Center,
         isSubGraphExpanded: false,
+        subGraphExpandedChanged: function(grp: go.Group) {
+          if (grp.isSubGraphExpanded) grp.isSelected = true;
+          assignGroupLayer(grp);
+        },
+        selectionChanged: assignGroupLayer,
+        computesBoundsAfterDrag: true,
         memberValidation: function (group: go.Group, part: go.Part) {
           return !(part instanceof go.Group) ||
                  (part.category !== 'Pool' && part.category !== 'Lane');
         },
         mouseDrop: function (e: go.InputEvent, grp: go.GraphObject) {
-          if (!(grp instanceof go.Group) || grp.diagram === null) return;
+          if (e.shift || !(grp instanceof go.Group) || grp.diagram === null) return;
           const ok = grp.addMembers(grp.diagram.selection, true);
           if (!ok) grp.diagram.currentTool.doCancel();
+          else assignGroupLayer(grp);
         },
         contextMenu: activityNodeMenu,
-        itemTemplate: boundaryEventItemTemplate
+        itemTemplate: boundaryEventItemTemplate,
+        avoidable: false
       },
       new go.Binding('itemArray', 'boundaryEventArray'),
       new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-      // move a selected part into the Foreground layer, so it isn't obscured by any non-selected parts
-      // new go.Binding("layerName", "isSelected", function (s) { return s ? "Foreground" : ""; }).ofObject(),
       $(go.Panel, 'Auto',
         $(go.Shape, 'RoundedRectangle',
           {
@@ -820,23 +828,18 @@ export function init() {
             new go.Binding('text', 'text').makeTwoWay(),
             new go.Binding('alignment', 'isSubGraphExpanded', function (s) { return s ? go.Spot.TopLeft : go.Spot.Center; })),
           // create a placeholder to represent the area where the contents of the group are
-          $(go.Placeholder,
-            { padding: new go.Margin(5, 5) }),
+          $(go.Panel, "Auto",
+            $(go.Shape, { opacity: 0.0 }),
+            $(go.Placeholder,
+              { padding: new go.Margin(5, 5) })
+          ),  // end nested Auto Panel
           makeMarkerPanel(true, 1)  // sub-process,  loop, parallel, sequential, ad doc and compensation markers
         )  // end Vertical Panel
-      )
+      )  // end border Panel
     );  // end Group
 
-  // ** need this in the subprocess group template above.
-  //        $(go.Shape, "RoundedRectangle",  // the inner "Transaction" rounded rectangle
-  //          { margin: 3,
-  //            stretch: go.GraphObject.Fill,
-  //            stroke: ActivityNodeStroke,
-  //            parameter1: 8, fill: null, visible: false
-  //          },
-  //          new go.Binding("visible", "isTransaction")
-  //         ),
 
+  // ------------------------ Lanes and Pools ------------------------------------------------------------
 
   function groupStyle() {  // common settings for both Lane and Pool Groups
     return [
@@ -927,9 +930,9 @@ export function init() {
           if (grp.diagram.undoManager.isUndoingRedoing) return;
           const shp = grp.resizeObject;
           if (grp.isSubGraphExpanded) {
-            shp.height = (grp as any)['_savedBreadth'];
+            shp.height = grp.data.savedBreadth;
           } else {
-            (grp as any)['_savedBreadth'] = shp.height;
+            if (!isNaN(shp.height)) grp.diagram.model.set(grp.data, "savedBreadth", shp.height);
             shp.height = NaN;
           }
           updateCrossLaneLinks(grp);
@@ -1021,6 +1024,7 @@ export function init() {
           { background: 'darkgray', column: 1 })
       )
     ); // end poolGroupTemplate
+
 
   // ------------------------------------------  Template Maps  ----------------------------------------------
 
@@ -1187,13 +1191,14 @@ export function init() {
           const ok = myDiagram.commandHandler.addTopLevelParts(myDiagram.selection, true);
           if (!ok) myDiagram.currentTool.doCancel();
         },
+        resizingTool: new LaneResizingTool(),
         linkingTool: new BPMNLinkingTool(), // defined in BPMNClasses.js
         relinkingTool: new BPMNRelinkingTool(), // defined in BPMNClasses.js
         'SelectionMoved': relayoutDiagram,  // defined below
-        'SelectionCopied': relayoutDiagram
+        'SelectionCopied': relayoutDiagram,
+        "LinkDrawn": function(e) { assignGroupLayer(e.subject.containingGroup); },
+        "LinkRelinked": function(e) { assignGroupLayer(e.subject.containingGroup); }
       });
-
-  myDiagram.toolManager.mouseDownTools.insertAt(0, new LaneResizingTool());
 
   myDiagram.addDiagramListener('LinkDrawn', function (e) {
     if (e.subject.fromNode.category === 'annotation') {
@@ -1223,7 +1228,7 @@ export function init() {
     if (myDiagram.isModified) {
       if (idx < 0) currentFile.textContent = currentFile.textContent + '*';
     } else {
-      if (idx >= 0) currentFile.textContent = currentFile.textContent!.substr(0, idx);
+      if (idx >= 0) currentFile.textContent = currentFile.textContent!.slice(0, idx);
     }
   });
 
@@ -1492,10 +1497,10 @@ class LaneResizingTool extends go.ResizingTool {
   public computeMinSize(): go.Size {
     if (this.adornedObject === null) return new go.Size(MINLENGTH, MINBREADTH);
     const lane = this.adornedObject.part;
-    if (!(lane instanceof go.Group) || lane.containingGroup === null) return new go.Size(MINLENGTH, MINBREADTH);
+    if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.computeMinSize.call(this);
     // assert(lane instanceof go.Group && lane.category !== "Pool");
     const msz = computeMinLaneSize(lane);  // get the absolute minimum size
-    if (this.isLengthening()) {  // compute the minimum length of all lanes
+    if (lane.containingGroup !== null && this.isLengthening()) {  // compute the minimum length of all lanes
       const sz = computeMinPoolSize(lane.containingGroup);
       msz.width = Math.max(msz.width, sz.width);
     } else {  // find the minimum size of this single lane
@@ -1506,21 +1511,10 @@ class LaneResizingTool extends go.ResizingTool {
     return msz;
   }
 
-  public canStart(): boolean {
-    if (!go.ResizingTool.prototype.canStart.call(this)) return false;
-
-    // if this is a resize handle for a "Lane", we can start.
-    const diagram = this.diagram;
-    const handl = this.findToolHandleAt(diagram.firstInput.documentPoint, this.name);
-    if (handl === null || handl.part === null) return false;
-    const ad = handl.part as go.Adornment;
-    if (ad.adornedObject === null || ad.adornedObject.part === null) return false;
-    return (ad.adornedObject.part.category === 'Lane');
-  }
-
   public resize(newr: go.Rect): void {
     if (this.adornedObject === null) return;
     const lane = this.adornedObject.part;
+    if (!(lane instanceof go.Group)) return go.ResizingTool.prototype.resize.call(this, newr);
     if (lane instanceof go.Group && lane.containingGroup !== null && this.isLengthening()) {  // changing the length of all of the lanes
       lane.containingGroup.memberParts.each((l) => {
         if (!(l instanceof go.Group)) return;
@@ -1660,7 +1654,7 @@ const UnsavedFileName = '(Unsaved File)';
 export function getCurrentFileName(): string {
   const currentFile = document.getElementById('currentFile') as HTMLDivElement;
   const name = currentFile.textContent || '';
-  if (name && name[name.length - 1] === '*') return name.substr(0, name.length - 1);
+  if (name && name[name.length - 1] === '*') return name.slice(0, -1);
   return name;
 }
 

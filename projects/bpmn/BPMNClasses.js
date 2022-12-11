@@ -1,5 +1,5 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -20,12 +20,13 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../../release/go"], factory);
+        define(["require", "exports", "../../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var go = require("../../release/go");
+    exports.BPMNRelinkingTool = exports.BPMNLinkingTool = exports.PoolLink = void 0;
+    var go = require("../../release/go.js");
     // Contains PoolLink and BPMNLinkingTool classes for the BPMN sample
     /**
      * PoolLink, a special Link class for message flows from edges of pools

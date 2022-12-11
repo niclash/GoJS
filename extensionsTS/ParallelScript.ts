@@ -1,17 +1,17 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
-import { ParallelLayout } from './ParallelLayout';
+import * as go from '../release/go.js';
+import { ParallelLayout } from './ParallelLayout.js';
 
 export function init() {
   if ((window as any).goSamples) (window as any).goSamples();  // init for these samples -- you don't need to call this
@@ -23,8 +23,7 @@ export function init() {
       {
         allowCopy: false,    // would need to merge copied nodes and links to
         allowDelete: false,  //   use the single "Split" and "Merge" nodes
-        layout: $(ParallelLayout,
-          { layerSpacing: 20, nodeSpacing: 10 })
+        layout: $(ParallelLayout, { layerSpacing: 20, nodeSpacing: 10 })
       });
 
   // define the Node templates
@@ -64,7 +63,7 @@ export function init() {
   // define the Link template to be minimal
   myDiagram.linkTemplate =
     $(go.Link,
-      { routing: go.Link.Orthogonal, corner: 5, reshapable: true },
+      { routing: go.Link.Orthogonal, corner: 5 },
       $(go.Shape,
         { stroke: 'gray', strokeWidth: 1.5 })
     );
@@ -73,8 +72,7 @@ export function init() {
   myDiagram.groupTemplate =
     $(go.Group, 'Auto',
       {
-        layout: $(ParallelLayout,
-          { layerSpacing: 20, nodeSpacing: 10 })
+        layout: $(ParallelLayout, { layerSpacing: 20, nodeSpacing: 10 })
       },
       $(go.Shape, { fill: 'transparent', stroke: 'darkgoldenrod' }),
       $(go.Placeholder, { padding: 10 }),

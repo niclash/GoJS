@@ -1,22 +1,22 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 
 /*
 * This is an extension and not part of the main GoJS library.
 * Note that the API for this class may change with any version, even point releases.
 * If you intend to use an extension in production, you should copy the code to your own source directory.
-* Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+* Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
 * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
 */
 
-import * as go from '../release/go';
+import * as go from '../release/go.js';
 
 /**
  * The RealtimeDragSelectingTool class lets the user select and deselect Parts within the {@link DragSelectingTool#box}
  * during a drag, not just at the end of the drag.
  *
- * If you want to experiment with this extension, try the <a href="../../extensionsTS/RealtimeDragSelecting.html">Realtime Drag Selecting</a> sample.
+ * If you want to experiment with this extension, try the <a href="../../extensionsJSM/RealtimeDragSelecting.html">Realtime Drag Selecting</a> sample.
  * @category Tool Extension
  */
 export class RealtimeDragSelectingTool extends go.DragSelectingTool {
@@ -26,7 +26,7 @@ export class RealtimeDragSelectingTool extends go.DragSelectingTool {
   /**
    * Remember the original collection of selected Parts.
    */
-  public doActivate(): void {
+  public override doActivate(): void {
     super.doActivate();
     // keep a copy of the original Set of selected Parts
     this._originalSelection = this.diagram.selection.copy();
@@ -38,7 +38,7 @@ export class RealtimeDragSelectingTool extends go.DragSelectingTool {
   /**
    * Release any references to selected Parts.
    */
-  public doDeactivate(): void {
+  public override doDeactivate(): void {
     this.diagram.raiseDiagramEvent('ChangedSelection');
     this._originalSelection.clear();
     this._temporarySelection.clear();
@@ -48,7 +48,7 @@ export class RealtimeDragSelectingTool extends go.DragSelectingTool {
   /**
    * Restore the selection which may have been modified during a drag.
    */
-  public doCancel(): void {
+  public override doCancel(): void {
     const orig = this._originalSelection;
     orig.each(function(p) { p.isSelected = true; });
     this._temporarySelection.each(function(p) { if (!orig.contains(p)) p.isSelected = false; });
@@ -58,7 +58,7 @@ export class RealtimeDragSelectingTool extends go.DragSelectingTool {
   /**
    * Select Parts within the bounds of the drag-select box.
    */
-  public doMouseMove(): void {
+  public override doMouseMove(): void {
     if (this.isActive) {
       super.doMouseMove();
       this.selectInRect(this.computeBoxBounds());
@@ -68,7 +68,7 @@ export class RealtimeDragSelectingTool extends go.DragSelectingTool {
   /**
    * Select Parts within the bounds of the drag-select box.
    */
-  public doKeyDown(): void {
+  public override doKeyDown(): void {
     if (this.isActive) {
       super.doKeyDown();
       this.selectInRect(this.computeBoxBounds());
@@ -78,7 +78,7 @@ export class RealtimeDragSelectingTool extends go.DragSelectingTool {
   /**
    * Select Parts within the bounds of the drag-select box.
    */
-  public doKeyUp(): void {
+  public override doKeyUp(): void {
     if (this.isActive) {
       super.doKeyUp();
       this.selectInRect(this.computeBoxBounds());
@@ -89,7 +89,7 @@ export class RealtimeDragSelectingTool extends go.DragSelectingTool {
    * For a given rectangle, select Parts that are within that rectangle.
    * @param {Rect} r rectangular bounds in document coordinates.
    */
-  public selectInRect(r: go.Rect): void {
+  public override selectInRect(r: go.Rect): void {
     const diagram = this.diagram;
     const orig = this._originalSelection;
     const temp = this._temporarySelection;

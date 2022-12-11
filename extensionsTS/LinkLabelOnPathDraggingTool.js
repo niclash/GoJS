@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,24 +22,25 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.LinkLabelOnPathDraggingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * The LinkLabelOnPathDraggingTool class lets the user move a label on a {@link Link} while keeping the label on the link's path.
      * This tool only works when the Link has a label marked by the "_isLinkLabel" property.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/LinkLabelOnPathDragging.html">Link Label On Path Dragging</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/LinkLabelOnPathDragging.html">Link Label On Path Dragging</a> sample.
      * @category Tool Extension
      */
     var LinkLabelOnPathDraggingTool = /** @class */ (function (_super) {
@@ -51,7 +54,6 @@ var __extends = (this && this.__extends) || (function () {
              * The label being dragged.
              */
             _this.label = null;
-            _this._originalIndex = 0;
             _this._originalFraction = 0.0;
             _this.name = 'LinkLabelOnPathDragging';
             return _this;
@@ -100,7 +102,6 @@ var __extends = (this && this.__extends) || (function () {
             this.startTransaction('Shifted Label');
             this.label = this.findLabel();
             if (this.label !== null) {
-                this._originalIndex = this.label.segmentIndex;
                 this._originalFraction = this.label.segmentFraction;
             }
             _super.prototype.doActivate.call(this);
@@ -124,7 +125,6 @@ var __extends = (this && this.__extends) || (function () {
          */
         LinkLabelOnPathDraggingTool.prototype.doCancel = function () {
             if (this.label !== null) {
-                this.label.segmentIndex = this._originalIndex;
                 this.label.segmentFraction = this._originalFraction;
             }
             _super.prototype.doCancel.call(this);
@@ -149,7 +149,7 @@ var __extends = (this && this.__extends) || (function () {
             this.stopTool();
         };
         /**
-         * Save the label's {@link GraphObject#segmentIndex} and {@link GraphObject#segmentFraction}
+         * Save the label's {@link GraphObject#segmentFraction}
          * at the closest point to the mouse.
          */
         LinkLabelOnPathDraggingTool.prototype.updateSegmentOffset = function () {
@@ -157,18 +157,15 @@ var __extends = (this && this.__extends) || (function () {
             if (lab === null)
                 return;
             var link = lab.part;
-            if (!(link instanceof go.Link))
+            if (!(link instanceof go.Link) || link.path === null)
                 return;
             var last = this.diagram.lastInput.documentPoint;
-            var idx = link.findClosestSegment(last);
-            idx = Math.min(Math.max(link.firstPickIndex, idx), link.lastPickIndex - 1);
-            var p1 = link.getPoint(idx);
-            var p2 = link.getPoint(idx + 1);
-            var total = Math.sqrt(p1.distanceSquaredPoint(p2));
-            var p = last.copy().projectOntoLineSegmentPoint(p1, p2);
-            var frac = Math.sqrt(p1.distanceSquaredPoint(p)) / total;
-            lab.segmentIndex = idx;
-            lab.segmentFraction = frac;
+            // find the fractional distance along the link path closest to this point
+            var path = link.path;
+            if (path.geometry === null)
+                return;
+            var localpt = path.getLocalPoint(last);
+            lab.segmentFraction = path.geometry.getFractionForPoint(localpt);
         };
         return LinkLabelOnPathDraggingTool;
     }(go.Tool));

@@ -1,14 +1,16 @@
 /*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
+*  Copyright (C) 1998-2022 by Northwoods Software Corporation. All Rights Reserved.
 */
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -20,19 +22,20 @@ var __extends = (this && this.__extends) || (function () {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../release/go"], factory);
+        define(["require", "exports", "../release/go.js"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.LinkLabelDraggingTool = void 0;
     /*
     * This is an extension and not part of the main GoJS library.
     * Note that the API for this class may change with any version, even point releases.
     * If you intend to use an extension in production, you should copy the code to your own source directory.
-    * Extensions can be found in the GoJS kit under the extensions or extensionsTS folders.
+    * Extensions can be found in the GoJS kit under the extensions or extensionsJSM folders.
     * See the Extensions intro page (https://gojs.net/latest/intro/extensions.html) for more information.
     */
-    var go = require("../release/go");
+    var go = require("../release/go.js");
     /**
      * The LinkLabelDraggingTool class lets the user move a label on a {@link Link}.
      *
@@ -40,7 +43,7 @@ var __extends = (this && this.__extends) || (function () {
      * that is positioned at the {@link Link#midPoint} plus some offset.
      * It does not work for labels that have a particular {@link GraphObject#segmentIndex}.
      *
-     * If you want to experiment with this extension, try the <a href="../../extensionsTS/LinkLabelDragging.html">Link Label Dragging</a> sample.
+     * If you want to experiment with this extension, try the <a href="../../extensionsJSM/LinkLabelDragging.html">Link Label Dragging</a> sample.
      * @category Tool Extension
      */
     var LinkLabelDraggingTool = /** @class */ (function (_super) {
@@ -166,8 +169,14 @@ var __extends = (this && this.__extends) || (function () {
             var last = this.diagram.lastInput.documentPoint;
             var idx = lab.segmentIndex;
             var numpts = link.pointsCount;
-            // if the label is a "mid" label, assume it is positioned differently from a label at a particular segment
-            if (idx < -numpts || idx >= numpts) {
+            if (isNaN(idx) && link.path) { // handle fractions along the whole path
+                var labpt = link.path.getDocumentPoint(link.geometry.getPointAlongPath(lab.segmentFraction));
+                var angle = link.geometry.getAngleAlongPath(lab.segmentFraction);
+                var p = new go.Point(last.x - this._offset.x - labpt.x, last.y - this._offset.y - labpt.y);
+                lab.segmentOffset = p.rotate(-angle);
+            }
+            else if (idx < -numpts || idx >= numpts) {
+                // if the label is a "mid" label, assume it is positioned differently from a label at a particular segment
                 var mid = link.midPoint;
                 // need to rotate this point to account for the angle of the link segment at the mid-point
                 var p = new go.Point(last.x - this._offset.x - mid.x, last.y - this._offset.y - mid.y);
